@@ -1,0 +1,8 @@
+{
+  "parent": "block/orientable",
+  "textures": {
+    "top": "movingelevators:blocks/elevator",
+    "front": "movingelevators:blocks/elevator",
+    "side": "movingelevators:blocks/elevator"
+  }
+}
