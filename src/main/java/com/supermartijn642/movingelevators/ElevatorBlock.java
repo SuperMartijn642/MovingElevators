@@ -38,7 +38,7 @@ public class ElevatorBlock extends Block {
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
         if(worldIn.isRemote && state.get(FACING) != rayTraceResult.getFace()){
-            Minecraft.getInstance().displayGuiScreen(new ElevatorScreen(pos));
+            ClientProxy.openElevatorScreen(pos);
         }
         else if(!worldIn.isRemote && state.get(FACING) == rayTraceResult.getFace()) {
             TileEntity tile = worldIn.getTileEntity(pos);

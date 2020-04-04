@@ -14,7 +14,7 @@ loaderVersion="[25,)" #mandatory This is typically bumped every Minecraft versio
 # The modid of the mod
 modId="movingelevators" #mandatory
 # The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-version="1.2" #mandatory
+version="1.0.1" #mandatory
  # A display name for the mod
 displayName="Moving Elevators" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>
@@ -28,7 +28,7 @@ logoFile="movingelevators.png" #optional
 # A text field displayed in the mod UI
 authors="SuperMartijn642" #optional
 # The description text for the mod (multi line!) (#mandatory)
-description='''TODO'''
+description='''Moving Elevators allows you to build real moving elevators! These elevator will move you as well as other entities on the platform to multiple floors at the press of a button! The platform can have different sizes and can move at different speeds!'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.examplemod]] #optional
     # the modid of the dependency

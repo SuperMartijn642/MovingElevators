@@ -14,8 +14,8 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 version = '1.0-mc1.15'
-group = 'com.supermartijn642.entangled' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'entangled'
+group = 'com.supermartijn642.movingelevators' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'movingelevators'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
