@@ -30,7 +30,7 @@ authors="SuperMartijn642" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''Moving Elevators allows you to build real moving elevators! These elevator will move you as well as other entities on the platform to multiple floors at the press of a button! The platform can have different sizes and can move at different speeds!'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.examplemod]] #optional
+[[dependencies.movingelevators]] #optional
     # the modid of the dependency
     modId="forge" #mandatory
     # Does this dependency have to exist - if not, ordering below must be specified
@@ -42,7 +42,7 @@ description='''Moving Elevators allows you to build real moving elevators! These
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
     side="BOTH"
 # Here's another dependency
-[[dependencies.examplemod]]
+[[dependencies.movingelevators]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.15,)"
