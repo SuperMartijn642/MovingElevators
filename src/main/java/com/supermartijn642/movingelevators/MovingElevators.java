@@ -21,7 +21,7 @@ import net.minecraftforge.registries.ObjectHolder;
 @Mod("movingelevators")
 public class MovingElevators {
 
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("movingelevators","main"),() -> "1","1"::equals,"1"::equals);
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("movingelevators", "main"), () -> "1", "1"::equals, "1"::equals);
 
     @ObjectHolder("movingelevators:elevator_block")
     public static ElevatorBlock elevator_block;
@@ -29,8 +29,8 @@ public class MovingElevators {
     public static TileEntityType<ElevatorBlockTile> elevator_tile;
 
     public MovingElevators(){
-        CHANNEL.registerMessage(0, PacketElevatorSize.class,PacketElevatorSize::encode,PacketElevatorSize::decode,PacketElevatorSize::handle);
-        CHANNEL.registerMessage(1, PacketElevatorSpeed.class,PacketElevatorSpeed::encode,PacketElevatorSpeed::decode,PacketElevatorSpeed::handle);
+        CHANNEL.registerMessage(0, PacketElevatorSize.class, PacketElevatorSize::encode, PacketElevatorSize::decode, PacketElevatorSize::handle);
+        CHANNEL.registerMessage(1, PacketElevatorSpeed.class, PacketElevatorSpeed::encode, PacketElevatorSpeed::decode, PacketElevatorSpeed::handle);
     }
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)

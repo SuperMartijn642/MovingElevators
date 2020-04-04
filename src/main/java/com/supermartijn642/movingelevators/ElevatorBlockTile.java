@@ -19,7 +19,6 @@ import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Created 3/29/2020 by SuperMartijn642
@@ -54,12 +53,11 @@ public class ElevatorBlockTile extends TileEntity implements ITickableTileEntity
             }else{
                 this.currentY += Math.signum(this.targetY - this.currentY) * speed;
                 this.moveElevator(this.lastY, this.currentY);
-
             }
-        } else if(this.nextSize != this.size) {
+        }else if(this.nextSize != this.size){
             this.size = this.nextSize;
             this.platform = new BlockState[this.size][this.size];
-            this.world.notifyBlockUpdate(this.pos,this.getBlockState(),this.getBlockState(),2);
+            this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
         }
     }
 
@@ -69,12 +67,12 @@ public class ElevatorBlockTile extends TileEntity implements ITickableTileEntity
 
         AxisAlignedBB box = new AxisAlignedBB(x, oldY - speed * 10, z, x + this.size, oldY + speed * 20, z + this.size);
 
-        List<LivingEntity> entities = this.world.getEntitiesWithinAABB((EntityType<LivingEntity>)null, box, (Predicate<Entity>)(entity -> entity instanceof LivingEntity));
+        List<Entity> entities = this.world.getEntitiesWithinAABB((EntityType<?>)null, box, entity -> entity instanceof LivingEntity);
 
-        for(LivingEntity entity : entities){
+        for(Entity entity : entities){
             if(newY < oldY && entity.hasNoGravity())
                 continue;
-            entity.setPosition(entity.getPosX(), newY + 1, entity.getPosZ());
+            entity.setPosition(entity.posX, newY + 1, entity.posZ);
             entity.onGround = true;
             entity.fallDistance = 0;
             entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);

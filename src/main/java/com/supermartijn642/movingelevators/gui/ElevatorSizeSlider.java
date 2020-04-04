@@ -1,45 +1,31 @@
 package com.supermartijn642.movingelevators.gui;
 
-import net.minecraftforge.fml.client.gui.widget.Slider;
+import net.minecraft.client.gui.widget.AbstractSlider;
+
+import java.util.function.Consumer;
 
 /**
  * Created 4/3/2020 by SuperMartijn642
  */
-public class ElevatorSizeSlider extends Slider {
+public class ElevatorSizeSlider extends AbstractSlider {
 
-    public ElevatorSizeSlider(int xPos, int yPos, int width, int height, int currentVal, ISlider slider){
-        super(xPos, yPos, width, height, "Platform size: ", " blocks", 0, 4, (currentVal - 1) / 2, false, true, b -> {}, slider);
-        int val = (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
-        precision = 0;
-        setMessage(dispString + val + "x" + val + suffix);
+    private final Consumer<ElevatorSizeSlider> onChange;
+
+    public ElevatorSizeSlider(int xIn, int yIn, int widthIn, int heightIn, int currentValue, Consumer<ElevatorSizeSlider> onChange){
+        super(null, xIn, yIn, widthIn, heightIn, (currentValue - 1) / 2 / 4f);
+        this.onChange = onChange;
+        this.updateMessage();
     }
 
-    @Override
-    public void updateSlider(){
-        if(this.sliderValue < 0.0F){
-            this.sliderValue = 0.0F;
-        }
-
-        if(this.sliderValue > 1.0F){
-            this.sliderValue = 1.0F;
-        }
-
-        int val = (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
-
-        setMessage(dispString + val + "x" + val + suffix);
-
-        if(parent != null){
-            parent.onChangeSliderValue(this);
-        }
+    protected void applyValue(){
+        this.onChange.accept(this);
     }
 
-    @Override
-    public double getValue(){
-        return this.getValueInt();
+    protected void updateMessage(){
+        this.setMessage("Platform size: " + this.getValue() + "x" + this.getValue() + " blocks");
     }
 
-    @Override
-    public int getValueInt(){
-        return (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
+    public int getValue(){
+        return (int)Math.round(this.value * 4) * 2 + 1;
     }
 }

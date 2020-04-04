@@ -1,49 +1,33 @@
 package com.supermartijn642.movingelevators.gui;
 
-import net.minecraftforge.fml.client.gui.widget.Slider;
+import net.minecraft.client.gui.widget.AbstractSlider;
+
+import java.util.function.Consumer;
 
 /**
  * Created 4/3/2020 by SuperMartijn642
  */
-public class ElevatorSpeedSlider extends Slider {
+public class ElevatorSpeedSlider extends AbstractSlider {
 
-    private int min = 1, max = 10;
+    private static final int MIN = 1, MAX = 10;
+    private final Consumer<ElevatorSpeedSlider> onChange;
 
-    public ElevatorSpeedSlider(int xPos, int yPos, int width, int height, double currentVal, ISlider slider){
-        super(xPos, yPos, width, height, "", "", 0.1, 1, currentVal, false, true, b -> {}, slider);
-
-        float val = ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
-        this.precision = 0;
-        setMessage("Platform speed: " + val + " blocks/t");
+    public ElevatorSpeedSlider(int xIn, int yIn, int widthIn, int heightIn, double currentValue, Consumer<ElevatorSpeedSlider> onChange){
+        super(null, xIn, yIn, widthIn, heightIn, ((int)(currentValue * 10) - MIN) / (double)(MAX - MIN));
+        this.onChange = onChange;
+        this.updateMessage();
     }
 
-    @Override
-    public void updateSlider(){
-        if(this.sliderValue < 0.0F){
-            this.sliderValue = 0.0F;
-        }
-
-        if(this.sliderValue > 1.0F){
-            this.sliderValue = 1.0F;
-        }
-
-        float val = ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
-
-        setMessage("Platform speed: " + val + " blocks/t");
-
-        if(parent != null){
-            parent.onChangeSliderValue(this);
-        }
+    protected void applyValue(){
+        this.onChange.accept(this);
     }
 
-    @Override
+    protected void updateMessage(){
+        this.setMessage("Platform speed: " + this.getValue() + " blocks/t");
+    }
+
     public double getValue(){
-        return ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
-    }
-
-    @Override
-    public int getValueInt(){
-        return ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min);
+        return ((int)Math.round(this.value * (MAX - MIN)) + MIN) / 10d;
     }
 
 }

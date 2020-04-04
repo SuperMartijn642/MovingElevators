@@ -1,16 +1,13 @@
 package com.supermartijn642.movingelevators;
 
-import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -36,11 +33,10 @@ public class ElevatorBlock extends Block {
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
+    public boolean onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
         if(worldIn.isRemote && state.get(FACING) != rayTraceResult.getFace()){
             ClientProxy.openElevatorScreen(pos);
-        }
-        else if(!worldIn.isRemote && state.get(FACING) == rayTraceResult.getFace()) {
+        }else if(!worldIn.isRemote && state.get(FACING) == rayTraceResult.getFace()){
             TileEntity tile = worldIn.getTileEntity(pos);
             if(tile instanceof ElevatorBlockTile){
                 ElevatorBlockTile elevator = (ElevatorBlockTile)tile;
@@ -50,7 +46,7 @@ public class ElevatorBlock extends Block {
                 }
             }
         }
-        return ActionResultType.SUCCESS;
+        return true;
     }
 
     @Nullable
@@ -88,5 +84,10 @@ public class ElevatorBlock extends Block {
                 ((ElevatorBlockTile)tile).onBreak(state.get(FACING));
         }
         super.onReplaced(state, worldIn, pos, newState, isMoving);
+    }
+
+    @Override
+    public BlockRenderType getRenderType(BlockState state){
+        return BlockRenderType.MODEL;
     }
 }

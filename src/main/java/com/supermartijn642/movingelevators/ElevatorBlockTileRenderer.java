@@ -1,84 +1,68 @@
 package com.supermartijn642.movingelevators;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.client.model.data.EmptyModelData;
 import org.lwjgl.opengl.GL11;
+
+import java.util.Random;
 
 /**
  * Created 3/29/2020 by SuperMartijn642
  */
 public class ElevatorBlockTileRenderer extends TileEntityRenderer<ElevatorBlockTile> {
 
-    private static final RenderType TYPE;
-
-    static{
-        RenderType.State state = RenderType.State.getBuilder().transparency(new RenderState.TransparencyState("translucent_transparency", () -> {
-            RenderSystem.enableBlend();
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            RenderSystem.enableAlphaTest();
-        }, () -> {
-            RenderSystem.disableBlend();
-            RenderSystem.disableAlphaTest();
-        })).texture(new RenderState.TextureState(new ResourceLocation("movingelevators", "textures/blocks/buttons.png"), false, false)).build(false);
-        TYPE = RenderType.makeType("movingelevators_texture_quad", DefaultVertexFormats.POSITION_TEX, GL11.GL_QUADS, 256, false, true, state);
-    }
-
-    public ElevatorBlockTileRenderer(TileEntityRendererDispatcher rendererDispatcherIn){
-        super(rendererDispatcherIn);
+    public ElevatorBlockTileRenderer(){
+        super();
     }
 
     @Override
-    public void render(ElevatorBlockTile tileEntityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn){
+    public void render(ElevatorBlockTile tileEntityIn, double x, double y, double z, float partialTicks, int destroyStage){
         if(tileEntityIn == null || tileEntityIn.getWorld() == null)
             return;
 
-//        System.out.println("rendering at y: " + tileEntityIn.getPos().getY());
-
-        // render camouflage
-//        Block block = tileEntityIn.getCamoBlock();
-//        if(block != null){
-//            matrixStackIn.push();
-//
-//            matrixStackIn.translate(-0.001,-0.001,-0.001);
-//            matrixStackIn.scale(1.002f,1.002f,1.002f);
-//
-//            int light = WorldRenderer.getCombinedLight(tileEntityIn.getWorld(),tileEntityIn.getPos().offset(tileEntityIn.getFacing()));
-//
-//            Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(block.getDefaultState(), matrixStackIn, bufferIn, light, combinedOverlayIn);
-//
-//            matrixStackIn.pop();
-//        }
-
         // render buttons
-        matrixStackIn.push();
+        GlStateManager.pushMatrix();
 
-        matrixStackIn.translate(0.5, 0.5, 0.5);
-        matrixStackIn.rotate(new Quaternion(0, 180 - tileEntityIn.getFacing().getHorizontalAngle(), 0, true));
-        matrixStackIn.translate(-0.501, -0.501, -0.501);
+        GlStateManager.translated(x, y, z);
 
-        Matrix4f matrix = matrixStackIn.getLast().getMatrix();
-        IVertexBuilder builder = bufferIn.getBuffer(TYPE);
+        GlStateManager.translated(0.5, 0.5, 0.5);
+        GlStateManager.rotated(180 - tileEntityIn.getFacing().getHorizontalAngle(), 0, 1, 0);
+        GlStateManager.translated(-0.501, -0.501, -0.501);
 
-        builder.pos(matrix, 0, 0, 0).tex(1, 1).endVertex();
-        builder.pos(matrix, 0, 1, 0).tex(1, 0).endVertex();
-        builder.pos(matrix, 1, 1, 0).tex(0, 0).endVertex();
-        builder.pos(matrix, 1, 0, 0).tex(0, 1).endVertex();
+        Minecraft.getInstance().getTextureManager().bindTexture(new ResourceLocation("movingelevators", "textures/blocks/buttons.png"));
 
-        matrixStackIn.pop();
+        int i = Minecraft.getInstance().world.getCombinedLight(tileEntityIn.getPos().offset(tileEntityIn.getFacing()), 0);
+        int j = i % 65536;
+        int k = i / 65536;
+        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)j, (float)k);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder builder = tessellator.getBuffer();
+
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+
+        GlStateManager.disableLighting();
+
+        builder.pos(0, 0, 0).tex(1, 1).endVertex();
+        builder.pos(0, 1, 0).tex(1, 0).endVertex();
+        builder.pos(1, 1, 0).tex(0, 0).endVertex();
+        builder.pos(1, 0, 0).tex(0, 1).endVertex();
+
+        tessellator.draw();
+
+        GlStateManager.popMatrix();
 
         if(!tileEntityIn.isMoving())
             return;
@@ -87,24 +71,40 @@ public class ElevatorBlockTileRenderer extends TileEntityRenderer<ElevatorBlockT
         BlockState[][] state = tileEntityIn.getPlatform();
         int size = tileEntityIn.getSize();
         double lastY = tileEntityIn.getLastY(), currentY = tileEntityIn.getCurrentY();
-        double y = lastY + (currentY - lastY) * partialTicks - tileEntityIn.getPos().getY();
+        double renderY = lastY + (currentY - lastY) * partialTicks;
         int startX = tileEntityIn.getFacing().getXOffset() * (int)Math.ceil(size / 2f) - size / 2;
         int startZ = tileEntityIn.getFacing().getZOffset() * (int)Math.ceil(size / 2f) - size / 2;
 
-        BlockPos topPos = tileEntityIn.getPos().offset(tileEntityIn.getFacing(),(int)Math.ceil(size / 2f)).add(0,y,0);
-        int currentLight = WorldRenderer.getCombinedLight(tileEntityIn.getWorld(),topPos);
-//        int lastLight = WorldRenderer.getCombinedLight(tileEntityIn.getWorld(),topPos.down());
-//        int light = (int)(lastLight + (currentLight - lastLight) * (y % 1));
+        for(int platformX = 0; platformX < size; platformX++){
+            for(int platformZ = 0; platformZ < size; platformZ++){
+                BlockPos pos = tileEntityIn.getPos().add(startX + platformX, renderY, startZ + platformZ);
 
-        for(int x = 0; x < size; x++){
-            for(int z = 0; z < size; z++){
-                matrixStackIn.push();
+                GlStateManager.pushMatrix();
 
-                matrixStackIn.translate(startX + x, y, startZ + z);
+                GlStateManager.translated(x, y, z);
+                GlStateManager.translated(0, renderY - pos.getY(), 0);
 
-                Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(state[x][z], matrixStackIn, bufferIn, currentLight, combinedOverlayIn);
+                tessellator = Tessellator.getInstance();
+                BufferBuilder buffer = tessellator.getBuffer();
+                buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
-                matrixStackIn.pop();
+                GlStateManager.disableLighting();
+
+                Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+
+                try{
+                    BlockRendererDispatcher brd = Minecraft.getInstance().getBlockRendererDispatcher();
+                    IBakedModel model = brd.getModelForState(state[platformX][platformZ]);
+                    brd.getBlockModelRenderer().renderModel(tileEntityIn.getWorld(), model, state[platformX][platformZ], pos, buffer, false, new Random(), 0, EmptyModelData.INSTANCE);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+
+                GlStateManager.translated(-tileEntityIn.getPos().getX(), -tileEntityIn.getPos().getY(), -tileEntityIn.getPos().getZ());
+
+                tessellator.draw();
+
+                GlStateManager.popMatrix();
             }
         }
     }
