@@ -76,11 +76,6 @@ public class ElevatorBlock extends Block {
     }
 
     @Override
-    public void onPlayerDestroy(IWorld worldIn, BlockPos pos, BlockState state){
-        super.onPlayerDestroy(worldIn, pos, state);
-    }
-
-    @Override
     public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving){
         if(state.getBlock() != newState.getBlock()){
             TileEntity tile = worldIn.getTileEntity(pos);

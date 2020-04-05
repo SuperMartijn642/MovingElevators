@@ -47,11 +47,6 @@ public class ElevatorScreen extends Screen {
     }
 
     @Override
-    public void removed(){
-        super.removed();
-    }
-
-    @Override
     public void render(int p_render_1_, int p_render_2_, float p_render_3_){
         this.renderBackground();
         super.render(p_render_1_, p_render_2_, p_render_3_);
