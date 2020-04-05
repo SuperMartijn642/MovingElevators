@@ -1,12 +1,16 @@
 package com.supermartijn642.movingelevators.gui;
 
 import com.supermartijn642.movingelevators.ElevatorBlockTile;
+import com.supermartijn642.movingelevators.MovingElevators;
+import com.supermartijn642.movingelevators.packets.PacketElevatorSize;
+import com.supermartijn642.movingelevators.packets.PacketElevatorSpeed;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 /**
  * Created 4/3/2020 by SuperMartijn642
@@ -27,12 +31,12 @@ public class ElevatorScreen extends GuiScreen {
         int width = 150;
         int height = 20;
         final BlockPos pos = tile.getPos();
-//        this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getSize(), slider -> {
-//            MovingElevators.CHANNEL.sendToServer(new PacketElevatorSize(pos, slider.getValue()));
-//        }));
-//        this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getSpeed(), slider -> {
-//            MovingElevators.CHANNEL.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
-//        }));
+        this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getSize(), slider -> {
+            MovingElevators.channel.sendToServer(new PacketElevatorSize(pos, slider.getValue()));
+        }));
+        this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getSpeed(), slider -> {
+            MovingElevators.channel.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
+        }));
     }
 
     @Override

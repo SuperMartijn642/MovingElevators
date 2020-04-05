@@ -33,6 +33,6 @@ public class ClientProxy extends CommonProxy {
     }
 
     public static void openElevatorScreen(BlockPos pos){
-//        Minecraft.getMinecraft().displayGuiScreen(new ElevatorScreen(pos));
+        Minecraft.getMinecraft().displayGuiScreen(new ElevatorScreen(pos));
     }
 }
