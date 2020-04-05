@@ -5,6 +5,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -65,12 +66,12 @@ public class ElevatorBlockTile extends TileEntity implements ITickable {
         int x = this.pos.getX() + this.getFacing().getFrontOffsetX() * (int)Math.ceil(size / 2f) - size / 2;
         int z = this.pos.getZ() + this.getFacing().getFrontOffsetZ() * (int)Math.ceil(size / 2f) - size / 2;
 
-        AxisAlignedBB box = new AxisAlignedBB(x, oldY - speed * 10, z, x + this.size, oldY + speed * 20, z + this.size);
+        AxisAlignedBB box = new AxisAlignedBB(x, Math.min(oldY,newY), z, x + this.size, Math.max(oldY,newY) + 1 + 2 * this.speed, z + this.size);
 
         List<EntityLivingBase> entities = this.world.getEntitiesWithinAABB(EntityLivingBase.class, box, entity -> entity instanceof EntityLivingBase);
 
         for(Entity entity : entities){
-            if(newY < oldY && entity.hasNoGravity())
+            if((newY < oldY && entity.hasNoGravity()) || (entity instanceof EntityPlayer && entity.motionY >= 0 && entity.posY > Math.min(oldY,newY) + 1))
                 continue;
             entity.setPosition(entity.posX, newY + 1, entity.posZ);
             entity.onGround = true;
