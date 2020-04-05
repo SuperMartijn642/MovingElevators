@@ -67,7 +67,7 @@ public class ElevatorBlockTile extends TileEntity implements ITickableTileEntity
         int x = this.pos.getX() + this.getFacing().getXOffset() * (int)Math.ceil(size / 2f) - size / 2;
         int z = this.pos.getZ() + this.getFacing().getZOffset() * (int)Math.ceil(size / 2f) - size / 2;
 
-        AxisAlignedBB box = new AxisAlignedBB(x, oldY - speed * 10, z, x + this.size, oldY + speed * 20, z + this.size);
+        AxisAlignedBB box = new AxisAlignedBB(x, Math.min(oldY,newY), z, x + this.size, Math.max(oldY,newY) + 1.2, z + this.size);
 
         List<LivingEntity> entities = this.world.getEntitiesWithinAABB((EntityType<LivingEntity>)null, box, (Predicate<Entity>)(entity -> entity instanceof LivingEntity));
 
