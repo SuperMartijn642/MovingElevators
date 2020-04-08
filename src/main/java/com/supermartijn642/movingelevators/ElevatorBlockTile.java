@@ -113,7 +113,7 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
 
     protected void handleDataTag(CompoundNBT tag){
         super.handleDataTag(tag);
-        if(tag.contains("targetY")){ // for older versions
+        if(tag.contains("moving") && tag.getBoolean("moving")){ // for older versions
             if(this.group == null)
                 this.group = new ElevatorGroup(this.world, this.pos.getX(), this.pos.getZ(), this.facing);
             this.group.read(tag);

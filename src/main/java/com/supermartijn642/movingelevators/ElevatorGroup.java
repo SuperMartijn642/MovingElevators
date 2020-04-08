@@ -224,11 +224,13 @@ public class ElevatorGroup {
     public void remove(int y){
         this.floors.remove((Integer)y);
         if(this.floors.isEmpty()){
-            BlockPos spawnPos = this.getPos(y).offset(this.facing, this.size / 2 + 1);
-            for(BlockState[] arr : this.platform){
-                for(BlockState state : arr){
-                    ItemEntity entity = new ItemEntity(this.world, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, new ItemStack(state.getBlock()));
-                    this.world.addEntity(entity);
+            if(this.isMoving){
+                BlockPos spawnPos = this.getPos(y).offset(this.facing, this.size / 2 + 1);
+                for(BlockState[] arr : this.platform){
+                    for(BlockState state : arr){
+                        ItemEntity entity = new ItemEntity(this.world, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, new ItemStack(state.getBlock()));
+                        this.world.addEntity(entity);
+                    }
                 }
             }
         }else if(!this.world.isRemote){
