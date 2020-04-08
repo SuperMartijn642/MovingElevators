@@ -29,7 +29,7 @@ public class PacketElevatorSpeed {
     }
 
     public static PacketElevatorSpeed decode(PacketBuffer buffer){
-        return new PacketElevatorSpeed(buffer.readBlockPos(),buffer.readDouble());
+        return new PacketElevatorSpeed(buffer.readBlockPos(), buffer.readDouble());
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
@@ -43,7 +43,7 @@ public class PacketElevatorSpeed {
         TileEntity tile = world.getTileEntity(this.pos);
         if(!(tile instanceof ElevatorBlockTile))
             return;
-        context.enqueueWork(() -> ((ElevatorBlockTile)tile).setSpeed(this.speed));
+        context.enqueueWork(() -> ((ElevatorBlockTile)tile).getGroup().setSpeed(this.speed));
     }
 
 }

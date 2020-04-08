@@ -21,16 +21,20 @@ import net.minecraftforge.registries.ObjectHolder;
 @Mod("movingelevators")
 public class MovingElevators {
 
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("movingelevators","main"),() -> "1","1"::equals,"1"::equals);
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("movingelevators", "main"), () -> "1", "1"::equals, "1"::equals);
 
     @ObjectHolder("movingelevators:elevator_block")
     public static ElevatorBlock elevator_block;
     @ObjectHolder("movingelevators:elevator_tile")
     public static TileEntityType<ElevatorBlockTile> elevator_tile;
+    @ObjectHolder("movingelevators:display_block")
+    public static DisplayBlock display_block;
+    @ObjectHolder("movingelevators:display_tile")
+    public static TileEntityType<METile> display_tile;
 
     public MovingElevators(){
-        CHANNEL.registerMessage(0, PacketElevatorSize.class,PacketElevatorSize::encode,PacketElevatorSize::decode,PacketElevatorSize::handle);
-        CHANNEL.registerMessage(1, PacketElevatorSpeed.class,PacketElevatorSpeed::encode,PacketElevatorSpeed::decode,PacketElevatorSpeed::handle);
+        CHANNEL.registerMessage(0, PacketElevatorSize.class, PacketElevatorSize::encode, PacketElevatorSize::decode, PacketElevatorSize::handle);
+        CHANNEL.registerMessage(1, PacketElevatorSpeed.class, PacketElevatorSpeed::encode, PacketElevatorSpeed::decode, PacketElevatorSpeed::handle);
     }
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -38,16 +42,19 @@ public class MovingElevators {
         @SubscribeEvent
         public static void onBlockRegistry(final RegistryEvent.Register<Block> e){
             e.getRegistry().register(new ElevatorBlock());
+            e.getRegistry().register(new DisplayBlock());
         }
 
         @SubscribeEvent
         public static void onTileRegistry(final RegistryEvent.Register<TileEntityType<?>> e){
             e.getRegistry().register(TileEntityType.Builder.create(ElevatorBlockTile::new, elevator_block).build(null).setRegistryName("elevator_tile"));
+            e.getRegistry().register(TileEntityType.Builder.create(() -> new METile(MovingElevators.display_tile), display_block).build(null).setRegistryName("display_tile"));
         }
 
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> e){
             e.getRegistry().register(new BlockItem(elevator_block, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("elevator_block"));
+            e.getRegistry().register(new BlockItem(display_block, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("display_block"));
         }
     }
 }

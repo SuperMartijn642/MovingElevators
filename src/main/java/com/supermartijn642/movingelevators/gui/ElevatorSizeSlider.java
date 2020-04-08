@@ -8,7 +8,8 @@ import net.minecraftforge.fml.client.gui.widget.Slider;
 public class ElevatorSizeSlider extends Slider {
 
     public ElevatorSizeSlider(int xPos, int yPos, int width, int height, int currentVal, ISlider slider){
-        super(xPos, yPos, width, height, "Platform size: ", " blocks", 0, 4, (currentVal - 1) / 2, false, true, b -> {}, slider);
+        super(xPos, yPos, width, height, "Platform size: ", " blocks", 0, 4, (currentVal - 1) / 2, false, true, b -> {
+        }, slider);
         int val = (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
         precision = 0;
         setMessage(dispString + val + "x" + val + suffix);

@@ -1,4 +1,6 @@
 {
   "block.movingelevators.elevator_block": "Elevator Controller",
-  "gui.movingelevators.title": "Elevator"
+  "block.movingelevators.display_block": "Elevator Display",
+  "gui.movingelevators.title": "Elevator",
+  "movingelevators.floorname": "Floor $number$"
 }

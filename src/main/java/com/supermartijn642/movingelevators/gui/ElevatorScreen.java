@@ -11,7 +11,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.client.gui.widget.Slider;
 
 /**
  * Created 4/3/2020 by SuperMartijn642
@@ -33,10 +32,10 @@ public class ElevatorScreen extends Screen {
         int width = 150;
         int height = 20;
         final BlockPos pos = tile.getPos();
-        this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getSize(), slider -> {
+        this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSize(), slider -> {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSize(pos, slider.getValueInt()));
         }));
-        this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getSpeed(), slider -> {
+        this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSpeed(), slider -> {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
         }));
     }

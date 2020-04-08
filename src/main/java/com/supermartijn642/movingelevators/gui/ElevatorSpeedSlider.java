@@ -10,7 +10,8 @@ public class ElevatorSpeedSlider extends Slider {
     private int min = 1, max = 10;
 
     public ElevatorSpeedSlider(int xPos, int yPos, int width, int height, double currentVal, ISlider slider){
-        super(xPos, yPos, width, height, "", "", 0.1, 1, currentVal, false, true, b -> {}, slider);
+        super(xPos, yPos, width, height, "", "", 0.1, 1, currentVal, false, true, b -> {
+        }, slider);
 
         float val = ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
         this.precision = 0;
