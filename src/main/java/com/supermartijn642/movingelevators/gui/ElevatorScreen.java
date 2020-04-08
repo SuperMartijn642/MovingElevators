@@ -31,10 +31,10 @@ public class ElevatorScreen extends GuiScreen {
         int width = 150;
         int height = 20;
         final BlockPos pos = tile.getPos();
-        this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getSize(), slider -> {
+        this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSize(), slider -> {
             MovingElevators.channel.sendToServer(new PacketElevatorSize(pos, slider.getValue()));
         }));
-        this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getSpeed(), slider -> {
+        this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSpeed(), slider -> {
             MovingElevators.channel.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
         }));
     }

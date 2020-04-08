@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.function.Consumer;
@@ -26,19 +27,19 @@ public class ElevatorSpeedSlider extends GuiButton {
     }
 
     protected void updateMessage(){
-        this.displayString = "Platform speed: " + this.getValue() + " blocks/t";
+        this.displayString = I18n.format("movingelevators.platform.speed").replace("$number$",Double.toString(this.getValue()));
     }
 
-    public float getValue(){
+    public double getValue(){
         return denormalize(this.sliderValue);
     }
 
-    private static float normalize(float value){
+    private static float normalize(double value){
         return ((int)(value * 10) - MIN) / (float)(MAX - MIN);
     }
 
-    private static float denormalize(float value){
-        return (Math.round(value * (MAX - MIN)) + MIN) / 10f;
+    private static double denormalize(float value){
+        return (Math.round(value * (MAX - MIN)) + MIN) / 10d;
     }
 
     /**

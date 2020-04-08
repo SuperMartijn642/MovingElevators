@@ -19,10 +19,13 @@ public class CommonProxy {
     public static void registerBlocks(RegistryEvent.Register<Block> e){
         e.getRegistry().register(new ElevatorBlock());
         GameRegistry.registerTileEntity(ElevatorBlockTile.class, new ResourceLocation(MovingElevators.MODID, "elevatorblocktile"));
+        e.getRegistry().register(new DisplayBlock());
+        GameRegistry.registerTileEntity(METile.class, new ResourceLocation(MovingElevators.MODID, "displayblocktile"));
     }
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> e){
         e.getRegistry().register(new ItemBlock(MovingElevators.elevator_block).setRegistryName(MovingElevators.elevator_block.getRegistryName()));
+        e.getRegistry().register(new ItemBlock(MovingElevators.display_block).setRegistryName(MovingElevators.display_block.getRegistryName()));
     }
 }

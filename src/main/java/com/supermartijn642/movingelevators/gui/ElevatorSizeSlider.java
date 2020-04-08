@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.function.Consumer;
@@ -24,7 +25,8 @@ public class ElevatorSizeSlider extends GuiButton {
     }
 
     protected void updateMessage(){
-        this.displayString = "Platform size: " + this.getValue() + "x" + this.getValue() + " blocks";
+        int val = this.getValue();
+        this.displayString = I18n.format("movingelevators.platform.size").replace("$number$",val + "x" + val);
     }
 
     public int getValue(){

@@ -53,7 +53,7 @@ public class PacketElevatorSize implements IMessage, IMessageHandler<PacketEleva
         TileEntity tile = world.getTileEntity(message.pos);
         if(!(tile instanceof ElevatorBlockTile))
             return null;
-        player.getServer().addScheduledTask(() -> ((ElevatorBlockTile)tile).setSize(message.size));
+        player.getServer().addScheduledTask(() -> ((ElevatorBlockTile)tile).getGroup().setSize(message.size));
         return null;
     }
 }

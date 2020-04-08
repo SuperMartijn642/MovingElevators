@@ -51,7 +51,7 @@ public class PacketElevatorSpeed implements IMessage, IMessageHandler<PacketElev
         TileEntity tile = world.getTileEntity(message.pos);
         if(!(tile instanceof ElevatorBlockTile))
             return null;
-        player.getServer().addScheduledTask(() -> ((ElevatorBlockTile)tile).setSpeed(message.speed));
+        player.getServer().addScheduledTask(() -> ((ElevatorBlockTile)tile).getGroup().setSpeed(message.speed));
         return null;
     }
 
