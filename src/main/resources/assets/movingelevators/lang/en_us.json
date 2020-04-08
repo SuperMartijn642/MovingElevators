@@ -2,5 +2,7 @@
   "block.movingelevators.elevator_block": "Elevator Controller",
   "block.movingelevators.display_block": "Elevator Display",
   "gui.movingelevators.title": "Elevator",
+  "movingelevators.platform.size": "Platform size: $number$ blocks",
+  "movingelevators.platform.speed": "Platform speed: $number$ blocks/t",
   "movingelevators.floorname": "Floor $number$"
 }

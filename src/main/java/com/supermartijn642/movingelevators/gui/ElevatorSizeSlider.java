@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.client.gui.widget.Slider;
 
 /**
@@ -8,11 +9,11 @@ import net.minecraftforge.fml.client.gui.widget.Slider;
 public class ElevatorSizeSlider extends Slider {
 
     public ElevatorSizeSlider(int xPos, int yPos, int width, int height, int currentVal, ISlider slider){
-        super(xPos, yPos, width, height, "Platform size: ", " blocks", 0, 4, (currentVal - 1) / 2, false, true, b -> {
+        super(xPos, yPos, width, height, "", "", 0, 4, (currentVal - 1) / 2, false, true, b -> {
         }, slider);
         int val = (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
         precision = 0;
-        setMessage(dispString + val + "x" + val + suffix);
+        setMessage(I18n.format("movingelevators.platform.size").replace("$number$",val + "x" + val));
     }
 
     @Override
@@ -27,7 +28,7 @@ public class ElevatorSizeSlider extends Slider {
 
         int val = (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
 
-        setMessage(dispString + val + "x" + val + suffix);
+        setMessage(I18n.format("movingelevators.platform.size").replace("$number$",val + "x" + val));
 
         if(parent != null){
             parent.onChangeSliderValue(this);

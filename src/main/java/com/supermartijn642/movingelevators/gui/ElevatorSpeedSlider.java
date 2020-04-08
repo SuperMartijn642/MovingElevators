@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.client.gui.widget.Slider;
 
 /**
@@ -15,7 +16,7 @@ public class ElevatorSpeedSlider extends Slider {
 
         float val = ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
         this.precision = 0;
-        setMessage("Platform speed: " + val + " blocks/t");
+        setMessage(I18n.format("movingelevators.platform.speed").replace("$number$",Float.toString(val)));
     }
 
     @Override
@@ -30,7 +31,7 @@ public class ElevatorSpeedSlider extends Slider {
 
         float val = ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
 
-        setMessage("Platform speed: " + val + " blocks/t");
+        setMessage(I18n.format("movingelevators.platform.speed").replace("$number$",Float.toString(val)));
 
         if(parent != null){
             parent.onChangeSliderValue(this);
