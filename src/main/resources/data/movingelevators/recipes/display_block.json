@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     "IRI",
-    "IOI",
-    "IPI"
+    "ISI",
+    "IRI"
   ],
   "key": {
     "I": {
@@ -12,14 +12,11 @@
     "R": {
       "item": "minecraft:redstone"
     },
-    "P": {
-      "item": "minecraft:piston"
-    },
-    "O": {
-      "item": "minecraft:observer"
+    "S": {
+      "item": "minecraft:stone"
     }
   },
   "result": {
-    "item": "movingelevators:elevator_block"
+    "item": "movingelevators:display_block"
   }
 }

@@ -29,7 +29,7 @@ public class PacketElevatorSize {
     }
 
     public static PacketElevatorSize decode(PacketBuffer buffer){
-        return new PacketElevatorSize(buffer.readBlockPos(),buffer.readInt());
+        return new PacketElevatorSize(buffer.readBlockPos(), buffer.readInt());
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
@@ -43,7 +43,7 @@ public class PacketElevatorSize {
         TileEntity tile = world.getTileEntity(this.pos);
         if(!(tile instanceof ElevatorBlockTile))
             return;
-        context.enqueueWork(() -> ((ElevatorBlockTile)tile).setSize(this.size));
+        context.enqueueWork(() -> ((ElevatorBlockTile)tile).getGroup().setSize(this.size));
     }
 
 }

@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.gui;
 
 import net.minecraft.client.gui.widget.AbstractSlider;
+import net.minecraft.client.resources.I18n;
 
 import java.util.function.Consumer;
 
@@ -23,7 +24,7 @@ public class ElevatorSpeedSlider extends AbstractSlider {
     }
 
     protected void updateMessage(){
-        this.setMessage("Platform speed: " + this.getValue() + " blocks/t");
+        this.setMessage(I18n.format("movingelevators.platform.speed").replace("$number$",Double.toString(this.getValue())));
     }
 
     public double getValue(){

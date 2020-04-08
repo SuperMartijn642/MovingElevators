@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.gui;
 
 import net.minecraft.client.gui.widget.AbstractSlider;
+import net.minecraft.client.resources.I18n;
 
 import java.util.function.Consumer;
 
@@ -22,7 +23,8 @@ public class ElevatorSizeSlider extends AbstractSlider {
     }
 
     protected void updateMessage(){
-        this.setMessage("Platform size: " + this.getValue() + "x" + this.getValue() + " blocks");
+        int val = this.getValue();
+        this.setMessage(I18n.format("movingelevators.platform.size").replace("$number$",val + "x" + val));
     }
 
     public int getValue(){

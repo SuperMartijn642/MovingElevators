@@ -2,10 +2,8 @@ package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -20,6 +18,7 @@ public class ClientProxy {
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e){
         ClientRegistry.bindTileEntitySpecialRenderer(ElevatorBlockTile.class, new ElevatorBlockTileRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(METile.class, new METileRenderer<>());
     }
 
     public static void openElevatorScreen(BlockPos pos){
