@@ -26,7 +26,7 @@ public class ElevatorSizeSlider extends GuiButton {
 
     protected void updateMessage(){
         int val = this.getValue();
-        this.displayString = I18n.format("movingelevators.platform.size").replace("$number$",val + "x" + val);
+        this.displayString = I18n.format("movingelevators.platform.size").replace("$number$", val + "x" + val);
     }
 
     public int getValue(){
@@ -37,20 +37,16 @@ public class ElevatorSizeSlider extends GuiButton {
      * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
      * this button.
      */
-    protected int getHoverState(boolean mouseOver)
-    {
+    protected int getHoverState(boolean mouseOver){
         return 0;
     }
 
     /**
      * Fired when the mouse button is dragged. Equivalent of MouseListener.mouseDragged(MouseEvent e).
      */
-    protected void mouseDragged(Minecraft mc, int mouseX, int mouseY)
-    {
-        if (this.visible)
-        {
-            if (this.dragging)
-            {
+    protected void mouseDragged(Minecraft mc, int mouseX, int mouseY){
+        if(this.visible){
+            if(this.dragging){
                 this.sliderValue = (float)(mouseX - (this.x + 4)) / (float)(this.width - 8);
                 this.sliderValue = MathHelper.clamp(this.sliderValue, 0.0F, 1.0F);
                 this.sliderValue = ((this.getValue() - 1) / 2) / 4f;
@@ -69,10 +65,8 @@ public class ElevatorSizeSlider extends GuiButton {
      * Returns true if the mouse has been pressed on this control. Equivalent of MouseListener.mousePressed(MouseEvent
      * e).
      */
-    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
-    {
-        if (super.mousePressed(mc, mouseX, mouseY))
-        {
+    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY){
+        if(super.mousePressed(mc, mouseX, mouseY)){
             this.sliderValue = (float)(mouseX - (this.x + 4)) / (float)(this.width - 8);
             this.sliderValue = MathHelper.clamp(this.sliderValue, 0.0F, 1.0F);
             this.sliderValue = ((this.getValue() - 1) / 2) / 4f;
@@ -80,9 +74,7 @@ public class ElevatorSizeSlider extends GuiButton {
             this.onChange.accept(this);
             this.dragging = true;
             return true;
-        }
-        else
-        {
+        }else{
             return false;
         }
     }
@@ -90,8 +82,7 @@ public class ElevatorSizeSlider extends GuiButton {
     /**
      * Fired when the mouse button is released. Equivalent of MouseListener.mouseReleased(MouseEvent e).
      */
-    public void mouseReleased(int mouseX, int mouseY)
-    {
+    public void mouseReleased(int mouseX, int mouseY){
         this.dragging = false;
     }
 }

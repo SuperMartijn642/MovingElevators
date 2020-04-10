@@ -9,7 +9,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.server.FMLServerHandler;
 
 /**
  * Created 4/5/2020 by SuperMartijn642
@@ -24,11 +23,12 @@ public class PacketElevatorSpeed implements IMessage, IMessageHandler<PacketElev
         this.speed = speed;
     }
 
-    public PacketElevatorSpeed(){}
+    public PacketElevatorSpeed(){
+    }
 
     @Override
     public void fromBytes(ByteBuf buf){
-        this.pos = new BlockPos(buf.readInt(),buf.readInt(),buf.readInt());
+        this.pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
         this.speed = buf.readDouble();
     }
 
