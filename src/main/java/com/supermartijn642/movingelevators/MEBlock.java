@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
+import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
@@ -64,5 +65,10 @@ public class MEBlock extends Block {
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world){
         return this.tileSupplier.get();
+    }
+
+    @Override
+    public PushReaction getPushReaction(BlockState state){
+        return PushReaction.BLOCK;
     }
 }
