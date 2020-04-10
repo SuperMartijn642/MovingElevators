@@ -24,7 +24,7 @@ public class ElevatorSizeSlider extends AbstractSlider {
 
     protected void updateMessage(){
         int val = this.getValue();
-        this.setMessage(I18n.format("movingelevators.platform.size").replace("$number$",val + "x" + val));
+        this.setMessage(I18n.format("movingelevators.platform.size").replace("$number$", val + "x" + val));
     }
 
     public int getValue(){

@@ -84,6 +84,8 @@ public class METile extends TileEntity {
     public boolean canBeCamoStack(ItemStack stack){
         if(stack.isEmpty() || !(stack.getItem() instanceof BlockItem))
             return false;
+
+
         Block block = ((BlockItem)stack.getItem()).getBlock();
         return block != MovingElevators.elevator_block && block != MovingElevators.display_block && !block.func_220074_n(block.getDefaultState()) && block.isNormalCube(block.getDefaultState(), this.world, this.pos);
     }

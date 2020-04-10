@@ -24,7 +24,7 @@ public class ElevatorSpeedSlider extends AbstractSlider {
     }
 
     protected void updateMessage(){
-        this.setMessage(I18n.format("movingelevators.platform.speed").replace("$number$",Double.toString(this.getValue())));
+        this.setMessage(I18n.format("movingelevators.platform.speed").replace("$number$", Double.toString(this.getValue())));
     }
 
     public double getValue(){
