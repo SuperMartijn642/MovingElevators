@@ -57,7 +57,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
 
         GlStateManager.translate(0.5, 0.5, 0.5);
         GlStateManager.rotate(180 - tile.getFacing().getHorizontalAngle(), 0, 1, 0);
-        GlStateManager.translate(-0.5, -0.5, -0.502);
+        GlStateManager.translate(-0.5, -0.5, -0.505);
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(BUTTONS);
 
@@ -138,7 +138,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
 
         GlStateManager.translate(0.5, 0.5 + 1, 0.5);
         GlStateManager.rotate(180 - tile.getFacing().getHorizontalAngle(), 0, 1, 0);
-        GlStateManager.translate(-0.5, -0.5, -0.502);
+        GlStateManager.translate(-0.5, -0.5, -0.505);
 
         int button_count;
         ResourceLocation background;

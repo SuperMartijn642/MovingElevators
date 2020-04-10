@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -70,5 +71,13 @@ public class MEBlock extends Block {
     @Override
     public TileEntity createTileEntity(World world, IBlockState state){
         return this.tileSupplier.get();
+    }
+
+    @Override
+    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side){
+        TileEntity tile = blockAccess.getTileEntity(pos);
+        if(tile instanceof METile)
+            return ((METile)tile).getCamoBlock() == null && super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+        return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
     }
 }

@@ -55,8 +55,6 @@ public class METileRenderer<T extends METile> extends TileEntitySpecialRenderer<
         GlStateManager.pushMatrix();
 
         GlStateManager.translate(x, y, z);
-        GlStateManager.translate(-0.001, -0.001, -0.001);
-        GlStateManager.scale(1.002, 1.002, 1.002);
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
