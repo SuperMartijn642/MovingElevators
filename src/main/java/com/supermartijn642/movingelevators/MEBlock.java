@@ -2,6 +2,7 @@ package com.supermartijn642.movingelevators;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -79,5 +80,10 @@ public class MEBlock extends Block {
         if(tile instanceof METile)
             return ((METile)tile).getCamoBlock() == null && super.shouldSideBeRendered(blockState, blockAccess, pos, side);
         return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+    }
+
+    @Override
+    public EnumPushReaction getMobilityFlag(IBlockState state){
+        return EnumPushReaction.BLOCK;
     }
 }
