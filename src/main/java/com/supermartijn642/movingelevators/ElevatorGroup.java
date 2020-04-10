@@ -1,9 +1,9 @@
 package com.supermartijn642.movingelevators;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -75,9 +75,9 @@ public class ElevatorGroup {
         int x = this.x + this.facing.getFrontOffsetX() * (int)Math.ceil(size / 2f) - size / 2;
         int z = this.z + this.facing.getFrontOffsetZ() * (int)Math.ceil(size / 2f) - size / 2;
 
-        AxisAlignedBB box = new AxisAlignedBB(x, Math.min(oldY, newY), z, x + this.size, Math.max(oldY, newY) + 1 + 2 * this.speed, z + this.size);
+        AxisAlignedBB box = new AxisAlignedBB(x, Math.min(oldY, newY), z, x + this.size, Math.max(oldY, newY) + 1 + 3 * this.speed, z + this.size);
 
-        List<EntityLivingBase> entities = this.world.getEntitiesWithinAABB(EntityLivingBase.class, box, entity -> entity instanceof EntityLivingBase);
+        List<Entity> entities = this.world.getEntitiesWithinAABB(Entity.class, box, this::canCollideWith);
 
         for(Entity entity : entities){
             if((newY < oldY && entity.hasNoGravity()) || (entity instanceof EntityPlayer && entity.motionY >= 0 && entity.posY > Math.min(oldY, newY) + 1))
@@ -87,6 +87,10 @@ public class ElevatorGroup {
             entity.fallDistance = 0;
             entity.motionY = 0;
         }
+    }
+
+    private boolean canCollideWith(Entity entity){
+        return !(entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator()) && !entity.noClip && entity.getPushReaction() == EnumPushReaction.NORMAL;
     }
 
     private void stopElevator(){
@@ -103,6 +107,17 @@ public class ElevatorGroup {
             }
         }
 
+        AxisAlignedBB box = new AxisAlignedBB(startX, this.currentY, startZ, startX + this.size, this.currentY + 1, startZ + this.size);
+
+        List<Entity> entities = this.world.getEntitiesWithinAABB(Entity.class, box, this::canCollideWith);
+
+        for(Entity entity : entities){
+            entity.setPositionAndUpdate(entity.posX, this.currentY + 1, entity.posZ);
+            entity.onGround = true;
+            entity.fallDistance = 0;
+            entity.motionY = 0;
+        }
+
         if(!this.world.isRemote){
             IBlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
             this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
@@ -113,7 +128,7 @@ public class ElevatorGroup {
     }
 
     private void startElevator(int currentY, int targetY){
-        if(this.world == null || this.world.isRemote || this.isMoving)
+        if(this.world == null || this.isMoving)
             return;
 
         int startX = this.x + this.facing.getFrontOffsetX() * (int)Math.ceil(size / 2f) - size / 2;
