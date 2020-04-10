@@ -3,9 +3,9 @@ package com.supermartijn642.movingelevators;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -16,12 +16,12 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Created 4/7/2020 by SuperMartijn642
@@ -79,9 +79,9 @@ public class ElevatorGroup {
 
         AxisAlignedBB box = new AxisAlignedBB(x, Math.min(oldY, newY), z, x + this.size, Math.max(oldY, newY) + 1 + 3 * this.speed, z + this.size);
 
-        List<LivingEntity> entities = this.world.getEntitiesWithinAABB((EntityType<LivingEntity>)null, box, (Predicate<Entity>)(entity -> entity instanceof LivingEntity));
+        List<? extends Entity> entities = this.world.getEntitiesWithinAABB((EntityType<?>)null, box, this::canCollideWith);
 
-        for(LivingEntity entity : entities){
+        for(Entity entity : entities){
             if((newY < oldY && entity.hasNoGravity()) || (entity instanceof PlayerEntity && entity.getMotion().y >= 0 && entity.getPosY() > Math.min(oldY, newY) + 1))
                 continue;
             entity.setPosition(entity.getPosX(), newY + 1, entity.getPosZ());
@@ -89,6 +89,10 @@ public class ElevatorGroup {
             entity.fallDistance = 0;
             entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);
         }
+    }
+
+    private boolean canCollideWith(Entity entity){
+        return !entity.isSpectator() && !entity.noClip && entity.getPushReaction() == PushReaction.NORMAL;
     }
 
     private void stopElevator(){
@@ -103,6 +107,17 @@ public class ElevatorGroup {
                     this.world.destroyBlock(pos, true);
                 this.world.setBlockState(pos, this.platform[x][z]);
             }
+        }
+
+        AxisAlignedBB box = new AxisAlignedBB(startX, this.currentY, startZ, startX + this.size, this.currentY + 1, startZ + this.size);
+
+        List<? extends Entity> entities = this.world.getEntitiesWithinAABB((EntityType<?>)null, box, this::canCollideWith);
+
+        for(Entity entity : entities){
+            entity.setPositionAndUpdate(entity.getPosX(), this.currentY + 1, entity.getPosZ());
+            entity.onGround = true;
+            entity.fallDistance = 0;
+            entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);
         }
 
         if(!this.world.isRemote){
