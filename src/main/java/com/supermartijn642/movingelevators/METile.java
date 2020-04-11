@@ -68,11 +68,8 @@ public class METile extends TileEntity {
     }
 
     protected void handleDataTag(CompoundNBT tag){
-        if(tag.contains("camo")){
+        if(tag.contains("camo"))
             this.camoStack = ItemStack.read(tag.getCompound("camo"));
-            if(this.world != null)
-                this.world.onBlockStateChange(this.pos, null, this.getBlockState());
-        }
     }
 
     public boolean setCamoStack(ItemStack stack){
@@ -93,7 +90,7 @@ public class METile extends TileEntity {
 
     public BlockState getCamoBlock(){
         if(this.camoStack == null || this.camoStack.isEmpty() || !(this.camoStack.getItem() instanceof BlockItem))
-            return MovingElevators.display_block.getDefaultState();
+            return this.getBlockState();
         return ((BlockItem)this.camoStack.getItem()).getBlock().getDefaultState();
     }
 
