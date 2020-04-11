@@ -57,7 +57,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
 
         GlStateManager.translate(0.5, 0.5, 0.5);
         GlStateManager.rotate(180 - tile.getFacing().getHorizontalAngle(), 0, 1, 0);
-        GlStateManager.translate(-0.5, -0.5, -0.505);
+        GlStateManager.translate(-0.5, -0.5, -0.51);
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(BUTTONS);
 
@@ -72,6 +72,8 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
         GlStateManager.disableLighting();
+        GlStateManager.enablePolygonOffset();
+        GlStateManager.doPolygonOffset(-1, -1);
 
         builder.pos(0, 0, 0).tex(1, 1).endVertex();
         builder.pos(0, 1, 0).tex(1, 0).endVertex();
@@ -79,6 +81,8 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         builder.pos(1, 0, 0).tex(0, 1).endVertex();
 
         tessellator.draw();
+
+        GlStateManager.disablePolygonOffset();
 
         GlStateManager.popMatrix();
     }
@@ -138,7 +142,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
 
         GlStateManager.translate(0.5, 0.5 + 1, 0.5);
         GlStateManager.rotate(180 - tile.getFacing().getHorizontalAngle(), 0, 1, 0);
-        GlStateManager.translate(-0.5, -0.5, -0.505);
+        GlStateManager.translate(-0.5, -0.5, -0.51);
 
         int button_count;
         ResourceLocation background;
@@ -166,7 +170,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
             aboveTiles.add(allTiles.get(a));
 
         // render center button
-        GlStateManager.translate(0, 0.5 * height - DisplayBlock.BUTTON_HEIGHT / 2, -0.002);
+        GlStateManager.translate(0, 0.5 * height - DisplayBlock.BUTTON_HEIGHT / 2, 0);
         GlStateManager.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         this.drawQuad(DISPLAY_BUTTON_OFF, tile.getPos().up());
         GlStateManager.pushMatrix();
@@ -264,6 +268,10 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
         GlStateManager.disableLighting();
+        GlStateManager.enablePolygonOffset();
+        GlStateManager.depthMask(false);
+        GlStateManager.enableBlend();
+        GlStateManager.doPolygonOffset(-1, -1);
 
         builder.pos(0, 0, 0).tex(1, 1).endVertex();
         builder.pos(0, 1, 0).tex(1, 0).endVertex();
@@ -272,15 +280,34 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
 
         tessellator.draw();
 
+        GlStateManager.disableBlend();
+        GlStateManager.depthMask(true);
+        GlStateManager.disablePolygonOffset();
+        GlStateManager.enableLighting();
+
         GlStateManager.popMatrix();
     }
 
     private void drawString(String s){
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         GlStateManager.pushMatrix();
-        GlStateManager.translate(0, 0.07, -0.002);
+        GlStateManager.translate(0, 0.07, -0.005);
         GlStateManager.scale(-0.01f, -0.08f, 1);
+
+        GlStateManager.disableLighting();
+        GlStateManager.enablePolygonOffset();
+        GlStateManager.depthMask(false);
+        GlStateManager.enableBlend();
+        GlStateManager.doPolygonOffset(-1, -1);
+
+
         fontRenderer.drawStringWithShadow(s, -fontRenderer.getStringWidth(s) / 2f, -fontRenderer.FONT_HEIGHT, EnumDyeColor.WHITE.getColorValue());
+
+        GlStateManager.disableBlend();
+        GlStateManager.depthMask(true);
+        GlStateManager.disablePolygonOffset();
+        GlStateManager.enableLighting();
+
         GlStateManager.popMatrix();
     }
 

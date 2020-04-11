@@ -67,8 +67,11 @@ public class METile extends TileEntity {
     }
 
     protected void handleDataTag(NBTTagCompound tag){
-        if(tag.hasKey("camo"))
+        if(tag.hasKey("camo")){
             this.camoStack = new ItemStack(tag.getCompoundTag("camo"));
+            if(this.world != null)
+                this.world.markBlockRangeForRenderUpdate(this.pos, this.pos);
+        }
     }
 
     public boolean setCamoStack(ItemStack stack){
