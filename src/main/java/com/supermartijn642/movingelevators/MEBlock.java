@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -8,10 +9,12 @@ import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
 
@@ -70,5 +73,10 @@ public class MEBlock extends Block {
     @Override
     public PushReaction getPushReaction(BlockState state){
         return PushReaction.BLOCK;
+    }
+
+    @Override
+    public BlockRenderType getRenderType(BlockState state){
+        return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 }

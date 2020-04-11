@@ -275,8 +275,6 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
 
         GlStateManager.disableLighting();
         GlStateManager.enablePolygonOffset();
-        GlStateManager.depthMask(false);
-        GlStateManager.enableBlend();
         GlStateManager.polygonOffset(-1, -1);
 
         builder.pos(0, 0, 0).tex(1, 1).endVertex();
@@ -286,8 +284,6 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
 
         tessellator.draw();
 
-        GlStateManager.disableBlend();
-        GlStateManager.depthMask(true);
         GlStateManager.disablePolygonOffset();
         GlStateManager.enableLighting();
 
