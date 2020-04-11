@@ -92,7 +92,7 @@ public class METile extends TileEntity {
 
     public IBlockState getCamoBlock(){
         if(this.camoStack == null || this.camoStack.isEmpty() || !(this.camoStack.getItem() instanceof ItemBlock))
-            return null;
+            return this.getBlockType().getDefaultState();
         return ((ItemBlock)this.camoStack.getItem()).getBlock().getStateForPlacement(this.world, this.pos, null, 0.5f, 0.5f, 0.5f, this.camoStack.getMetadata(), null);
     }
 

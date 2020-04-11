@@ -9,10 +9,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -75,15 +75,12 @@ public class MEBlock extends Block {
     }
 
     @Override
-    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side){
-        TileEntity tile = blockAccess.getTileEntity(pos);
-        if(tile instanceof METile)
-            return ((METile)tile).getCamoBlock() == null && super.shouldSideBeRendered(blockState, blockAccess, pos, side);
-        return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+    public EnumPushReaction getMobilityFlag(IBlockState state){
+        return EnumPushReaction.BLOCK;
     }
 
     @Override
-    public EnumPushReaction getMobilityFlag(IBlockState state){
-        return EnumPushReaction.BLOCK;
+    public EnumBlockRenderType getRenderType(IBlockState state){
+        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 }
