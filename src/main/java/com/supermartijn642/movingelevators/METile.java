@@ -123,9 +123,4 @@ public class METile extends TileEntity {
     protected IBlockState getBlockState(){
         return this.world.getBlockState(this.pos);
     }
-
-    @Override
-    public boolean shouldRenderInPass(int pass){
-        return super.shouldRenderInPass(pass);
-    }
 }
