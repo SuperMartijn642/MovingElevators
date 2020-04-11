@@ -67,11 +67,8 @@ public class METile extends TileEntity {
     }
 
     protected void handleDataTag(NBTTagCompound tag){
-        if(tag.hasKey("camo")){
+        if(tag.hasKey("camo"))
             this.camoStack = new ItemStack(tag.getCompoundTag("camo"));
-            if(this.world != null)
-                this.world.markBlockRangeForRenderUpdate(this.pos, this.pos);
-        }
     }
 
     public boolean setCamoStack(ItemStack stack){
@@ -92,7 +89,7 @@ public class METile extends TileEntity {
 
     public IBlockState getCamoBlock(){
         if(this.camoStack == null || this.camoStack.isEmpty() || !(this.camoStack.getItem() instanceof ItemBlock))
-            return this.getBlockType().getDefaultState();
+            return this.getBlockState();
         return ((ItemBlock)this.camoStack.getItem()).getBlock().getStateForPlacement(this.world, this.pos, null, 0.5f, 0.5f, 0.5f, this.camoStack.getMetadata(), null);
     }
 
