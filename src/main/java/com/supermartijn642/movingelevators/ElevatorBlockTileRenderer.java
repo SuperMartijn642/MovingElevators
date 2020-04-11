@@ -66,7 +66,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
 
         matrixStack.translate(0.5, 0.5, 0.5);
         matrixStack.rotate(new Quaternion(0, 180 - tile.getFacing().getHorizontalAngle(), 0, true));
-        matrixStack.translate(-0.502, -0.502, -0.502);
+        matrixStack.translate(-0.5, -0.5, -0.51);
 
         this.drawQuad(BUTTONS);
 
@@ -108,7 +108,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
 
         matrixStack.translate(0.5, 0.5 + 1, 0.5);
         matrixStack.rotate(new Quaternion(0, 180 - tile.getFacing().getHorizontalAngle(), 0, true));
-        matrixStack.translate(-0.5, -0.5, -0.502);
+        matrixStack.translate(-0.5, -0.5, -0.51);
 
         int button_count;
         RenderType background;
@@ -231,7 +231,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
     private void drawString(String s){
         FontRenderer fontRenderer = this.renderDispatcher.fontRenderer;
         matrixStack.push();
-        matrixStack.translate(0, 0.07, -0.002);
+        matrixStack.translate(0, 0.07, -0.005);
         matrixStack.scale(-0.01f, -0.08f, 1);
         fontRenderer.renderString(s, -fontRenderer.getStringWidth(s) / 2f, -fontRenderer.FONT_HEIGHT, NativeImage.getCombined(255, 255, 255, 255), true, matrixStack.getLast().getMatrix(), buffer, false, 0, Integer.MAX_VALUE);
         matrixStack.pop();
