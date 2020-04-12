@@ -87,7 +87,7 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
         int startZ = this.pos.getZ() + this.facing.getZOffset() * (int)Math.ceil(this.group.getSize() / 2f) - this.group.getSize() / 2;
         for(int x = 0; x < this.group.getSize(); x++){
             for(int z = 0; z < this.group.getSize(); z++){
-                BlockPos pos = new BlockPos(startX + x, this.pos.getY(), startZ + z);
+                BlockPos pos = new BlockPos(startX + x, this.pos.getY() - 1, startZ + z);
                 if(!this.world.isAirBlock(pos))
                     return false;
             }
