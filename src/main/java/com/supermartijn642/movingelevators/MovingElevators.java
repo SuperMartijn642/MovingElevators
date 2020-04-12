@@ -18,7 +18,7 @@ public class MovingElevators {
 
     public static final String MODID = "movingelevators";
     public static final String NAME = "Moving Elevators";
-    public static final String VERSION = "1.2.3";
+    public static final String VERSION = "1.2.4";
 
     public static SimpleNetworkWrapper channel;
 
