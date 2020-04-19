@@ -59,30 +59,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         GlStateManager.rotate(180 - tile.getFacing().getHorizontalAngle(), 0, 1, 0);
         GlStateManager.translate(-0.5, -0.5, -0.51);
 
-        Minecraft.getMinecraft().getTextureManager().bindTexture(BUTTONS);
-
-        int i = Minecraft.getMinecraft().world.getCombinedLight(tile.getPos().offset(tile.getFacing()), 0);
-        int j = i % 65536;
-        int k = i / 65536;
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j, (float)k);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.getBuffer();
-
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-
-        GlStateManager.disableLighting();
-        GlStateManager.enablePolygonOffset();
-        GlStateManager.doPolygonOffset(-1, -1);
-
-        builder.pos(0, 0, 0).tex(1, 1).endVertex();
-        builder.pos(0, 1, 0).tex(1, 0).endVertex();
-        builder.pos(1, 1, 0).tex(0, 0).endVertex();
-        builder.pos(1, 0, 0).tex(0, 1).endVertex();
-
-        tessellator.draw();
-
-        GlStateManager.disablePolygonOffset();
+        this.drawQuad(BUTTONS,tile.getPos());
 
         GlStateManager.popMatrix();
     }
@@ -271,6 +248,8 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         GlStateManager.enablePolygonOffset();
         GlStateManager.depthMask(false);
         GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        GlStateManager.enableAlpha();
         GlStateManager.doPolygonOffset(-1, -1);
 
         builder.pos(0, 0, 0).tex(1, 1).endVertex();
@@ -281,6 +260,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         tessellator.draw();
 
         GlStateManager.disableBlend();
+        GlStateManager.disableAlpha();
         GlStateManager.depthMask(true);
         GlStateManager.disablePolygonOffset();
         GlStateManager.enableLighting();
