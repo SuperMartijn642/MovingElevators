@@ -65,30 +65,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         GlStateManager.rotated(180 - tile.getFacing().getHorizontalAngle(), 0, 1, 0);
         GlStateManager.translated(-0.5, -0.5, -0.51);
 
-        Minecraft.getInstance().getTextureManager().bindTexture(BUTTONS);
-
-        int i = Minecraft.getInstance().world.getCombinedLight(tile.getPos().offset(tile.getFacing()), 0);
-        int j = i % 65536;
-        int k = i / 65536;
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)j, (float)k);
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.getBuffer();
-
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-
-        GlStateManager.disableLighting();
-        GlStateManager.enablePolygonOffset();
-        GlStateManager.polygonOffset(-1, -1);
-
-        builder.pos(0, 0, 0).tex(1, 1).endVertex();
-        builder.pos(0, 1, 0).tex(1, 0).endVertex();
-        builder.pos(1, 1, 0).tex(0, 0).endVertex();
-        builder.pos(1, 0, 0).tex(0, 1).endVertex();
-
-        tessellator.draw();
-
-        GlStateManager.disablePolygonOffset();
+        this.drawQuad(BUTTONS,tile.getPos());
 
         GlStateManager.popMatrix();
     }
