@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -61,5 +62,28 @@ public class ElevatorBlock extends MEBlock {
                 ((ElevatorBlockTile)tile).onBreak();
         }
         super.onReplaced(state, worldIn, pos, newState, isMoving);
+    }
+
+    @Override
+    public boolean hasComparatorInputOverride(BlockState state){
+        return true;
+    }
+
+    @Override
+    public int getComparatorInputOverride(BlockState state, World worldIn, BlockPos pos){
+        if(!state.has(FACING))
+            return 0;
+        return worldIn.isAirBlock(pos.offset(state.get(FACING)).down()) ? 0 : 15;
+    }
+
+    @Override
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving){
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile instanceof ElevatorBlockTile)
+            ((ElevatorBlockTile)tile).redstone = world.isBlockPowered(pos) || world.isBlockPowered(pos.up());
+    }
+
+    @Override
+    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor){
     }
 }
