@@ -1,7 +1,7 @@
 package com.supermartijn642.movingelevators;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -16,11 +16,12 @@ import java.util.ArrayList;
  */
 public class ElevatorBlockTile extends METile implements ITickableTileEntity {
 
-//    private static final int MAX_NAME_CHARACTER_COUNT = 11;
-
     private ElevatorGroup group;
     private String name;
+    private DyeColor color = DyeColor.GRAY;
     private Direction facing;
+    public boolean redstone;
+    private boolean lastRedstone;
 
     public ElevatorBlockTile(){
         super(MovingElevators.elevator_tile);
@@ -36,6 +37,11 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
         if(this.group != null){
             if(this.group.getLowest() == this.pos.getY())
                 this.group.update(this);
+            if(!this.world.isRemote && this.lastRedstone != this.redstone){
+                if(this.redstone)
+                    this.group.onButtonPress(false, false, this.pos.getY());
+                this.lastRedstone = this.redstone;
+            }
         }else if(!this.world.isRemote){
             ArrayList<ElevatorBlockTile> tiles = new ArrayList<>(1);
             tiles.add(this);
@@ -104,10 +110,12 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
         CompoundNBT data = super.getDataTag();
         if(this.name != null)
             data.putString("name", this.name);
+        data.putInt("color", this.color.getId());
         if(this.facing != null)
             data.putInt("facing", this.facing.getIndex());
         if(this.group != null && this.pos.getY() == this.group.getLowest())
             data.put("group", this.group.write());
+        data.putBoolean("redstone", this.lastRedstone);
         return data;
     }
 
@@ -119,12 +127,18 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
             this.group.read(tag);
         }
         this.name = tag.contains("name") ? tag.getString("name") : null;
+        if(tag.contains("color"))
+            this.color = DyeColor.byId(tag.getInt("color"));
         if(tag.contains("facing"))
             this.facing = Direction.byIndex(tag.getInt("facing"));
         if(tag.contains("group")){
             if(this.group == null)
                 this.group = new ElevatorGroup(this.world, this.pos.getX(), this.pos.getZ(), this.facing);
             this.group.read(tag.getCompound("group"));
+        }
+        if(tag.contains("redstone")){
+            this.redstone = tag.getBoolean("redstone");
+            this.lastRedstone = this.redstone;
         }
     }
 
@@ -151,13 +165,28 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
         return 0;
     }
 
+    public String getDefaultName(){
+        if(this.world == null || !this.world.isRemote)
+            return null;
+        return ClientProxy.translate("movingelevators.floorname").replace("$number$", Integer.toString(this.group.getFloorNumber(this.pos.getY())));
+    }
+
     public String getName(){
-        return this.name == null ? I18n.format("movingelevators.floorname").replace("$number$", Integer.toString(this.group.getFloorNumber(this.pos.getY()))) : this.name;
+        return this.name == null ? this.getDefaultName() : this.name;
     }
 
     public void setName(String name){
         this.name = name;
         this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
+    }
+
+    public void setDisplayLabelColor(DyeColor color){
+        this.color = color;
+        this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
+    }
+
+    public DyeColor getDisplayLabelColor(){
+        return this.color;
     }
 
     public ElevatorGroup getGroup(){
