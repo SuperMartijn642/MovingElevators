@@ -2,6 +2,7 @@ package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,4 +26,7 @@ public class ClientProxy {
         Minecraft.getInstance().displayGuiScreen(new ElevatorScreen(pos));
     }
 
+    public static String translate(String s){
+        return I18n.format(s);
+    }
 }
