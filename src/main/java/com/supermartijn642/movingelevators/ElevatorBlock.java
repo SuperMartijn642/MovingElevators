@@ -82,8 +82,4 @@ public class ElevatorBlock extends MEBlock {
         if(tile instanceof ElevatorBlockTile)
             ((ElevatorBlockTile)tile).redstone = world.isBlockPowered(pos) || world.isBlockPowered(pos.up());
     }
-
-    @Override
-    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor){
-    }
 }
