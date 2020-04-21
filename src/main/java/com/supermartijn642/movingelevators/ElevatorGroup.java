@@ -85,7 +85,7 @@ public class ElevatorGroup {
                 continue;
             entity.setPosition(entity.getPosX(), newY + 1, entity.getPosZ());
             entity.onGround = true;
-            entity.onLivingFall(entity.fallDistance,1);
+            entity.onLivingFall(entity.fallDistance, 1);
             entity.fallDistance = 0;
             entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);
         }
@@ -123,6 +123,7 @@ public class ElevatorGroup {
         if(!this.world.isRemote){
             BlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
             this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
+            this.world.updateComparatorOutputLevel(this.getPos(this.targetY + 1), MovingElevators.elevator_block);
             double x = this.x + this.facing.getXOffset() * (int)Math.ceil(size / 2f) + 0.5;
             double z = this.z + this.facing.getZOffset() * (int)Math.ceil(size / 2f) + 0.5;
             this.world.playSound(null, x, this.targetY + 2.5, z, SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
@@ -164,6 +165,7 @@ public class ElevatorGroup {
         if(!this.world.isRemote){
             BlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
             this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
+            this.world.updateComparatorOutputLevel(this.getPos(currentY), MovingElevators.elevator_block);
         }
     }
 
@@ -395,5 +397,11 @@ public class ElevatorGroup {
 
     public int getFloorNumber(int y){
         return this.floors.indexOf(y);
+    }
+
+    public ElevatorBlockTile getTileForFloor(int floor){
+        if(floor < 0 || floor >= this.floors.size())
+            return null;
+        return this.getTile(this.floors.get(floor));
     }
 }

@@ -10,12 +10,14 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.item.DyeColor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -27,8 +29,15 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
     private static final RenderType DISPLAY_BACKGROUND = getTexture("display_overlay");
     private static final RenderType DISPLAY_BACKGROUND_BIG = getTexture("display_overlay_big");
     private static final RenderType DISPLAY_GREEN_DOT = getTexture("green_dot");
-    private static final RenderType DISPLAY_BUTTON = getTexture("display_button");
-    private static final RenderType DISPLAY_BUTTON_OFF = getTexture("display_button_off");
+    private static final HashMap<DyeColor,RenderType> DISPLAY_BUTTONS = new HashMap<>();
+    private static final HashMap<DyeColor,RenderType> DISPLAY_BUTTONS_OFF = new HashMap<>();
+
+    static{
+        for(DyeColor color : DyeColor.values()){
+            DISPLAY_BUTTONS.put(color, getTexture("display_buttons/display_button_" + color.name().toLowerCase()));
+            DISPLAY_BUTTONS_OFF.put(color, getTexture("display_buttons/display_button_off_" + color.name().toLowerCase()));
+        }
+    }
 
     private static RenderType getTexture(final String name){
         RenderType.State state = RenderType.State.getBuilder().transparency(new RenderState.TransparencyState("translucent_transparency", () -> {
@@ -138,7 +147,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         // render center button
         matrixStack.translate(0, 0.5 * height - DisplayBlock.BUTTON_HEIGHT / 2, -0.002);
         matrixStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
-        this.drawQuad(DISPLAY_BUTTON_OFF);
+        this.drawQuad(DISPLAY_BUTTONS_OFF.get(this.tile.getDisplayLabelColor()));
         matrixStack.push();
         matrixStack.translate(18.5 / 32d, 0, 0);
         this.drawString(tile.getName());
@@ -148,7 +157,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         matrixStack.push();
         for(int i = 0; i < belowTiles.size(); i++){
             matrixStack.translate(0, -1, 0);
-            this.drawQuad(DISPLAY_BUTTON);
+            this.drawQuad(DISPLAY_BUTTONS.get(belowTiles.get(i).getDisplayLabelColor()));
             matrixStack.push();
             matrixStack.translate(18.5 / 32d, 0, 0);
             this.drawString(belowTiles.get(i).getName());
@@ -160,7 +169,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         matrixStack.push();
         for(int i = 0; i < aboveTiles.size(); i++){
             matrixStack.translate(0, 1, 0);
-            this.drawQuad(DISPLAY_BUTTON);
+            this.drawQuad(DISPLAY_BUTTONS.get(aboveTiles.get(i).getDisplayLabelColor()));
             matrixStack.push();
             matrixStack.translate(18.5 / 32d, 0, 0);
             this.drawString(aboveTiles.get(i).getName());
