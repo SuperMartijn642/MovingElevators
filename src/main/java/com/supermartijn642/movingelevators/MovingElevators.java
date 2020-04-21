@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators;
 
+import com.supermartijn642.movingelevators.packets.PacketElevatorName;
 import com.supermartijn642.movingelevators.packets.PacketElevatorSize;
 import com.supermartijn642.movingelevators.packets.PacketElevatorSpeed;
 import net.minecraftforge.fml.common.Mod;
@@ -35,6 +36,7 @@ public class MovingElevators {
         channel = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
         channel.registerMessage(PacketElevatorSize.class, PacketElevatorSize.class, 0, Side.SERVER);
         channel.registerMessage(PacketElevatorSpeed.class, PacketElevatorSpeed.class, 1, Side.SERVER);
+        channel.registerMessage(PacketElevatorName.class, PacketElevatorName.class, 2, Side.SERVER);
     }
 
 }

@@ -1,5 +1,6 @@
 tile.movingelevators:elevator_block.name=Elevator Controller
 tile.movingelevators:display_block.name=Elevator Display
+gui.movingelevators.floorname.label=Floor name:
 movingelevators.platform.size=Platform size: $number$ blocks
 movingelevators.platform.speed=Platform speed: $number$ blocks/t
 movingelevators.floorname=Floor $number$
