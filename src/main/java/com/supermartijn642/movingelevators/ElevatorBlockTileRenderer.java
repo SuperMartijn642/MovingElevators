@@ -73,7 +73,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         GlStateManager.rotated(180 - tile.getFacing().getHorizontalAngle(), 0, 1, 0);
         GlStateManager.translated(-0.5, -0.5, -0.51);
 
-        this.drawQuad(BUTTONS,tile.getPos());
+        this.drawQuad(BUTTONS, tile.getPos());
 
         GlStateManager.popMatrix();
     }

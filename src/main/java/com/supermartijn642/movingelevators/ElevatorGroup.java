@@ -85,7 +85,7 @@ public class ElevatorGroup {
                 continue;
             entity.setPosition(entity.posX, newY + 1, entity.posZ);
             entity.onGround = true;
-            entity.fall(entity.fallDistance,1);
+            entity.fall(entity.fallDistance, 1);
             entity.fallDistance = 0;
             entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);
         }
