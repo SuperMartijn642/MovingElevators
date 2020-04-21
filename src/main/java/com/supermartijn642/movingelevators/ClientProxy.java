@@ -4,6 +4,7 @@ import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -34,5 +35,9 @@ public class ClientProxy extends CommonProxy {
 
     public static void openElevatorScreen(BlockPos pos){
         Minecraft.getMinecraft().displayGuiScreen(new ElevatorScreen(pos));
+    }
+
+    public static String translate(String s){
+        return I18n.format(s);
     }
 }

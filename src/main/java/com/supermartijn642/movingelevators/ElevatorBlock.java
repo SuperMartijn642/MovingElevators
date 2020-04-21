@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
@@ -67,5 +68,25 @@ public class ElevatorBlock extends MEBlock {
         if(facing.getAxis() == EnumFacing.Axis.Y)
             facing = EnumFacing.NORTH;
         return this.getDefaultState().withProperty(FACING, facing);
+    }
+
+    @Override
+    public boolean hasComparatorInputOverride(IBlockState state){
+        return true;
+    }
+
+    @Override
+    public int getComparatorInputOverride(IBlockState state, World worldIn, BlockPos pos){
+        EnumFacing facing = state.getValue(FACING);
+        if(facing == null)
+            return 0;
+        return worldIn.isAirBlock(pos.offset(facing).down()) ? 0 : 15;
+    }
+
+    @Override
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos){
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile instanceof ElevatorBlockTile)
+            ((ElevatorBlockTile)tile).redstone = world.isBlockPowered(pos) || world.isBlockPowered(pos.up());
     }
 }

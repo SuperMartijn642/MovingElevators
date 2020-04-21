@@ -13,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -24,8 +25,15 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
     private static final ResourceLocation DISPLAY_BACKGROUND = getTexture("display_overlay");
     private static final ResourceLocation DISPLAY_BACKGROUND_BIG = getTexture("display_overlay_big");
     private static final ResourceLocation DISPLAY_GREEN_DOT = getTexture("green_dot");
-    private static final ResourceLocation DISPLAY_BUTTON = getTexture("display_button");
-    private static final ResourceLocation DISPLAY_BUTTON_OFF = getTexture("display_button_off");
+    private static final HashMap<EnumDyeColor,ResourceLocation> DISPLAY_BUTTONS = new HashMap<>();
+    private static final HashMap<EnumDyeColor,ResourceLocation> DISPLAY_BUTTONS_OFF = new HashMap<>();
+
+    static{
+        for(EnumDyeColor color : EnumDyeColor.values()){
+            DISPLAY_BUTTONS.put(color, getTexture("display_buttons/display_button_" + color.name().toLowerCase()));
+            DISPLAY_BUTTONS_OFF.put(color, getTexture("display_buttons/display_button_off_" + color.name().toLowerCase()));
+        }
+    }
 
     private static ResourceLocation getTexture(String name){
         return new ResourceLocation("movingelevators", "textures/blocks/" + name + ".png");
@@ -59,7 +67,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         GlStateManager.rotate(180 - tile.getFacing().getHorizontalAngle(), 0, 1, 0);
         GlStateManager.translate(-0.5, -0.5, -0.51);
 
-        this.drawQuad(BUTTONS,tile.getPos());
+        this.drawQuad(BUTTONS, tile.getPos());
 
         GlStateManager.popMatrix();
     }
@@ -149,7 +157,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         // render center button
         GlStateManager.translate(0, 0.5 * height - DisplayBlock.BUTTON_HEIGHT / 2, 0);
         GlStateManager.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
-        this.drawQuad(DISPLAY_BUTTON_OFF, tile.getPos().up());
+        this.drawQuad(DISPLAY_BUTTONS_OFF.get(tile.getDisplayLabelColor()), tile.getPos().up());
         GlStateManager.pushMatrix();
         GlStateManager.translate(18.5 / 32d, 0, 0);
         this.drawString(tile.getName());
@@ -159,7 +167,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         GlStateManager.pushMatrix();
         for(int i = 0; i < belowTiles.size(); i++){
             GlStateManager.translate(0, -1, 0);
-            this.drawQuad(DISPLAY_BUTTON, tile.getPos().up());
+            this.drawQuad(DISPLAY_BUTTONS.get(belowTiles.get(i).getDisplayLabelColor()), tile.getPos().up());
             GlStateManager.pushMatrix();
             GlStateManager.translate(18.5 / 32d, 0, 0);
             this.drawString(belowTiles.get(i).getName());
@@ -171,7 +179,7 @@ public class ElevatorBlockTileRenderer extends METileRenderer<ElevatorBlockTile>
         GlStateManager.pushMatrix();
         for(int i = 0; i < aboveTiles.size(); i++){
             GlStateManager.translate(0, 1, 0);
-            this.drawQuad(DISPLAY_BUTTON, tile.getPos().up());
+            this.drawQuad(DISPLAY_BUTTONS.get(aboveTiles.get(i).getDisplayLabelColor()), tile.getPos().up());
             GlStateManager.pushMatrix();
             GlStateManager.translate(18.5 / 32d, 0, 0);
             this.drawString(aboveTiles.get(i).getName());
