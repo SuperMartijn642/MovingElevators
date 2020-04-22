@@ -8,6 +8,10 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -41,11 +45,19 @@ public class MEBlock extends Block {
             if(meTile.getFacing() == null || meTile.getFacing() != rayTraceResult.getFace()){
                 if(player.isShiftKeyDown() && player.getHeldItem(handIn).isEmpty()){
                     if(!worldIn.isRemote)
-                        meTile.setCamoStack(null);
+                        meTile.setCamoState(null);
                     return ActionResultType.SUCCESS;
                 }else if(!player.isShiftKeyDown() && meTile.canBeCamoStack(player.getHeldItem(handIn))){
-                    if(!worldIn.isRemote)
-                        meTile.setCamoStack(player.getHeldItem(handIn));
+                    if(!worldIn.isRemote){
+                        Item item = player.getHeldItem(handIn).getItem();
+                        if(item instanceof BlockItem){
+                            Block block = ((BlockItem)item).getBlock();
+                            BlockState state1 = block.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(player, handIn, rayTraceResult)));
+                            if(state1 == null)
+                                state1 = block.getDefaultState();
+                            meTile.setCamoState(state1);
+                        }
+                    }
                     return ActionResultType.SUCCESS;
                 }
             }

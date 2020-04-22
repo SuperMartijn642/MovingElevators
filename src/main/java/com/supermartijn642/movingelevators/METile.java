@@ -2,7 +2,9 @@ package com.supermartijn642.movingelevators;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -22,7 +24,7 @@ public class METile extends TileEntity {
         super(tileEntityTypeIn);
     }
 
-    private ItemStack camoStack = ItemStack.EMPTY;
+    private BlockState camoState = MovingElevators.elevator_block.getDefaultState();
 
     @Nullable
     @Override
@@ -63,20 +65,32 @@ public class METile extends TileEntity {
 
     protected CompoundNBT getDataTag(){
         CompoundNBT data = new CompoundNBT();
-        data.put("camo", this.camoStack.write(new CompoundNBT()));
+        data.putBoolean("hasCamo", this.camoState != null);
+        if(this.camoState != null)
+            data.putInt("camo", Block.getStateId(this.camoState));
         return data;
     }
 
     protected void handleDataTag(CompoundNBT tag){
-        if(tag.contains("camo"))
-            this.camoStack = ItemStack.read(tag.getCompound("camo"));
+        if(tag.contains("camo")){ // Do this for older versions
+            ItemStack camoStack = ItemStack.read(tag.getCompound("camo"));
+            Item item = camoStack.getItem();
+            if(item instanceof BlockItem){
+                Block block = ((BlockItem)item).getBlock();
+                this.camoState = block.getDefaultState();
+            }
+        }
+        if(tag.contains("hasCamo")){
+            if(tag.getBoolean("hasCamo"))
+                this.camoState = Block.getStateById(tag.getInt("camo"));
+            else
+                this.camoState = null;
+        }
     }
 
-    public boolean setCamoStack(ItemStack stack){
-        if(stack == null)
-            this.camoStack = ItemStack.EMPTY;
-        else
-            this.camoStack = stack.copy();
+    public boolean setCamoState(BlockState state){
+        System.out.println("State: " + state);
+        this.camoState = state;
         this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
         return true;
     }
@@ -89,9 +103,9 @@ public class METile extends TileEntity {
     }
 
     public BlockState getCamoBlock(){
-        if(this.camoStack == null || this.camoStack.isEmpty() || !(this.camoStack.getItem() instanceof BlockItem))
+        if(this.camoState == null || this.camoState.getBlock() == Blocks.AIR)
             return this.getBlockState();
-        return ((BlockItem)this.camoStack.getItem()).getBlock().getDefaultState();
+        return this.camoState;
     }
 
     public Direction getFacing(){
