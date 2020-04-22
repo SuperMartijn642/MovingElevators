@@ -2,7 +2,8 @@
   "block.movingelevators.elevator_block": "Контроллер лифта",
   "block.movingelevators.display_block": "Дисплей лифта",
   "gui.movingelevators.title": "Лифт",
+  "gui.movingelevators.floorname.label": "Название этажа:",
   "movingelevators.platform.size": "Размер платформы (блоков): $number$",
   "movingelevators.platform.speed": "Скорость платформы (блоков/т): $number$",
-  "movingelevators.floorname": "$number$ ЭТАЖ"
+  "movingelevators.floorname": "Этаж: $number$"
 }
