@@ -1,5 +1,6 @@
 tile.movingelevators:elevator_block.name=Контроллер лифта
 tile.movingelevators:display_block.name=Дисплей лифта
+gui.movingelevators.floorname.label=Название этажа:
 movingelevators.platform.size=Размер платформы (блоков): $number$
 movingelevators.platform.speed=Скорость платформы (блоков/т): $number$
 movingelevators.floorname=$number$ ЭТАЖ
