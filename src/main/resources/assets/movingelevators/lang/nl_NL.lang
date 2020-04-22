@@ -1,0 +1,6 @@
+tile.movingelevators:elevator_block.name=Lift Bediening
+tile.movingelevators:display_block.name=Lift Scherm
+gui.movingelevators.floorname.label=Verdieping naam:
+movingelevators.platform.size=Platform grootte: $number$ blokken
+movingelevators.platform.speed=Platform snelheid: $number$ blokken/t
+movingelevators.floorname=Verdieping $number$
