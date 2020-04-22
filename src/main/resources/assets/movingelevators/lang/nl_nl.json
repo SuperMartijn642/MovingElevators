@@ -1,0 +1,9 @@
+{
+  "block.movingelevators.elevator_block": "Lift Bediening",
+  "block.movingelevators.display_block": "Lift Scherm",
+  "gui.movingelevators.title": "Lift",
+  "gui.movingelevators.floorname.label": "Verdieping naam:",
+  "movingelevators.platform.size": "Platform grootte: $number$ blokken",
+  "movingelevators.platform.speed": "Platform snelheid: $number$ blokken/t",
+  "movingelevators.floorname": "Verdieping $number$"
+}
