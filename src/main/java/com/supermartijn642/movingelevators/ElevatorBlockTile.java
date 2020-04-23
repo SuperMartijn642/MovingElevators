@@ -166,7 +166,7 @@ public class ElevatorBlockTile extends METile implements ITickable {
     }
 
     public String getDefaultName(){
-        if(this.world == null || !this.world.isRemote)
+        if(this.world == null || !this.world.isRemote || this.group == null || this.pos == null)
             return null;
         return ClientProxy.translate("movingelevators.floorname").replace("$number$", Integer.toString(this.group.getFloorNumber(this.pos.getY())));
     }
