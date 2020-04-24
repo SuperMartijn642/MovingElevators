@@ -31,7 +31,7 @@ public class PacketElevatorName {
     }
 
     public static PacketElevatorName decode(PacketBuffer buffer){
-        return new PacketElevatorName(buffer.readBlockPos(), buffer.readBoolean() ? null : buffer.readString());
+        return new PacketElevatorName(buffer.readBlockPos(), buffer.readBoolean() ? null : buffer.readString(32767));
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
