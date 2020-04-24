@@ -1,8 +1,6 @@
 {
-  "parent": "block/orientable",
+  "parent": "block/cube_all",
   "textures": {
-    "top": "movingelevators:blocks/elevator",
-    "front": "movingelevators:blocks/elevator",
-    "side": "movingelevators:blocks/elevator"
+    "all": "movingelevators:blocks/elevator"
   }
 }
