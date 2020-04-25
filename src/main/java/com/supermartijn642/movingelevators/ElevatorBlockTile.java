@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators;
 
+import com.google.gson.JsonParseException;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
@@ -8,6 +9,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import java.util.ArrayList;
 
@@ -109,7 +112,7 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
     protected CompoundNBT getDataTag(){
         CompoundNBT data = super.getDataTag();
         if(this.name != null)
-            data.putString("name", this.name);
+            data.putString("name", ITextComponent.Serializer.toJson(new StringTextComponent(this.name)));
         data.putInt("color", this.color.getId());
         if(this.facing != null)
             data.putInt("facing", this.facing.getIndex());
@@ -126,7 +129,14 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
                 this.group = new ElevatorGroup(this.world, this.pos.getX(), this.pos.getZ(), this.facing);
             this.group.read(tag);
         }
-        this.name = tag.contains("name") ? tag.getString("name") : null;
+        if(tag.contains("name")){
+            try{
+                this.name = ITextComponent.Serializer.fromJson(tag.getString("name")).getFormattedText();
+            }catch(JsonParseException ignore){
+                this.name = tag.getString("name");
+            }
+        }else
+            this.name = null;
         if(tag.contains("color"))
             this.color = DyeColor.byId(tag.getInt("color"));
         if(tag.contains("facing"))
