@@ -10,6 +10,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Created 4/21/2020 by SuperMartijn642
  */
@@ -34,7 +36,7 @@ public class PacketElevatorName implements IMessage, IMessageHandler<PacketEleva
         else{
             byte[] bytes = new byte[buf.readInt()];
             buf.readBytes(bytes);
-            this.name = new String(bytes);
+            this.name = new String(bytes, StandardCharsets.UTF_16);
         }
     }
 
@@ -45,7 +47,7 @@ public class PacketElevatorName implements IMessage, IMessageHandler<PacketEleva
         buf.writeInt(this.pos.getZ());
         buf.writeBoolean(this.name == null);
         if(this.name != null){
-            byte[] bytes = this.name.getBytes();
+            byte[] bytes = this.name.getBytes(StandardCharsets.UTF_16);
             buf.writeInt(bytes.length);
             buf.writeBytes(bytes);
         }
