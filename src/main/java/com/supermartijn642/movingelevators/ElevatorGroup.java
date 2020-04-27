@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class ElevatorGroup {
 
-    public static final Field floatingTickCount = ObfuscationReflectionHelper.findField(ServerPlayNetHandler.class, "floatingTickCount");
+    public static final Field floatingTickCount = ObfuscationReflectionHelper.findField(ServerPlayNetHandler.class, "field_147365_f");
 
     private World world;
     private final int x, z;
