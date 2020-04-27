@@ -6,17 +6,21 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -25,6 +29,8 @@ import java.util.List;
  * Created 4/7/2020 by SuperMartijn642
  */
 public class ElevatorGroup {
+
+    private static final Field floatingTickCount = ReflectionHelper.findField(NetHandlerPlayServer.class, "floatingTickCount", "field_147365_f");
 
     private World world;
     private final int x, z;
@@ -87,6 +93,13 @@ public class ElevatorGroup {
             entity.fall(entity.fallDistance, 1);
             entity.fallDistance = 0;
             entity.motionY = 0;
+            if(entity instanceof EntityPlayerMP){
+                try{
+                    floatingTickCount.setInt(((EntityPlayerMP)entity).connection, 0);
+                }catch(IllegalAccessException e){
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
