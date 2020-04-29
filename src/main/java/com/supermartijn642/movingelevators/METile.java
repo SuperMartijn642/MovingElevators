@@ -90,6 +90,7 @@ public class METile extends TileEntity {
     public boolean setCamoState(IBlockState state){
         this.camoState = state;
         this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
+        this.markDirty();
         return true;
     }
 
