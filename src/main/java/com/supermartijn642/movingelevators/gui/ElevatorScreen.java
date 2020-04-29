@@ -7,6 +7,7 @@ import com.supermartijn642.movingelevators.packets.PacketElevatorSize;
 import com.supermartijn642.movingelevators.packets.PacketElevatorSpeed;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.AbstractSlider;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.InputMappings;
@@ -24,6 +25,7 @@ public class ElevatorScreen extends Screen {
     private static final int MAX_NAME_CHARACTER_COUNT = 11;
 
     private BlockPos elevatorPos;
+    private AbstractSlider sizeSlider, speedSlider;
     private TextFieldWidget nameField;
     private String lastTickName;
 
@@ -40,10 +42,10 @@ public class ElevatorScreen extends Screen {
         int width = 150;
         int height = 20;
         final BlockPos pos = tile.getPos();
-        this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSize(), slider -> {
+        this.sizeSlider = this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSize(), slider -> {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSize(pos, slider.getValue()));
         }));
-        this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSpeed(), slider -> {
+        this.speedSlider = this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSpeed(), slider -> {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
         }));
         this.children.add(this.nameField = new TextFieldWidget(this.font, (this.width - width) / 2, this.height / 13 * 4, width, height, ""));
@@ -114,5 +116,14 @@ public class ElevatorScreen extends Screen {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int mouseButton){
+        if(mouseButton == 0){
+            this.sizeSlider.onRelease(mouseX, mouseY);
+            this.speedSlider.onRelease(mouseX, mouseY);
+        }
+        return super.mouseReleased(mouseX, mouseY, mouseButton);
     }
 }
