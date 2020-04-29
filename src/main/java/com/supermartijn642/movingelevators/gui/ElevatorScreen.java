@@ -54,21 +54,6 @@ public class ElevatorScreen extends GuiScreen {
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException{
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-        this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
-        if(mouseButton == 1 && mouseX >= this.nameField.x && mouseX < this.nameField.x + this.nameField.width && mouseY >= this.nameField.y && mouseY < this.nameField.y + this.nameField.height){
-            this.nameField.setText("");
-        }
-    }
-
-    @Override
-    protected void keyTyped(char c, int keyCode) throws IOException{
-        super.keyTyped(c, keyCode);
-        this.nameField.textboxKeyTyped(c, keyCode);
-    }
-
-    @Override
     public void updateScreen(){
         super.updateScreen();
         ElevatorBlockTile tile = this.getTileOrClose();
@@ -101,10 +86,27 @@ public class ElevatorScreen extends GuiScreen {
     }
 
     @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException{
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+        this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
+        if(mouseButton == 1 && mouseX >= this.nameField.x && mouseX < this.nameField.x + this.nameField.width && mouseY >= this.nameField.y && mouseY < this.nameField.y + this.nameField.height){
+            this.nameField.setText("");
+        }
+    }
+
+    @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks){
         this.drawDefaultBackground();
         this.fontRenderer.drawString(I18n.format("gui.movingelevators.floorname.label"), this.nameField.x + 2, this.height / 4, Integer.MAX_VALUE);
         this.nameField.drawTextBox();
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    protected void keyTyped(char c, int keyCode) throws IOException{
+        super.keyTyped(c, keyCode);
+        this.nameField.textboxKeyTyped(c, keyCode);
+        if(!this.nameField.isFocused() && (keyCode == 1 || this.mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode)))
+            this.mc.player.closeScreen();
     }
 }
