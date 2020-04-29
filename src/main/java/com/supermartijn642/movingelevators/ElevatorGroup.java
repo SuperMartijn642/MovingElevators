@@ -75,6 +75,7 @@ public class ElevatorGroup {
             this.platform = new BlockState[this.size][this.size];
             BlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
             this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
+            this.markDirty();
         }
     }
 
@@ -102,6 +103,9 @@ public class ElevatorGroup {
                 }
             }
         }
+
+        if(!this.world.isRemote)
+            this.markDirty();
     }
 
     private boolean canCollideWith(Entity entity){
@@ -137,6 +141,7 @@ public class ElevatorGroup {
             BlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
             this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
             this.world.updateComparatorOutputLevel(this.getPos(this.targetY + 1), MovingElevators.elevator_block);
+            this.markDirty();
             double x = this.x + this.facing.getXOffset() * (int)Math.ceil(size / 2f) + 0.5;
             double z = this.z + this.facing.getZOffset() * (int)Math.ceil(size / 2f) + 0.5;
             this.world.playSound(null, x, this.targetY + 2.5, z, SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
@@ -179,6 +184,7 @@ public class ElevatorGroup {
             BlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
             this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
             this.world.updateComparatorOutputLevel(this.getPos(currentY), MovingElevators.elevator_block);
+            this.markDirty();
         }
     }
 
@@ -266,6 +272,7 @@ public class ElevatorGroup {
         }else if(!this.world.isRemote){
             BlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
             this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
+            this.markDirty();
         }
     }
 
@@ -291,6 +298,7 @@ public class ElevatorGroup {
         if(!this.world.isRemote){
             BlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
             this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
+            this.markDirty();
         }
     }
 
@@ -416,5 +424,11 @@ public class ElevatorGroup {
         if(floor < 0 || floor >= this.floors.size())
             return null;
         return this.getTile(this.floors.get(floor));
+    }
+
+    private void markDirty(){
+        ElevatorBlockTile tile = this.getTile(this.getLowest());
+        if(tile != null)
+            tile.markDirty();
     }
 }

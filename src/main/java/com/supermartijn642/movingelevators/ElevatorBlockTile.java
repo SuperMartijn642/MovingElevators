@@ -36,6 +36,7 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
             this.facing = this.getBlockState().get(ElevatorBlock.FACING);
             if(this.group != null && this.group.getLowest() == this.pos.getY())
                 this.group.setFacing(this.facing);
+            this.markDirty();
         }
         if(this.group != null){
             if(this.group.getLowest() == this.pos.getY())
@@ -44,6 +45,7 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
                 if(this.redstone)
                     this.group.onButtonPress(false, false, this.pos.getY());
                 this.lastRedstone = this.redstone;
+                this.markDirty();
             }
         }else if(!this.world.isRemote){
             ArrayList<ElevatorBlockTile> tiles = new ArrayList<>(1);
@@ -188,11 +190,13 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
     public void setName(String name){
         this.name = name;
         this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
+        this.markDirty();
     }
 
     public void setDisplayLabelColor(DyeColor color){
         this.color = color;
         this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
+        this.markDirty();
     }
 
     public DyeColor getDisplayLabelColor(){
