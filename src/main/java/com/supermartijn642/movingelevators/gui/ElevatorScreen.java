@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -68,11 +69,11 @@ public class ElevatorScreen extends Screen {
     }
 
     @Override
-    public void render(int p_render_1_, int p_render_2_, float p_render_3_){
+    public void render(int mouseX, int mouseY, float partialTicks){
         this.renderBackground();
         this.font.drawString(I18n.format("gui.movingelevators.floorname.label"), this.nameField.x + 2, this.height / 4f, Integer.MAX_VALUE);
-        this.nameField.render(p_render_1_, p_render_2_, p_render_3_);
-        super.render(p_render_1_, p_render_2_, p_render_3_);
+        this.nameField.render(mouseX, mouseY, partialTicks);
+        super.render(mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -90,5 +91,28 @@ public class ElevatorScreen extends Screen {
             return (ElevatorBlockTile)tile;
         player.closeScreen();
         return null;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton){
+        if(mouseButton == 1){ // text field
+            if(mouseX >= this.nameField.x && mouseX < this.nameField.x + this.nameField.getWidth()
+                && mouseY >= this.nameField.y && mouseY < this.nameField.y + this.nameField.getHeight())
+                this.nameField.setText("");
+        }
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+        return false;
+    }
+
+    @Override
+    public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_){
+        if(super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_))
+            return true;
+        InputMappings.Input mouseKey = InputMappings.getInputByCode(p_keyPressed_1_, p_keyPressed_2_);
+        if(!this.nameField.isFocused() && (p_keyPressed_1_ == 256 || Minecraft.getInstance().gameSettings.keyBindInventory.isActiveAndMatches(mouseKey))){
+            Minecraft.getInstance().player.closeScreen();
+            return true;
+        }
+        return false;
     }
 }
