@@ -1,9 +1,6 @@
-{
-  "block.movingelevators.elevator_block": "Aufzugssteuerung",
-  "block.movingelevators.display_block": "Aufzugsanzeige",
-  "gui.movingelevators.title": "Aufzug",
-  "gui.movingelevators.floorname.label": "Stockname:",
-  "movingelevators.platform.size": "Plattform Größe: $number$ Blöcke",
-  "movingelevators.platform.speed": "Plattform Snelheid: $number$ Blöcke/t",
-  "movingelevators.floorname": "$number$ Stock"
-}
+tile.movingelevators:elevator_block.name=Aufzugssteuerung
+tile.movingelevators:display_block.name=Aufzugsanzeige
+gui.movingelevators.floorname.label=Stockname:
+movingelevators.platform.size=Plattform Größe: $number$ Blöcke
+movingelevators.platform.speed=Plattform Snelheid: $number$ Blöcke/t
+movingelevators.floorname=$number$ Stock
