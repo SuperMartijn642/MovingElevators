@@ -15,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.client.gui.widget.Slider;
 
 /**
  * Created 4/3/2020 by SuperMartijn642
@@ -24,6 +25,7 @@ public class ElevatorScreen extends Screen {
     private static final int MAX_NAME_CHARACTER_COUNT = 11;
 
     private BlockPos elevatorPos;
+    private Slider sizeSlider, speedSlider;
     private TextFieldWidget nameField;
     private String lastTickName;
 
@@ -40,10 +42,10 @@ public class ElevatorScreen extends Screen {
         int width = 150;
         int height = 20;
         final BlockPos pos = tile.getPos();
-        this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSize(), slider -> {
+        this.sizeSlider = this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSize(), slider -> {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSize(pos, slider.getValueInt()));
         }));
-        this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSpeed(), slider -> {
+        this.speedSlider = this.addButton(new ElevatorSpeedSlider(this.width / 2 + 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSpeed(), slider -> {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
         }));
         this.children.add(this.nameField = new TextFieldWidget(this.font, (this.width - width) / 2, this.height / 13 * 4, width, height, ""));
@@ -114,5 +116,14 @@ public class ElevatorScreen extends Screen {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int mouseButton){
+        if(mouseButton == 0){
+            this.sizeSlider.onRelease(mouseX, mouseY);
+            this.speedSlider.onRelease(mouseX, mouseY);
+        }
+        return super.mouseReleased(mouseX, mouseY, mouseButton);
     }
 }
