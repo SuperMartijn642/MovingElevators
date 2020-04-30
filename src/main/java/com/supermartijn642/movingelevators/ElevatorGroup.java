@@ -95,6 +95,7 @@ public class ElevatorGroup {
             entity.fallDistance = 0;
             entity.motionY = 0;
             if(entity instanceof EntityPlayerMP){
+                entity.getEntityData().setLong("elevatorTime", System.currentTimeMillis());
                 try{
                     floatingTickCount.setInt(((EntityPlayerMP)entity).connection, 0);
                 }catch(IllegalAccessException e){
