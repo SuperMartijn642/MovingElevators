@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
@@ -44,7 +45,7 @@ public class ButtonBlock extends ElevatorInputBlock {
         CompoundNBT tag = stack.getTag();
         if(tag != null && tag.contains("controllerDim"))
             tooltip.add(new StringTextComponent(I18n.format("block.movingelevators.button_block.info").replace("$x$", Integer.toString(tag.getInt("controllerX")))
-                .replace("$y$", Integer.toString(tag.getInt("controllerY"))).replace("$z$", Integer.toString(tag.getInt("controllerZ")))));
+                .replace("$y$", Integer.toString(tag.getInt("controllerY"))).replace("$z$", Integer.toString(tag.getInt("controllerZ")))).applyTextStyle(TextFormatting.AQUA));
         super.addInformation(stack, worldIn, tooltip, flagIn);
     }
 }
