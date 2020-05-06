@@ -46,7 +46,7 @@ public class ElevatorScreen extends GuiScreen {
             MovingElevators.channel.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
         }));
         this.nameField = new GuiTextField(0, this.fontRenderer, (this.width - width) / 2, this.height / 13 * 4, width, height);
-        this.nameField.setText(tile.getName());
+        this.nameField.setText(tile.getFloorName());
         this.lastTickName = this.nameField.getText();
         this.nameField.setCanLoseFocus(true);
         this.nameField.setFocused(false);
@@ -62,8 +62,8 @@ public class ElevatorScreen extends GuiScreen {
         this.nameField.updateCursorCounter();
         if(!this.lastTickName.equals(this.nameField.getText())){
             String name = this.nameField.getText();
-            if(name.isEmpty() ? !tile.getDefaultName().equals(tile.getName()) : !name.equals(tile.getName()))
-                MovingElevators.channel.sendToServer(new PacketElevatorName(tile.getPos(), name.isEmpty() || name.equals(tile.getDefaultName()) ? null : name));
+            if(name.isEmpty() ? !tile.getDefaultFloorName().equals(tile.getFloorName()) : !name.equals(tile.getFloorName()))
+                MovingElevators.channel.sendToServer(new PacketElevatorName(tile.getPos(), name.isEmpty() || name.equals(tile.getDefaultFloorName()) ? null : name));
             this.lastTickName = name;
         }
     }

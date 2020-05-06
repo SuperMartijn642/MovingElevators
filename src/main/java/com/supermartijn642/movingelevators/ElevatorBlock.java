@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators;
 
+import com.supermartijn642.movingelevators.base.ElevatorInputBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.properties.PropertyDirection;
@@ -7,16 +8,21 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 /**
  * Created 4/5/2020 by SuperMartijn642
  */
-public class ElevatorBlock extends MEBlock {
+public class ElevatorBlock extends ElevatorInputBlock {
 
     public static final PropertyDirection FACING = BlockHorizontal.FACING;
 
@@ -26,17 +32,23 @@ public class ElevatorBlock extends MEBlock {
 
     @Override
     protected void onRightClick(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand handIn, EnumFacing facing, float hitX, float hitY, float hitZ){
-        TileEntity tile = worldIn.getTileEntity(pos);
-        if(!(tile instanceof ElevatorBlockTile))
-            return;
-        ElevatorBlockTile elevator = (ElevatorBlockTile)tile;
-        if(!elevator.hasGroup())
-            return;
-        if(worldIn.isRemote && state.getValue(FACING) != facing)
-            ClientProxy.openElevatorScreen(pos);
-        else if(!worldIn.isRemote && state.getValue(FACING) == facing){
-            ((ElevatorBlockTile)tile).getGroup().onButtonPress(hitY > 2 / 3D, hitY < 1 / 3D, pos.getY());
-        }
+        if(player != null && player.getHeldItem(handIn).getItem() instanceof ButtonBlockItem){
+            if(!worldIn.isRemote){
+                ItemStack stack = player.getHeldItem(handIn);
+                if(stack.getTagCompound() == null)
+                    stack.setTagCompound(new NBTTagCompound());
+                NBTTagCompound tag = stack.getTagCompound();
+                tag.setInteger("controllerDim", worldIn.provider.getDimensionType().getId());
+                tag.setInteger("controllerX", pos.getX());
+                tag.setInteger("controllerY", pos.getY());
+                tag.setInteger("controllerZ", pos.getZ());
+                player.sendMessage(new TextComponentTranslation("block.movingelevators.button_block.bind").setStyle(new Style().setColor(TextFormatting.YELLOW)));
+            }
+        }else if(state.getValue(FACING) != facing){
+            if(worldIn.isRemote)
+                ClientProxy.openElevatorScreen(pos);
+        }else
+            super.onRightClick(worldIn, pos, state, player, handIn, facing, hitX, hitY, hitZ);
     }
 
     @Override

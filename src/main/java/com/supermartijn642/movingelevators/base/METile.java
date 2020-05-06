@@ -1,5 +1,6 @@
-package com.supermartijn642.movingelevators;
+package com.supermartijn642.movingelevators.base;
 
+import com.supermartijn642.movingelevators.MovingElevators;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -17,78 +18,88 @@ import javax.annotation.Nullable;
 /**
  * Created 4/6/2020 by SuperMartijn642
  */
-public class METile extends TileEntity {
+public abstract class METile extends TileEntity {
 
     public METile(){
         super();
     }
 
-    private IBlockState camoState = MovingElevators.elevator_block.getDefaultState();
+    private IBlockState camoState = Blocks.AIR.getDefaultState();
+    private IBlockState lastCamoState = this.camoState;
 
     @Nullable
     @Override
     public SPacketUpdateTileEntity getUpdatePacket(){
-        return new SPacketUpdateTileEntity(this.pos, 0, this.getDataTag());
+        NBTTagCompound compound = this.getChangedData();
+        return compound.hasNoTags() ? null : new SPacketUpdateTileEntity(this.pos, 0, compound);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt){
-        this.handleDataTag(pkt.getNbtCompound());
+        this.handleData(pkt.getNbtCompound());
     }
 
     @Override
     public NBTTagCompound getUpdateTag(){
         NBTTagCompound tag = super.getUpdateTag();
-        tag.setTag("info", this.getDataTag());
+        tag.setTag("info", this.getAllData());
         return tag;
     }
 
     @Override
     public void handleUpdateTag(NBTTagCompound tag){
         super.handleUpdateTag(tag);
-        this.handleDataTag(tag.getCompoundTag("info"));
+        this.handleData(tag.getCompoundTag("info"));
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound compound){
         super.writeToNBT(compound);
-        compound.setTag("info", this.getDataTag());
+        compound.setTag("info", this.getAllData());
         return compound;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound compound){
         super.readFromNBT(compound);
-        this.handleDataTag(compound.getCompoundTag("info"));
+        this.handleData(compound.getCompoundTag("info"));
     }
 
-    protected NBTTagCompound getDataTag(){
+    protected NBTTagCompound getChangedData(){
         NBTTagCompound data = new NBTTagCompound();
-        data.setBoolean("hasCamo", this.camoState != null);
-        if(this.camoState != null)
-            data.setInteger("camo", Block.getStateId(this.camoState));
+        if(this.lastCamoState != this.camoState){
+            data.setInteger("camoState", Block.getStateId(this.camoState));
+            this.lastCamoState = this.camoState;
+        }
         return data;
     }
 
-    protected void handleDataTag(NBTTagCompound tag){
-        if(tag.hasKey("camo")){ // Do this for older versions
-            ItemStack camoStack = new ItemStack(tag.getCompoundTag("camo"));
+    protected NBTTagCompound getAllData(){
+        NBTTagCompound data = new NBTTagCompound();
+        data.setInteger("camoState", Block.getStateId(this.camoState));
+        return data;
+    }
+
+    protected void handleData(NBTTagCompound data){
+        if(data.hasKey("camoState"))
+            this.camoState = Block.getStateById(data.getInteger("camoState"));
+        else if(data.hasKey("hasCamo")){ // Do this for older versions
+            if(data.getBoolean("hasCamo"))
+                this.camoState = Block.getStateById(data.getInteger("camo"));
+            else
+                this.camoState = Blocks.AIR.getDefaultState();
+        }else if(data.hasKey("camo")){ // Do this for older versions
+            ItemStack camoStack = new ItemStack(data.getCompoundTag("camo"));
             Item item = camoStack.getItem();
             if(item instanceof ItemBlock){
                 Block block = ((ItemBlock)item).getBlock();
                 this.camoState = block.getDefaultState();
             }
         }
-        if(tag.hasKey("hasCamo")){
-            if(tag.getBoolean("hasCamo"))
-                this.camoState = Block.getStateById(tag.getInteger("camo"));
-            else
-                this.camoState = null;
-        }
     }
 
     public boolean setCamoState(IBlockState state){
-        this.camoState = state;
+        this.camoState = state == null ? Blocks.AIR.getDefaultState() : state;
         this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
         this.markDirty();
         return true;
@@ -98,38 +109,16 @@ public class METile extends TileEntity {
         if(stack.isEmpty() || !(stack.getItem() instanceof ItemBlock))
             return false;
         Block block = ((ItemBlock)stack.getItem()).getBlock();
-        return block != MovingElevators.elevator_block && block != MovingElevators.display_block && block.isFullCube(block.getDefaultState());
+        return block != MovingElevators.elevator_block && block != MovingElevators.display_block && block != MovingElevators.button_block && block.isFullCube(block.getDefaultState());
     }
 
     public IBlockState getCamoBlock(){
-        if(this.camoState == null || this.camoState.getBlock() == Blocks.AIR)
+        if(this.camoState.getBlock() == Blocks.AIR)
             return this.getBlockState();
         return this.camoState;
     }
 
-    public EnumFacing getFacing(){
-        TileEntity tile = this.world.getTileEntity(this.pos.down());
-        if(tile instanceof METile)
-            return ((METile)tile).getFacing();
-        return null;
-    }
-
-    public int getDisplayCategory(){
-        TileEntity tile = this.world.getTileEntity(this.pos.down());
-        if(tile instanceof ElevatorBlockTile){
-            tile = this.world.getTileEntity(this.pos.up());
-            if(tile instanceof METile && !(tile instanceof ElevatorBlockTile))
-                return 2;
-            return 1;
-        }
-        if(tile instanceof METile){
-            tile = this.world.getTileEntity(this.pos.down(2));
-            if(tile instanceof ElevatorBlockTile)
-                return 3;
-            return 0;
-        }
-        return 0;
-    }
+    public abstract EnumFacing getFacing();
 
     protected IBlockState getBlockState(){
         return this.world.getBlockState(this.pos);

@@ -64,7 +64,7 @@ public class PacketElevatorName implements IMessage, IMessageHandler<PacketEleva
         TileEntity tile = world.getTileEntity(message.pos);
         if(!(tile instanceof ElevatorBlockTile))
             return null;
-        player.getServer().addScheduledTask(() -> ((ElevatorBlockTile)tile).setName(message.name));
+        player.getServer().addScheduledTask(() -> ((ElevatorBlockTile)tile).setFloorName(message.name));
         return null;
     }
 }

@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators;
 
+import com.supermartijn642.movingelevators.base.ElevatorInputTile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 /**
  * Created 4/5/2020 by SuperMartijn642
  */
-public class ElevatorBlockTile extends METile implements ITickable {
+public class ElevatorBlockTile extends ElevatorInputTile implements ITickable {
 
     private ElevatorGroup group;
     private String name;
@@ -108,8 +109,13 @@ public class ElevatorBlockTile extends METile implements ITickable {
         return this.facing;
     }
 
-    protected NBTTagCompound getDataTag(){
-        NBTTagCompound data = super.getDataTag();
+    @Override
+    protected NBTTagCompound getChangedData(){
+        return this.getAllData();
+    }
+
+    protected NBTTagCompound getAllData(){
+        NBTTagCompound data = super.getAllData();
         if(this.name != null)
             data.setString("name", this.name);
         data.setInteger("color", this.color.getMetadata());
@@ -121,8 +127,8 @@ public class ElevatorBlockTile extends METile implements ITickable {
         return data;
     }
 
-    protected void handleDataTag(NBTTagCompound tag){
-        super.handleDataTag(tag);
+    protected void handleData(NBTTagCompound tag){
+        super.handleData(tag);
         if(tag.hasKey("moving") && tag.getBoolean("moving")){ // for older versions
             if(this.group == null)
                 this.group = new ElevatorGroup(this.world, this.pos.getX(), this.pos.getZ(), this.facing);
@@ -158,26 +164,18 @@ public class ElevatorBlockTile extends METile implements ITickable {
         return this.world.getHeight() * this.world.getHeight() * 4;
     }
 
-    public int getDisplayHeight(){
-        if(this.world.getBlockState(this.pos.up()).getBlock() == MovingElevators.display_block){
-            if(this.world.getBlockState(this.pos.up(2)).getBlock() == MovingElevators.display_block)
-                return 2;
-            return 1;
-        }
-        return 0;
-    }
-
-    public String getDefaultName(){
+    public String getDefaultFloorName(){
         if(this.world == null || !this.world.isRemote || this.group == null || this.pos == null)
             return null;
         return ClientProxy.translate("movingelevators.floorname").replace("$number$", Integer.toString(this.group.getFloorNumber(this.pos.getY())));
     }
 
-    public String getName(){
-        return this.name == null ? this.getDefaultName() : this.name;
+    @Override
+    public String getFloorName(){
+        return this.name == null ? this.getDefaultFloorName() : this.name;
     }
 
-    public void setName(String name){
+    public void setFloorName(String name){
         this.name = name;
         this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
         this.markDirty();
@@ -189,10 +187,12 @@ public class ElevatorBlockTile extends METile implements ITickable {
         this.markDirty();
     }
 
+    @Override
     public EnumDyeColor getDisplayLabelColor(){
         return this.color;
     }
 
+    @Override
     public ElevatorGroup getGroup(){
         return this.group;
     }
@@ -201,7 +201,13 @@ public class ElevatorBlockTile extends METile implements ITickable {
         this.group = group;
     }
 
+    @Override
     public boolean hasGroup(){
         return this.group != null;
+    }
+
+    @Override
+    public int getFloorLevel(){
+        return this.pos.getY();
     }
 }

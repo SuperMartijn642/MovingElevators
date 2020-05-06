@@ -1,4 +1,4 @@
-package com.supermartijn642.movingelevators;
+package com.supermartijn642.movingelevators.base;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;

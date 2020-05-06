@@ -1,5 +1,7 @@
 package com.supermartijn642.movingelevators;
 
+import com.supermartijn642.movingelevators.base.ElevatorInputTileRenderer;
+import com.supermartijn642.movingelevators.base.METileRenderer;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -24,13 +26,15 @@ public class ClientProxy extends CommonProxy {
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> e){
         ClientRegistry.bindTileEntitySpecialRenderer(ElevatorBlockTile.class, new ElevatorBlockTileRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(METile.class, new METileRenderer<>());
+        ClientRegistry.bindTileEntitySpecialRenderer(DisplayBlockTile.class, new METileRenderer<>());
+        ClientRegistry.bindTileEntitySpecialRenderer(ButtonBlockTile.class, new ElevatorInputTileRenderer<>());
     }
 
     @SubscribeEvent
     public static void registerModels(ModelRegistryEvent e){
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(MovingElevators.elevator_block), 0, new ModelResourceLocation(MovingElevators.elevator_block.getRegistryName(), "inventory"));
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(MovingElevators.display_block), 0, new ModelResourceLocation(MovingElevators.display_block.getRegistryName(), "inventory"));
+        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(MovingElevators.button_block), 0, new ModelResourceLocation(MovingElevators.button_block.getRegistryName(), "inventory"));
     }
 
     public static void openElevatorScreen(BlockPos pos){

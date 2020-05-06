@@ -27,6 +27,8 @@ public class MovingElevators {
     public static ElevatorBlock elevator_block;
     @GameRegistry.ObjectHolder("movingelevators:display_block")
     public static DisplayBlock display_block;
+    @GameRegistry.ObjectHolder("movingelevators:button_block")
+    public static ButtonBlock button_block;
 
     @SidedProxy(clientSide = "com.supermartijn642.movingelevators.ClientProxy", serverSide = "com.supermartijn642.movingelevators.CommonProxy")
     public static CommonProxy proxy;

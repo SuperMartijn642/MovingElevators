@@ -1,5 +1,10 @@
 tile.movingelevators:elevator_block.name=Lift Bediening
 tile.movingelevators:display_block.name=Lift Scherm
+tile.movingelevators:button_block.name=Extern Lift Bedieningspaneel
+block.movingelevators.button_block.info=Lift Bediening op $x$, $y$, $z$
+block.movingelevators.button_block.bind=Gebonden aan de Lift Bediening!
+block.movingelevators.button_block.place=Het blok moet gebonden zijn aan Lift Bediening!
+block.movingelevators.button_block.dimension=Het blok moet in dezelfde dimensie zijn als de Lift Bediening!
 gui.movingelevators.floorname.label=Verdieping naam:
 movingelevators.platform.size=Platform grootte: $number$ blokken
 movingelevators.platform.speed=Platform snelheid: $number$ blokken/t
