@@ -14,12 +14,13 @@ import net.minecraftforge.fml.relauncher.Side;
 /**
  * Created 4/5/2020 by SuperMartijn642
  */
-@Mod(modid = MovingElevators.MODID, name = MovingElevators.NAME, version = MovingElevators.VERSION)
+@Mod(modid = MovingElevators.MODID, name = MovingElevators.NAME, version = MovingElevators.VERSION, dependencies = MovingElevators.DEPENDENCIES)
 public class MovingElevators {
 
     public static final String MODID = "movingelevators";
     public static final String NAME = "Moving Elevators";
-    public static final String VERSION = "1.2.14";
+    public static final String VERSION = "1.2.15";
+    public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2779,)";
 
     public static SimpleNetworkWrapper channel;
 
