@@ -49,7 +49,7 @@ public class ElevatorScreen extends Screen {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
         }));
         this.children.add(this.nameField = new TextFieldWidget(this.font, (this.width - width) / 2, this.height / 13 * 4, width, height, ""));
-        this.nameField.setText(tile.getName());
+        this.nameField.setText(tile.getFloorName());
         this.lastTickName = this.nameField.getText();
         this.nameField.setCanLoseFocus(true);
         this.nameField.setFocused2(false);
@@ -64,8 +64,8 @@ public class ElevatorScreen extends Screen {
         this.nameField.tick();
         if(!this.lastTickName.equals(this.nameField.getText())){
             String name = this.nameField.getText();
-            if(name.isEmpty() ? !tile.getDefaultName().equals(tile.getName()) : !name.equals(tile.getName()))
-                MovingElevators.CHANNEL.sendToServer(new PacketElevatorName(tile.getPos(), name.isEmpty() || name.equals(tile.getDefaultName()) ? null : name));
+            if(name.isEmpty() ? !tile.getDefaultFloorName().equals(tile.getFloorName()) : !name.equals(tile.getFloorName()))
+                MovingElevators.CHANNEL.sendToServer(new PacketElevatorName(tile.getPos(), name.isEmpty() || name.equals(tile.getDefaultFloorName()) ? null : name));
             this.lastTickName = name;
         }
     }

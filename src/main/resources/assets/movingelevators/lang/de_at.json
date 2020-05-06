@@ -1,6 +1,11 @@
 {
   "block.movingelevators.elevator_block": "Aufzugssteuerung",
   "block.movingelevators.display_block": "Aufzugsanzeige",
+  "block.movingelevators.button_block": "externes Aufzugssteuerung",
+  "block.movingelevators.button_block.info": "Aufzugssteuerung am $x$, $y$, $z$",
+  "block.movingelevators.button_block.bind": "Verbunden mit der Aufzugssteuerung!",
+  "block.movingelevators.button_block.place": "Der block muss verbunden sein mit einer Aufzugssteuerung!",
+  "block.movingelevators.button_block.dimension": "Der block muss in der gleichen Dimension sein wie die Aufzugssteuerung!",
   "gui.movingelevators.title": "Aufzug",
   "gui.movingelevators.floorname.label": "Stockname:",
   "movingelevators.platform.size": "Plattform Größe: $number$ Blöcke",

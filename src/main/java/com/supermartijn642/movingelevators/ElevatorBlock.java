@@ -1,16 +1,26 @@
 package com.supermartijn642.movingelevators;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
+import com.supermartijn642.movingelevators.base.ElevatorInputBlock;
+import com.supermartijn642.movingelevators.base.MEBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.DyeColor;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -18,7 +28,7 @@ import javax.annotation.Nullable;
 /**
  * Created 3/28/2020 by SuperMartijn642
  */
-public class ElevatorBlock extends MEBlock {
+public class ElevatorBlock extends ElevatorInputBlock {
 
     public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
 
@@ -27,19 +37,24 @@ public class ElevatorBlock extends MEBlock {
     }
 
     @Override
-    public void onRightClick(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
-        TileEntity tile = worldIn.getTileEntity(pos);
-        if(!(tile instanceof ElevatorBlockTile))
-            return;
-        ElevatorBlockTile elevator = (ElevatorBlockTile)tile;
-        if(!elevator.hasGroup())
-            return;
-        if(worldIn.isRemote && state.get(FACING) != rayTraceResult.getFace())
-            ClientProxy.openElevatorScreen(pos);
-        else if(!worldIn.isRemote && state.get(FACING) == rayTraceResult.getFace()){
-            double y = rayTraceResult.getHitVec().y - pos.getY();
-            ((ElevatorBlockTile)tile).getGroup().onButtonPress(y > 2 / 3D, y < 1 / 3D, pos.getY());
+    protected void onRightClick(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
+        if(player != null && player.getHeldItem(handIn).getItem() instanceof ButtonBlockItem){
+            if(!worldIn.isRemote){
+                ItemStack stack = player.getHeldItem(handIn);
+                CompoundNBT tag = stack.getOrCreateTag();
+                tag.putInt("controllerDim", worldIn.dimension.getType().getId());
+                tag.putInt("controllerX", pos.getX());
+                tag.putInt("controllerY", pos.getY());
+                tag.putInt("controllerZ", pos.getZ());
+                player.sendMessage(new TranslationTextComponent("block.movingelevators.button_block.bind").applyTextStyle(TextFormatting.YELLOW));
+            }
         }
+        else if(state.get(FACING) != rayTraceResult.getFace()){
+            if(worldIn.isRemote)
+                ClientProxy.openElevatorScreen(pos);
+        }
+        else
+            super.onRightClick(state, worldIn, pos, player, handIn, rayTraceResult);
     }
 
     @Nullable

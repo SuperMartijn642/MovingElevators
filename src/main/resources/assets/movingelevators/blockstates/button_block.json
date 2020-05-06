@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "movingelevators:block/button_block"
+    }
+  }
+}

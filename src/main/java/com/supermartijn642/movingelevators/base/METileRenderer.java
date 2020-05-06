@@ -1,4 +1,4 @@
-package com.supermartijn642.movingelevators;
+package com.supermartijn642.movingelevators.base;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.BlockState;
