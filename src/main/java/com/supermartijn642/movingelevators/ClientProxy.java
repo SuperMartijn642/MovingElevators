@@ -1,5 +1,7 @@
 package com.supermartijn642.movingelevators;
 
+import com.supermartijn642.movingelevators.base.ElevatorInputTileRenderer;
+import com.supermartijn642.movingelevators.base.METileRenderer;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -19,7 +21,8 @@ public class ClientProxy {
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e){
         ClientRegistry.bindTileEntitySpecialRenderer(ElevatorBlockTile.class, new ElevatorBlockTileRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(METile.class, new METileRenderer<>());
+        ClientRegistry.bindTileEntitySpecialRenderer(DisplayBlockTile.class, new METileRenderer<>());
+        ClientRegistry.bindTileEntitySpecialRenderer(ButtonBlockTile.class, new ElevatorInputTileRenderer<>());
     }
 
     public static void openElevatorScreen(BlockPos pos){

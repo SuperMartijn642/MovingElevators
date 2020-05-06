@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators;
 
 import com.google.gson.JsonParseException;
+import com.supermartijn642.movingelevators.base.ElevatorInputTile;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 /**
  * Created 3/29/2020 by SuperMartijn642
  */
-public class ElevatorBlockTile extends METile implements ITickableTileEntity {
+public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTileEntity {
 
     private ElevatorGroup group;
     private String name;
@@ -111,8 +112,13 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
         return this.facing;
     }
 
-    protected CompoundNBT getDataTag(){
-        CompoundNBT data = super.getDataTag();
+    @Override
+    protected CompoundNBT getChangedData(){
+        return this.getAllData();
+    }
+
+    protected CompoundNBT getAllData(){
+        CompoundNBT data = super.getAllData();
         if(this.name != null)
             data.putString("name", ITextComponent.Serializer.toJson(new StringTextComponent(this.name)));
         data.putInt("color", this.color.getId());
@@ -124,32 +130,32 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
         return data;
     }
 
-    protected void handleDataTag(CompoundNBT tag){
-        super.handleDataTag(tag);
-        if(tag.contains("moving") && tag.getBoolean("moving")){ // for older versions
+    protected void handleData(CompoundNBT data){
+        super.handleData(data);
+        if(data.contains("moving") && data.getBoolean("moving")){ // for older versions
             if(this.group == null)
                 this.group = new ElevatorGroup(this.world, this.pos.getX(), this.pos.getZ(), this.facing);
-            this.group.read(tag);
+            this.group.read(data);
         }
-        if(tag.contains("name")){
+        if(data.contains("name")){
             try{
-                this.name = ITextComponent.Serializer.fromJson(tag.getString("name")).getFormattedText();
+                this.name = ITextComponent.Serializer.fromJson(data.getString("name")).getFormattedText();
             }catch(JsonParseException ignore){
-                this.name = tag.getString("name");
+                this.name = data.getString("name");
             }
         }else
             this.name = null;
-        if(tag.contains("color"))
-            this.color = DyeColor.byId(tag.getInt("color"));
-        if(tag.contains("facing"))
-            this.facing = Direction.byIndex(tag.getInt("facing"));
-        if(tag.contains("group")){
+        if(data.contains("color"))
+            this.color = DyeColor.byId(data.getInt("color"));
+        if(data.contains("facing"))
+            this.facing = Direction.byIndex(data.getInt("facing"));
+        if(data.contains("group")){
             if(this.group == null)
                 this.group = new ElevatorGroup(this.world, this.pos.getX(), this.pos.getZ(), this.facing);
-            this.group.read(tag.getCompound("group"));
+            this.group.read(data.getCompound("group"));
         }
-        if(tag.contains("redstone")){
-            this.redstone = tag.getBoolean("redstone");
+        if(data.contains("redstone")){
+            this.redstone = data.getBoolean("redstone");
             this.lastRedstone = this.redstone;
         }
     }
@@ -168,26 +174,18 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
         return this.world.getMaxHeight() * this.world.getMaxHeight() * 4;
     }
 
-    public int getDisplayHeight(){
-        if(this.world.getBlockState(this.pos.up()).getBlock() == MovingElevators.display_block){
-            if(this.world.getBlockState(this.pos.up(2)).getBlock() == MovingElevators.display_block)
-                return 2;
-            return 1;
-        }
-        return 0;
-    }
-
-    public String getDefaultName(){
+    public String getDefaultFloorName(){
         if(this.world == null || !this.world.isRemote || this.group == null || this.pos == null)
             return null;
         return ClientProxy.translate("movingelevators.floorname").replace("$number$", Integer.toString(this.group.getFloorNumber(this.pos.getY())));
     }
 
-    public String getName(){
-        return this.name == null ? this.getDefaultName() : this.name;
+    @Override
+    public String getFloorName(){
+        return this.name == null ? this.getDefaultFloorName() : this.name;
     }
 
-    public void setName(String name){
+    public void setFloorName(String name){
         this.name = name;
         this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
         this.markDirty();
@@ -199,10 +197,12 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
         this.markDirty();
     }
 
+    @Override
     public DyeColor getDisplayLabelColor(){
         return this.color;
     }
 
+    @Override
     public ElevatorGroup getGroup(){
         return this.group;
     }
@@ -211,7 +211,13 @@ public class ElevatorBlockTile extends METile implements ITickableTileEntity {
         this.group = group;
     }
 
+    @Override
     public boolean hasGroup(){
         return this.group != null;
+    }
+
+    @Override
+    public int getFloorLevel(){
+        return this.pos.getY();
     }
 }

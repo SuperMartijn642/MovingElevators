@@ -45,6 +45,6 @@ public class PacketElevatorName {
         TileEntity tile = world.getTileEntity(this.pos);
         if(!(tile instanceof ElevatorBlockTile))
             return;
-        context.enqueueWork(() -> ((ElevatorBlockTile)tile).setName(this.name));
+        context.enqueueWork(() -> ((ElevatorBlockTile)tile).setFloorName(this.name));
     }
 }

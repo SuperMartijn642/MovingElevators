@@ -1,4 +1,4 @@
-package com.supermartijn642.movingelevators;
+package com.supermartijn642.movingelevators.base;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -7,6 +7,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.material.PushReaction;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
@@ -88,5 +89,10 @@ public class MEBlock extends Block {
     @Override
     public BlockRenderType getRenderType(BlockState state){
         return BlockRenderType.ENTITYBLOCK_ANIMATED;
+    }
+
+    @Override
+    public boolean canEntitySpawn(BlockState state, IBlockReader worldIn, BlockPos pos, EntityType<?> type){
+        return false;
     }
 }

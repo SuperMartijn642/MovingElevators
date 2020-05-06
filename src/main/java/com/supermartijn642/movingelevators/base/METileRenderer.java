@@ -1,4 +1,4 @@
-package com.supermartijn642.movingelevators;
+package com.supermartijn642.movingelevators.base;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.BlockState;

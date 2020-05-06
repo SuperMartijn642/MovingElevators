@@ -31,7 +31,11 @@ public class MovingElevators {
     @ObjectHolder("movingelevators:display_block")
     public static DisplayBlock display_block;
     @ObjectHolder("movingelevators:display_tile")
-    public static TileEntityType<METile> display_tile;
+    public static TileEntityType<DisplayBlockTile> display_tile;
+    @ObjectHolder("movingelevators:button_block")
+    public static ButtonBlock button_block;
+    @ObjectHolder("movingelevators:button_tile")
+    public static TileEntityType<ButtonBlockTile> button_tile;
 
     public MovingElevators(){
         CHANNEL.registerMessage(0, PacketElevatorSize.class, PacketElevatorSize::encode, PacketElevatorSize::decode, PacketElevatorSize::handle);
@@ -45,18 +49,21 @@ public class MovingElevators {
         public static void onBlockRegistry(final RegistryEvent.Register<Block> e){
             e.getRegistry().register(new ElevatorBlock());
             e.getRegistry().register(new DisplayBlock());
+            e.getRegistry().register(new ButtonBlock());
         }
 
         @SubscribeEvent
         public static void onTileRegistry(final RegistryEvent.Register<TileEntityType<?>> e){
             e.getRegistry().register(TileEntityType.Builder.create(ElevatorBlockTile::new, elevator_block).build(null).setRegistryName("elevator_tile"));
-            e.getRegistry().register(TileEntityType.Builder.create(() -> new METile(MovingElevators.display_tile), display_block).build(null).setRegistryName("display_tile"));
+            e.getRegistry().register(TileEntityType.Builder.create(DisplayBlockTile::new, display_block).build(null).setRegistryName("display_tile"));
+            e.getRegistry().register(TileEntityType.Builder.create(ButtonBlockTile::new, button_block).build(null).setRegistryName("button_tile"));
         }
 
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> e){
             e.getRegistry().register(new BlockItem(elevator_block, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("elevator_block"));
             e.getRegistry().register(new BlockItem(display_block, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("display_block"));
+            e.getRegistry().register(new ButtonBlockItem(button_block, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("button_block"));
         }
     }
 }
