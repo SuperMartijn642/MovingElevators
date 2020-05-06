@@ -1,15 +1,11 @@
 package com.supermartijn642.movingelevators;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
 import com.supermartijn642.movingelevators.base.ElevatorInputBlock;
-import com.supermartijn642.movingelevators.base.MEBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.DirectionProperty;
@@ -18,7 +14,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
@@ -48,12 +43,10 @@ public class ElevatorBlock extends ElevatorInputBlock {
                 tag.putInt("controllerZ", pos.getZ());
                 player.sendMessage(new TranslationTextComponent("block.movingelevators.button_block.bind").applyTextStyle(TextFormatting.YELLOW));
             }
-        }
-        else if(state.get(FACING) != rayTraceResult.getFace()){
+        }else if(state.get(FACING) != rayTraceResult.getFace()){
             if(worldIn.isRemote)
                 ClientProxy.openElevatorScreen(pos);
-        }
-        else
+        }else
             super.onRightClick(state, worldIn, pos, player, handIn, rayTraceResult);
     }
 

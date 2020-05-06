@@ -1,6 +1,5 @@
 package com.supermartijn642.movingelevators.base;
 
-import com.supermartijn642.movingelevators.base.METile;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;

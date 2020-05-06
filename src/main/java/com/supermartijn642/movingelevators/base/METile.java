@@ -89,8 +89,7 @@ public abstract class METile extends TileEntity {
                 this.camoState = Block.getStateById(data.getInt("camo"));
             else
                 this.camoState = null;
-        }
-        else if(data.contains("camo")){ // Do this for older versions
+        }else if(data.contains("camo")){ // Do this for older versions
             ItemStack camoStack = ItemStack.read(data.getCompound("camo"));
             Item item = camoStack.getItem();
             if(item instanceof BlockItem){

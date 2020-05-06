@@ -23,7 +23,7 @@ public class ButtonBlockTile extends ElevatorInputTile {
     public void setValues(Direction facing, BlockPos controllerPos){
         this.facing = facing;
         this.controllerPos = controllerPos;
-        this.world.notifyBlockUpdate(this.pos,this.getBlockState(),this.getBlockState(),2);
+        this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
         this.markDirty();
     }
 
@@ -31,7 +31,7 @@ public class ButtonBlockTile extends ElevatorInputTile {
     protected CompoundNBT getChangedData(){
         CompoundNBT data = super.getChangedData();
         if(this.lastFacing != this.facing){
-            data.putInt("facing",this.facing.getIndex());
+            data.putInt("facing", this.facing.getIndex());
             this.lastFacing = this.facing;
         }
         return data;
@@ -53,7 +53,7 @@ public class ButtonBlockTile extends ElevatorInputTile {
         if(data.contains("facing"))
             this.facing = Direction.byIndex(data.getInt("facing"));
         if(data.contains("controllerX"))
-            this.controllerPos = new BlockPos(data.getInt("controllerX"),data.getInt("controllerY"),data.getInt("controllerZ"));
+            this.controllerPos = new BlockPos(data.getInt("controllerX"), data.getInt("controllerY"), data.getInt("controllerZ"));
     }
 
     @Override
@@ -65,7 +65,7 @@ public class ButtonBlockTile extends ElevatorInputTile {
         if(this.world == null || this.controllerPos == null)
             return null;
         TileEntity tile = this.world.getTileEntity(this.controllerPos);
-        return tile instanceof ElevatorBlockTile ? (ElevatorBlockTile) tile : null;
+        return tile instanceof ElevatorBlockTile ? (ElevatorBlockTile)tile : null;
     }
 
     @Override
