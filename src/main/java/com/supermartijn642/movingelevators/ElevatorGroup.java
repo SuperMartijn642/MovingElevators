@@ -94,12 +94,14 @@ public class ElevatorGroup {
             entity.fall(entity.fallDistance, 1);
             entity.fallDistance = 0;
             entity.motionY = 0;
-            if(entity instanceof EntityPlayerMP){
+            if(entity instanceof EntityPlayer){
                 entity.getEntityData().setLong("elevatorTime", entity.ticksExisted);
-                try{
-                    floatingTickCount.setInt(((EntityPlayerMP)entity).connection, 0);
-                }catch(IllegalAccessException e){
-                    e.printStackTrace();
+                if(entity instanceof EntityPlayerMP){
+                    try{
+                        floatingTickCount.setInt(((EntityPlayerMP)entity).connection, 0);
+                    }catch(IllegalAccessException e){
+                        e.printStackTrace();
+                    }
                 }
             }
         }
