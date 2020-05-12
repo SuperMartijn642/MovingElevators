@@ -15,7 +15,7 @@ public class FallDamageHandler {
     public static void onFallDamage(LivingFallEvent e){
         NBTTagCompound compound = e.getEntityLiving().getEntityData();
         if(compound.hasKey("elevatorTime")){
-            if(compound.getLong("elevatorTime") > System.currentTimeMillis() - 5 * 1000)
+            if(compound.getLong("elevatorTime") - e.getEntity().ticksExisted > 20 * 5)
                 e.setCanceled(true);
             else
                 compound.removeTag("elevatorTime");
