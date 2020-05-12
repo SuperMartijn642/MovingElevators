@@ -15,7 +15,7 @@ public class FallDamageHandler {
     public static void onFallDamage(LivingFallEvent e){
         CompoundNBT compound = e.getEntityLiving().getPersistentData();
         if(compound.contains("elevatorTime")){
-            if(compound.getLong("elevatorTime") - e.getEntity().ticksExisted > 20 * 5)
+            if(e.getEntity().ticksExisted - compound.getLong("elevatorTime") < 20 * 5)
                 e.setCanceled(true);
             else
                 compound.remove("elevatorTime");
