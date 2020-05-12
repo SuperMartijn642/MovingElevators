@@ -95,12 +95,14 @@ public class ElevatorGroup {
             entity.onLivingFall(entity.fallDistance, 1);
             entity.fallDistance = 0;
             entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);
-            if(entity instanceof ServerPlayerEntity){
+            if(entity instanceof PlayerEntity){
                 entity.getPersistentData().putLong("elevatorTime", entity.ticksExisted);
-                try{
-                    floatingTickCount.setInt(((ServerPlayerEntity)entity).connection, 0);
-                }catch(IllegalAccessException e){
-                    e.printStackTrace();
+                if(entity instanceof ServerPlayerEntity){
+                    try{
+                        floatingTickCount.setInt(((ServerPlayerEntity)entity).connection, 0);
+                    }catch(IllegalAccessException e){
+                        e.printStackTrace();
+                    }
                 }
             }
         }
