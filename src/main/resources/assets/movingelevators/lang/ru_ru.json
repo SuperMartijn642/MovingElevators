@@ -1,6 +1,11 @@
 {
   "block.movingelevators.elevator_block": "Контроллер лифта",
   "block.movingelevators.display_block": "Дисплей лифта",
+  "block.movingelevators.button_block": "Дистанционный пульт лифта",
+  "block.movingelevators.button_block.info": "Контроллер на $x$, $y$, $z$",
+  "block.movingelevators.button_block.bind": "Привязан к контроллеру лифта!",
+  "block.movingelevators.button_block.place": "Блок должен быть связан с контроллером лифта!",
+  "block.movingelevators.button_block.dimension": "Блок должен быть в том же измерении, что и контроллер лифта!",
   "gui.movingelevators.title": "Лифт",
   "gui.movingelevators.floorname.label": "Название этажа:",
   "movingelevators.platform.size": "Размер платформы (блоков): $number$",
