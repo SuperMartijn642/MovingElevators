@@ -51,7 +51,7 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
         }else if(!this.world.isRemote){
             ArrayList<ElevatorBlockTile> tiles = new ArrayList<>(1);
             tiles.add(this);
-            for(int y = 0; y <= this.world.getMaxHeight(); y++){
+            for(int y = 0; y <= this.world.getHeight(); y++){
                 if(y == this.pos.getY())
                     continue;
                 TileEntity tile = this.world.getTileEntity(new BlockPos(this.pos.getX(), y, this.pos.getZ()));
@@ -139,7 +139,7 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
         }
         if(data.contains("name")){
             try{
-                this.name = ITextComponent.Serializer.fromJson(data.getString("name")).getFormattedText();
+                this.name = ITextComponent.Serializer.func_240643_a_(data.getString("name")).getStringTruncated(Integer.MAX_VALUE);
             }catch(JsonParseException ignore){
                 this.name = data.getString("name");
             }
@@ -171,7 +171,7 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
 
     @Override
     public double getMaxRenderDistanceSquared(){
-        return this.world.getMaxHeight() * this.world.getMaxHeight() * 4;
+        return this.world.getHeight() * this.world.getHeight() * 4;
     }
 
     public String getDefaultFloorName(){

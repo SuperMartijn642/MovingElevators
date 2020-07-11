@@ -7,6 +7,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.block.material.PushReaction;
+import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -44,11 +45,11 @@ public class MEBlock extends Block {
         if(tile instanceof METile){
             METile meTile = (METile)tile;
             if(meTile.getFacing() == null || meTile.getFacing() != rayTraceResult.getFace()){
-                if(player.isShiftKeyDown() && player.getHeldItem(handIn).isEmpty()){
+                if(player.isSneaking() && player.getHeldItem(handIn).isEmpty()){
                     if(!worldIn.isRemote)
                         meTile.setCamoState(null);
                     return ActionResultType.SUCCESS;
-                }else if(!player.isShiftKeyDown() && meTile.canBeCamoStack(player.getHeldItem(handIn))){
+                }else if(!player.isSneaking() && meTile.canBeCamoStack(player.getHeldItem(handIn))){
                     if(!worldIn.isRemote){
                         Item item = player.getHeldItem(handIn).getItem();
                         if(item instanceof BlockItem){
@@ -93,7 +94,7 @@ public class MEBlock extends Block {
     }
 
     @Override
-    public boolean canEntitySpawn(BlockState state, IBlockReader worldIn, BlockPos pos, EntityType<?> type){
+    public boolean canCreatureSpawn(BlockState state, IBlockReader world, BlockPos pos, EntitySpawnPlacementRegistry.PlacementType type, @Nullable EntityType<?> entityType){
         return false;
     }
 }

@@ -91,7 +91,7 @@ public class ElevatorGroup {
             if((newY < oldY && entity.hasNoGravity()) || (entity instanceof PlayerEntity && entity.getMotion().y >= 0 && entity.getPosY() > Math.min(oldY, newY) + 1))
                 continue;
             entity.setPosition(entity.getPosX(), newY + 1, entity.getPosZ());
-            entity.onGround = true;
+            entity.func_230245_c_(true);
             entity.onLivingFall(entity.fallDistance, 1);
             entity.fallDistance = 0;
             entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);
@@ -135,7 +135,7 @@ public class ElevatorGroup {
 
         for(Entity entity : entities){
             entity.setPositionAndUpdate(entity.getPosX(), this.currentY + 1, entity.getPosZ());
-            entity.onGround = true;
+            entity.func_230245_c_(true);
             entity.fallDistance = 0;
             entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);
         }

@@ -11,7 +11,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 /**
@@ -35,7 +35,7 @@ public class DisplayBlock extends MEBlock {
                 DisplayBlockTile displayTile = (DisplayBlockTile)tile;
                 if(displayTile.getFacing() == rayTraceResult.getFace()){
                     int displayCat = displayTile.getDisplayCategory();
-                    Vec3d hitVec = rayTraceResult.getHitVec().subtract(pos.getX(), pos.getY(), pos.getZ());
+                    Vector3d hitVec = rayTraceResult.getHitVec().subtract(pos.getX(), pos.getY(), pos.getZ());
                     double hitHorizontal = rayTraceResult.getFace().getAxis() == Direction.Axis.Z ? hitVec.x : hitVec.z;
                     double hitY = hitVec.y;
                     if(hitHorizontal > 2 / 32d && hitHorizontal < 30 / 32d){

@@ -2,7 +2,6 @@ package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.base.ElevatorInputBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
@@ -45,7 +44,7 @@ public class ButtonBlock extends ElevatorInputBlock {
         CompoundNBT tag = stack.getTag();
         if(tag != null && tag.contains("controllerDim"))
             tooltip.add(new StringTextComponent(ClientProxy.translate("block.movingelevators.button_block.info").replace("$x$", Integer.toString(tag.getInt("controllerX")))
-                .replace("$y$", Integer.toString(tag.getInt("controllerY"))).replace("$z$", Integer.toString(tag.getInt("controllerZ")))).applyTextStyle(TextFormatting.AQUA));
+                .replace("$y$", Integer.toString(tag.getInt("controllerY"))).replace("$z$", Integer.toString(tag.getInt("controllerZ")))).func_240699_a_(TextFormatting.AQUA));
         super.addInformation(stack, worldIn, tooltip, flagIn);
     }
 }

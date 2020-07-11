@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.gui;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.client.gui.widget.Slider;
 
 /**
@@ -11,12 +12,12 @@ public class ElevatorSpeedSlider extends Slider {
     private int min = 1, max = 10;
 
     public ElevatorSpeedSlider(int xPos, int yPos, int width, int height, double currentVal, ISlider slider){
-        super(xPos, yPos, width, height, "", "", 0.1, 1, currentVal, false, true, b -> {
+        super(xPos, yPos, width, height, new StringTextComponent(""), new StringTextComponent(""), 0.1, 1, currentVal, false, true, b -> {
         }, slider);
 
         float val = ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
         this.precision = 0;
-        setMessage(I18n.format("movingelevators.platform.speed").replace("$number$", Float.toString(val)));
+        func_238482_a_(new StringTextComponent(I18n.format("movingelevators.platform.speed").replace("$number$", Float.toString(val))));
     }
 
     @Override
@@ -31,7 +32,7 @@ public class ElevatorSpeedSlider extends Slider {
 
         float val = ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
 
-        setMessage(I18n.format("movingelevators.platform.speed").replace("$number$", Float.toString(val)));
+        func_238482_a_(new StringTextComponent(I18n.format("movingelevators.platform.speed").replace("$number$", Float.toString(val))));
 
         if(parent != null){
             parent.onChangeSliderValue(this);

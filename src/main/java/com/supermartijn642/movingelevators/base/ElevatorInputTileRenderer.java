@@ -6,8 +6,6 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.supermartijn642.movingelevators.DisplayBlock;
 import com.supermartijn642.movingelevators.ElevatorBlockTile;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.client.renderer.Quaternion;
 import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.NativeImage;
@@ -15,6 +13,8 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.DyeColor;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Quaternion;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;

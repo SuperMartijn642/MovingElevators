@@ -48,8 +48,8 @@ public abstract class METile extends TileEntity {
     }
 
     @Override
-    public void handleUpdateTag(CompoundNBT tag){
-        super.handleUpdateTag(tag);
+    public void handleUpdateTag(BlockState state, CompoundNBT tag){
+        super.handleUpdateTag(state, tag);
         this.handleData(tag.getCompound("info"));
     }
 
@@ -61,8 +61,8 @@ public abstract class METile extends TileEntity {
     }
 
     @Override
-    public void read(CompoundNBT compound){
-        super.read(compound);
+    public void func_230337_a_(BlockState state, CompoundNBT compound){
+        super.func_230337_a_(state, compound);
         this.handleData(compound.getCompound("info"));
     }
 
@@ -110,7 +110,7 @@ public abstract class METile extends TileEntity {
         if(stack.isEmpty() || !(stack.getItem() instanceof BlockItem))
             return false;
         Block block = ((BlockItem)stack.getItem()).getBlock();
-        return block != MovingElevators.elevator_block && block != MovingElevators.display_block && block != MovingElevators.button_block && !block.isTransparent(block.getDefaultState()) && block.isNormalCube(block.getDefaultState(), this.world, this.pos);
+        return block != MovingElevators.elevator_block && block != MovingElevators.display_block && block != MovingElevators.button_block && !block.isTransparent(block.getDefaultState()) && block.getDefaultState().isNormalCube(this.world, this.pos);
     }
 
     public BlockState getCamoBlock(){
