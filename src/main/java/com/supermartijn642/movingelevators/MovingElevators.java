@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators;
 import com.supermartijn642.movingelevators.packets.PacketElevatorName;
 import com.supermartijn642.movingelevators.packets.PacketElevatorSize;
 import com.supermartijn642.movingelevators.packets.PacketElevatorSpeed;
+import com.supermartijn642.movingelevators.packets.PacketOnElevator;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -40,6 +41,7 @@ public class MovingElevators {
         channel.registerMessage(PacketElevatorSize.class, PacketElevatorSize.class, 0, Side.SERVER);
         channel.registerMessage(PacketElevatorSpeed.class, PacketElevatorSpeed.class, 1, Side.SERVER);
         channel.registerMessage(PacketElevatorName.class, PacketElevatorName.class, 2, Side.SERVER);
+        channel.registerMessage(PacketOnElevator.class, PacketOnElevator.class, 3, Side.SERVER);
     }
 
 }
