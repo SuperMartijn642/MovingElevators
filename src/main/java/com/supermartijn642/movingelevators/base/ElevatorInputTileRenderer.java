@@ -47,7 +47,7 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
 
     @Override
     protected void render(){
-        if(!tile.hasGroup())
+        if(!tile.hasGroup() || tile.getFacing() == null)
             return;
 
         // render buttons
