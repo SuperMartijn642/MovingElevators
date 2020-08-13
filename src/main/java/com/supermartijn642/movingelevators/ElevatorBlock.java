@@ -41,7 +41,7 @@ public class ElevatorBlock extends ElevatorInputBlock {
                 tag.putInt("controllerX", pos.getX());
                 tag.putInt("controllerY", pos.getY());
                 tag.putInt("controllerZ", pos.getZ());
-                player.sendMessage(new TranslationTextComponent("block.movingelevators.button_block.bind").func_240699_a_(TextFormatting.YELLOW), player.getUniqueID());
+                player.sendMessage(new TranslationTextComponent("block.movingelevators.button_block.bind").mergeStyle(TextFormatting.YELLOW), player.getUniqueID());
             }
         }else if(state.get(FACING) != rayTraceResult.getFace()){
             if(worldIn.isRemote)
@@ -78,7 +78,7 @@ public class ElevatorBlock extends ElevatorInputBlock {
 
     @Override
     public int getComparatorInputOverride(BlockState state, World worldIn, BlockPos pos){
-        if(!state.func_235901_b_(FACING))
+        if(!state.hasProperty(FACING))
             return 0;
         return worldIn.isAirBlock(pos.offset(state.get(FACING)).down()) ? 0 : 15;
     }
