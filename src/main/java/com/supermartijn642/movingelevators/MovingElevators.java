@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators;
 import com.supermartijn642.movingelevators.packets.PacketElevatorName;
 import com.supermartijn642.movingelevators.packets.PacketElevatorSize;
 import com.supermartijn642.movingelevators.packets.PacketElevatorSpeed;
+import com.supermartijn642.movingelevators.packets.PacketOnElevator;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -41,6 +42,8 @@ public class MovingElevators {
         CHANNEL.registerMessage(0, PacketElevatorSize.class, PacketElevatorSize::encode, PacketElevatorSize::decode, PacketElevatorSize::handle);
         CHANNEL.registerMessage(1, PacketElevatorSpeed.class, PacketElevatorSpeed::encode, PacketElevatorSpeed::decode, PacketElevatorSpeed::handle);
         CHANNEL.registerMessage(2, PacketElevatorName.class, PacketElevatorName::encode, PacketElevatorName::decode, PacketElevatorName::handle);
+        CHANNEL.registerMessage(3, PacketOnElevator.class, (a, b) -> {
+        }, buffer -> new PacketOnElevator(), PacketOnElevator::handle);
     }
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
