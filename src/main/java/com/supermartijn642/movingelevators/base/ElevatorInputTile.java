@@ -26,5 +26,8 @@ public abstract class ElevatorInputTile extends METile {
 
     public abstract EnumDyeColor getDisplayLabelColor();
 
+    /**
+     * @return the y level of the floor of this controller
+     */
     public abstract int getFloorLevel();
 }
