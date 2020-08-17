@@ -14,6 +14,8 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.List;
+
 /**
  * Created 4/8/2020 by SuperMartijn642
  */
@@ -29,53 +31,72 @@ public class DisplayBlock extends MEBlock {
 
     @Override
     protected void onRightClick(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
-        if(!worldIn.isRemote){
-            TileEntity tile = worldIn.getTileEntity(pos);
-            if(tile instanceof DisplayBlockTile){
-                DisplayBlockTile displayTile = (DisplayBlockTile)tile;
-                if(displayTile.getFacing() == rayTraceResult.getFace()){
-                    int displayCat = displayTile.getDisplayCategory();
-                    Vec3d hitVec = rayTraceResult.getHitVec().subtract(pos.getX(), pos.getY(), pos.getZ());
-                    double hitHorizontal = rayTraceResult.getFace().getAxis() == Direction.Axis.Z ? hitVec.x : hitVec.z;
-                    double hitY = hitVec.y;
-                    if(hitHorizontal > 2 / 32d && hitHorizontal < 30 / 32d){
-                        int floorOffset = 0;
-                        BlockPos inputTilePos = null;
+        if(worldIn.isRemote)
+            return;
 
-                        if(displayCat == 1){ // single
-                            if(hitY > 2 / 32d && hitY < 30 / 32d){
-                                floorOffset = (int)Math.floor((hitY - 2 / 32d) / (28 / 32d / (BUTTON_COUNT * 2 + 1))) - BUTTON_COUNT;
-                                inputTilePos = pos.down();
-                            }
-                        }else if(displayCat == 2){ // bottom
-                            if(hitY > 2 / 32d){
-                                floorOffset = (int)Math.floor((hitY - 2 / 32d) / (60 / 32d / (BUTTON_COUNT_BIG * 2 + 1))) - BUTTON_COUNT_BIG;
-                                inputTilePos = pos.down();
-                            }
-                        }else if(displayCat == 3){ // top
-                            if(hitY < 30 / 32d){
-                                floorOffset = (int)Math.floor((hitY - 2 / 32d + 1) / (60 / 32d / (BUTTON_COUNT_BIG * 2 + 1))) - BUTTON_COUNT_BIG;
-                                inputTilePos = pos.down(2);
-                            }
-                        }
+        TileEntity tile = worldIn.getTileEntity(pos);
+        if(!(tile instanceof DisplayBlockTile))
+            return;
+        DisplayBlockTile displayTile = (DisplayBlockTile)tile;
 
-                        if(inputTilePos == null)
-                            return;
+        if(displayTile.getFacing() == rayTraceResult.getFace()){
+            int displayCat = displayTile.getDisplayCategory();
 
-                        TileEntity tile2 = worldIn.getTileEntity(inputTilePos);
-                        if(tile2 instanceof ElevatorInputTile && ((ElevatorInputTile)tile2).hasGroup()){
-                            ElevatorInputTile inputTile = (ElevatorInputTile)tile2;
-                            if(player == null || player.getHeldItem(handIn).isEmpty() || !(player.getHeldItem(handIn).getItem() instanceof DyeItem))
-                                inputTile.getGroup().onDisplayPress(inputTile.getFloorLevel(), floorOffset);
-                            else{
-                                DyeColor color = ((DyeItem)player.getHeldItem(handIn).getItem()).getDyeColor();
-                                ElevatorGroup group = inputTile.getGroup();
-                                int floor = group.getFloorNumber(inputTile.getFloorLevel()) + floorOffset;
-                                ElevatorBlockTile elevatorTile = group.getTileForFloor(floor);
-                                if(elevatorTile != null)
-                                    elevatorTile.setDisplayLabelColor(color);
-                            }
-                        }
+            Vec3d hitVec = rayTraceResult.getHitVec().subtract(pos.getX(), pos.getY(), pos.getZ());
+            double hitHorizontal = rayTraceResult.getFace().getAxis() == Direction.Axis.Z ? hitVec.x : hitVec.z;
+            double hitY = hitVec.y;
+
+            if(hitHorizontal > 2 / 32d && hitHorizontal < 30 / 32d){
+                BlockPos inputTilePos = null;
+                int button_count = -1;
+                int height = -1;
+
+                if(displayCat == 1){ // single
+                    if(hitY > 2 / 32d && hitY < 30 / 32d){
+                        inputTilePos = pos.down();
+                        button_count = BUTTON_COUNT;
+                        height = 1;
+                    }
+                }else if(displayCat == 2){ // bottom
+                    if(hitY > 2 / 32d){
+                        inputTilePos = pos.down();
+                        button_count = BUTTON_COUNT_BIG;
+                        height = 2;
+                    }
+                }else if(displayCat == 3){ // top
+                    if(hitY < 30 / 32d){
+                        inputTilePos = pos.down(2);
+                        button_count = BUTTON_COUNT_BIG;
+                        height = 2;
+                        hitY++;
+                    }
+                }
+
+                if(inputTilePos == null)
+                    return;
+
+                tile = worldIn.getTileEntity(inputTilePos);
+                if(tile instanceof ElevatorInputTile && ((ElevatorInputTile)tile).hasGroup()){
+                    ElevatorInputTile inputTile = (ElevatorInputTile)tile;
+
+                    List<ElevatorBlockTile> allTiles = inputTile.getGroup().getTiles();
+                    int index = inputTile.getGroup().getFloorNumber(inputTile.getFloorLevel());
+                    int below = Math.min(index, button_count);
+                    int above = Math.min(allTiles.size() - index - 1, button_count + (button_count - below));
+                    below = Math.min(below, button_count + (button_count - above));
+                    int total = below + 1 + above;
+
+                    int floorOffset = (int)Math.floor((hitY - (height - total * BUTTON_HEIGHT) / 2d) / BUTTON_HEIGHT) - index;
+
+                    if(player == null || player.getHeldItem(handIn).isEmpty() || !(player.getHeldItem(handIn).getItem() instanceof DyeItem))
+                        inputTile.getGroup().onDisplayPress(inputTile.getFloorLevel(), floorOffset);
+                    else{
+                        DyeColor color = ((DyeItem)player.getHeldItem(handIn).getItem()).getDyeColor();
+                        ElevatorGroup group = inputTile.getGroup();
+                        int floor = group.getFloorNumber(inputTile.getFloorLevel()) + floorOffset;
+                        ElevatorBlockTile elevatorTile = group.getTileForFloor(floor);
+                        if(elevatorTile != null)
+                            elevatorTile.setDisplayLabelColor(color);
                     }
                 }
             }
