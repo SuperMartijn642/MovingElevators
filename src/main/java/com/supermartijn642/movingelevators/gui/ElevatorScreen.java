@@ -101,7 +101,7 @@ public class ElevatorScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton){
         if(mouseButton == 1){ // text field
             if(mouseX >= this.nameField.x && mouseX < this.nameField.x + this.nameField.getWidth()
-                && mouseY >= this.nameField.y && mouseY < this.nameField.y + this.nameField.getHeight())
+                && mouseY >= this.nameField.y && mouseY < this.nameField.y + this.nameField.getWidth_CLASH())
                 this.nameField.setText("");
         }
         super.mouseClicked(mouseX, mouseY, mouseButton);
