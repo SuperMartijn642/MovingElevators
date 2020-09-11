@@ -48,6 +48,6 @@ description='''Moving Elevators allows you to build real moving elevators! These
 [[dependencies.movingelevators]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.2,1.17)"
+    versionRange="[1.16.2,1.16.3)"
     ordering="NONE"
     side="BOTH"
