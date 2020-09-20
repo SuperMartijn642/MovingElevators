@@ -108,9 +108,15 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
 
         List<ElevatorBlockTile> allTiles = tile.getGroup().getTiles();
         int index = tile.getGroup().getFloorNumber(tile.getFloorLevel());
-        int below = Math.min(index, button_count);
-        int above = Math.min(allTiles.size() - index - 1, button_count + (button_count - below));
-        below = Math.min(below, button_count + (button_count - above));
+        int below = index;
+        int above = allTiles.size() - index - 1;
+        if(below < above){
+            below = Math.min(below, button_count);
+            above = Math.min(above, button_count * 2 - below);
+        }else{
+            above = Math.min(above, button_count);
+            below = Math.min(below, button_count * 2 - above);
+        }
         int startIndex = index - below;
         int total = below + 1 + above;
 
