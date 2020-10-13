@@ -165,6 +165,8 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
     }
 
     private void drawString(String s){
+        if(s == null)
+            return;
         FontRenderer fontRenderer = this.renderDispatcher.fontRenderer;
         matrixStack.push();
         matrixStack.translate(0, 0.07, -0.005);
