@@ -180,6 +180,8 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
     }
 
     private void drawString(String s){
+        if(s == null)
+            return;
         FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
         GlStateManager.pushMatrix();
         GlStateManager.translated(0, 0.07, -0.005);
