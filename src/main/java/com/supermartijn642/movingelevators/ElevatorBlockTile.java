@@ -51,7 +51,7 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
         }else if(!this.world.isRemote){
             ArrayList<ElevatorBlockTile> tiles = new ArrayList<>(1);
             tiles.add(this);
-            for(int y = 0; y <= this.world.getMaxHeight(); y++){
+            for(int y = Math.max(0, this.pos.getY() - 255); y <= Math.min(this.world.getMaxHeight(), this.pos.getY() + 255); y++){
                 if(y == this.pos.getY())
                     continue;
                 TileEntity tile = this.world.getTileEntity(new BlockPos(this.pos.getX(), y, this.pos.getZ()));
@@ -171,7 +171,7 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
 
     @Override
     public double getMaxRenderDistanceSquared(){
-        return this.world.getMaxHeight() * this.world.getMaxHeight() * 4;
+        return 255 * 255 * 4;
     }
 
     public String getDefaultFloorName(){
