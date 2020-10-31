@@ -19,6 +19,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -34,8 +35,8 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
 
     static{
         for(DyeColor color : DyeColor.values()){
-            DISPLAY_BUTTONS.put(color, getTexture("display_buttons/display_button_" + color.name().toLowerCase()));
-            DISPLAY_BUTTONS_OFF.put(color, getTexture("display_buttons/display_button_off_" + color.name().toLowerCase()));
+            DISPLAY_BUTTONS.put(color, getTexture("display_buttons/display_button_" + color.name().toLowerCase(Locale.ROOT)));
+            DISPLAY_BUTTONS_OFF.put(color, getTexture("display_buttons/display_button_off_" + color.name().toLowerCase(Locale.ROOT)));
         }
     }
 
