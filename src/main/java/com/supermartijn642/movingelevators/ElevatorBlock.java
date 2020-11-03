@@ -37,7 +37,7 @@ public class ElevatorBlock extends ElevatorInputBlock {
             if(!worldIn.isRemote){
                 ItemStack stack = player.getHeldItem(handIn);
                 CompoundNBT tag = stack.getOrCreateTag();
-                tag.putString("controllerDim", worldIn.func_234923_W_().func_240901_a_().toString());
+                tag.putString("controllerDim", worldIn.getDimensionKey().getRegistryName().toString());
                 tag.putInt("controllerX", pos.getX());
                 tag.putInt("controllerY", pos.getY());
                 tag.putInt("controllerZ", pos.getZ());

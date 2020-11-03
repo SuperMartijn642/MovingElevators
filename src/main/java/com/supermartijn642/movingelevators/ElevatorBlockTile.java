@@ -139,7 +139,7 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
         }
         if(data.contains("name")){
             try{
-                this.name = ITextComponent.Serializer.func_240643_a_(data.getString("name")).getStringTruncated(Integer.MAX_VALUE);
+                this.name = ITextComponent.Serializer.getComponentFromJson(data.getString("name")).getStringTruncated(Integer.MAX_VALUE);
             }catch(JsonParseException ignore){
                 this.name = data.getString("name");
             }

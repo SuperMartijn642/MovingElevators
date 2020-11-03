@@ -27,7 +27,7 @@ public class ButtonBlockItem extends BlockItem {
                 context.getPlayer().sendMessage(new TranslationTextComponent("block.movingelevators.button_block.place").mergeStyle(TextFormatting.RED), player.getUniqueID());
             return ActionResultType.FAIL;
         }
-        if(!tag.getString("controllerDim").equals(context.getWorld().func_234923_W_().func_240901_a_().toString())){
+        if(!tag.getString("controllerDim").equals(context.getWorld().getDimensionKey().getRegistryName().toString())){
             PlayerEntity player = context.getPlayer();
             if(player != null && !context.getPlayer().world.isRemote)
                 context.getPlayer().sendMessage(new TranslationTextComponent("block.movingelevators.button_block.dimension").mergeStyle(TextFormatting.RED), player.getUniqueID());
