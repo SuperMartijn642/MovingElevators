@@ -51,7 +51,7 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
         }else if(!this.world.isRemote){
             ArrayList<ElevatorBlockTile> tiles = new ArrayList<>(1);
             tiles.add(this);
-            for(int y = Math.max(0, this.pos.getY() - 255); y <= Math.min(this.world.getMaxHeight(), this.pos.getY() + 255); y++){
+            for(int y = this.pos.getY() - 255; y <= Math.min(this.world.getMaxHeight(), this.pos.getY() + 255); y++){
                 if(y == this.pos.getY())
                     continue;
                 TileEntity tile = this.world.getTileEntity(new BlockPos(this.pos.getX(), y, this.pos.getZ()));
