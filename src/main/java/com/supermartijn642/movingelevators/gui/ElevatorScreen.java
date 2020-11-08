@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
+import com.supermartijn642.movingelevators.ClientProxy;
 import com.supermartijn642.movingelevators.ElevatorBlockTile;
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.packets.PacketElevatorName;
@@ -37,7 +38,7 @@ public class ElevatorScreen extends Screen {
     @Override
     protected void init(){
         ElevatorBlockTile tile = this.getTileOrClose();
-        if(tile == null)
+        if(tile == null || !tile.hasGroup())
             return;
         int width = 150;
         int height = 20;
@@ -49,7 +50,7 @@ public class ElevatorScreen extends Screen {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
         }));
         this.children.add(this.nameField = new TextFieldWidget(this.font, (this.width - width) / 2, this.height / 13 * 4, width, height, ""));
-        this.nameField.setText(tile.getFloorName());
+        this.nameField.setText(ClientProxy.formatFloorDisplayName(tile.getFloorName(), tile.getGroup().getFloorNumber(tile.getFloorLevel())));
         this.lastTickName = this.nameField.getText();
         this.nameField.setCanLoseFocus(true);
         this.nameField.setFocused2(false);
@@ -59,13 +60,14 @@ public class ElevatorScreen extends Screen {
     @Override
     public void tick(){
         ElevatorBlockTile tile = this.getTileOrClose();
-        if(tile == null)
+        if(tile == null || !tile.hasGroup())
             return;
         this.nameField.tick();
         if(!this.lastTickName.equals(this.nameField.getText())){
             String name = this.nameField.getText();
-            if(name.isEmpty() ? !tile.getDefaultFloorName().equals(tile.getFloorName()) : !name.equals(tile.getFloorName()))
-                MovingElevators.CHANNEL.sendToServer(new PacketElevatorName(tile.getPos(), name.isEmpty() || name.equals(tile.getDefaultFloorName()) ? null : name));
+            String defaultName = ClientProxy.formatFloorDisplayName(null, tile.getGroup().getFloorNumber(tile.getFloorLevel()));
+            if(name.isEmpty() ? !defaultName.equals(tile.getFloorName()) : !name.equals(tile.getFloorName()))
+                MovingElevators.CHANNEL.sendToServer(new PacketElevatorName(tile.getPos(), name.isEmpty() || name.equals(defaultName) ? null : name));
             this.lastTickName = name;
         }
     }
