@@ -138,7 +138,7 @@ public class ElevatorGroupCapability {
 
     public void updateGroup(ElevatorGroup group){
         if(!this.world.isRemote && group != null)
-            MovingElevators.CHANNEL.send(PacketDistributor.DIMENSION.with(this.world::func_234923_W_), new ElevatorGroupPacket(this.writeGroup(group)));
+            MovingElevators.CHANNEL.send(PacketDistributor.DIMENSION.with(this.world::getDimensionKey), new ElevatorGroupPacket(this.writeGroup(group)));
     }
 
     public ElevatorGroup getGroup(ElevatorBlockTile tile){
