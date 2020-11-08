@@ -32,7 +32,7 @@ public abstract class METile extends TileEntity {
     @Override
     public SUpdateTileEntityPacket getUpdatePacket(){
         CompoundNBT compound = this.getChangedData();
-        return compound.isEmpty() ? null : new SUpdateTileEntityPacket(this.pos, 0, compound);
+        return compound == null || compound.isEmpty() ? null : new SUpdateTileEntityPacket(this.pos, 0, compound);
     }
 
     @Override
