@@ -1,9 +1,6 @@
 package com.supermartijn642.movingelevators;
 
-import com.supermartijn642.movingelevators.packets.PacketElevatorName;
-import com.supermartijn642.movingelevators.packets.PacketElevatorSize;
-import com.supermartijn642.movingelevators.packets.PacketElevatorSpeed;
-import com.supermartijn642.movingelevators.packets.PacketOnElevator;
+import com.supermartijn642.movingelevators.packets.*;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -13,6 +10,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.registries.ObjectHolder;
@@ -39,11 +38,19 @@ public class MovingElevators {
     public static TileEntityType<ButtonBlockTile> button_tile;
 
     public MovingElevators(){
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
+
         CHANNEL.registerMessage(0, PacketElevatorSize.class, PacketElevatorSize::encode, PacketElevatorSize::decode, PacketElevatorSize::handle);
         CHANNEL.registerMessage(1, PacketElevatorSpeed.class, PacketElevatorSpeed::encode, PacketElevatorSpeed::decode, PacketElevatorSpeed::handle);
         CHANNEL.registerMessage(2, PacketElevatorName.class, PacketElevatorName::encode, PacketElevatorName::decode, PacketElevatorName::handle);
         CHANNEL.registerMessage(3, PacketOnElevator.class, (a, b) -> {
         }, buffer -> new PacketOnElevator(), PacketOnElevator::handle);
+        CHANNEL.registerMessage(4, ElevatorGroupPacket.class, ElevatorGroupPacket::encode, ElevatorGroupPacket::new, ElevatorGroupPacket::handle);
+        CHANNEL.registerMessage(5, ElevatorGroupsPacket.class, ElevatorGroupsPacket::encode, ElevatorGroupsPacket::new, ElevatorGroupsPacket::handle);
+    }
+
+    public void init(FMLCommonSetupEvent e){
+        ElevatorGroupCapability.register();
     }
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
