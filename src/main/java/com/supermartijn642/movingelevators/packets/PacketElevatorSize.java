@@ -34,6 +34,7 @@ public class PacketElevatorSize {
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
         NetworkEvent.Context context = contextSupplier.get();
+        context.setPacketHandled(true);
         PlayerEntity player = context.getSender();
         if(player == null)
             return;
