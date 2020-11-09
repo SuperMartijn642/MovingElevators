@@ -31,7 +31,7 @@ public abstract class METile extends TileEntity {
     @Override
     public SPacketUpdateTileEntity getUpdatePacket(){
         NBTTagCompound compound = this.getChangedData();
-        return compound.hasNoTags() ? null : new SPacketUpdateTileEntity(this.pos, 0, compound);
+        return compound == null || compound.hasNoTags() ? null : new SPacketUpdateTileEntity(this.pos, 0, compound);
     }
 
     @Override

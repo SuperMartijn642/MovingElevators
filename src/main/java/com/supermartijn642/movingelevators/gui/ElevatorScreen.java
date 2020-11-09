@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
+import com.supermartijn642.movingelevators.ClientProxy;
 import com.supermartijn642.movingelevators.ElevatorBlockTile;
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.packets.PacketElevatorName;
@@ -46,7 +47,7 @@ public class ElevatorScreen extends GuiScreen {
             MovingElevators.channel.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
         }));
         this.nameField = new GuiTextField(0, this.fontRenderer, (this.width - width) / 2, this.height / 13 * 4, width, height);
-        this.nameField.setText(tile.getFloorName());
+        this.nameField.setText(ClientProxy.formatFloorDisplayName(tile.getFloorName(), tile.getGroup().getFloorNumber(tile.getFloorLevel())));
         this.lastTickName = this.nameField.getText();
         this.nameField.setCanLoseFocus(true);
         this.nameField.setFocused(false);
@@ -62,8 +63,9 @@ public class ElevatorScreen extends GuiScreen {
         this.nameField.updateCursorCounter();
         if(!this.lastTickName.equals(this.nameField.getText())){
             String name = this.nameField.getText();
-            if(name.isEmpty() ? !tile.getDefaultFloorName().equals(tile.getFloorName()) : !name.equals(tile.getFloorName()))
-                MovingElevators.channel.sendToServer(new PacketElevatorName(tile.getPos(), name.isEmpty() || name.equals(tile.getDefaultFloorName()) ? null : name));
+            String defaultName = ClientProxy.formatFloorDisplayName(null, tile.getGroup().getFloorNumber(tile.getFloorLevel()));
+            if(name.isEmpty() ? !defaultName.equals(tile.getFloorName()) : !name.equals(tile.getFloorName()))
+                MovingElevators.channel.sendToServer(new PacketElevatorName(tile.getPos(), name.isEmpty() || name.equals(defaultName) ? null : name));
             this.lastTickName = name;
         }
     }

@@ -1,7 +1,8 @@
 package com.supermartijn642.movingelevators.base;
 
+import com.supermartijn642.movingelevators.ClientProxy;
 import com.supermartijn642.movingelevators.DisplayBlock;
-import com.supermartijn642.movingelevators.ElevatorBlockTile;
+import com.supermartijn642.movingelevators.ElevatorGroup;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -15,7 +16,6 @@ import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -100,10 +100,10 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         this.drawQuad(background, tile.getPos().up());
         GlStateManager.popMatrix();
 
-        List<ElevatorBlockTile> allTiles = tile.getGroup().getTiles();
-        int index = tile.getGroup().getFloorNumber(tile.getFloorLevel());
+        ElevatorGroup group = tile.getGroup();
+        int index = group.getFloorNumber(tile.getFloorLevel());
         int below = index;
-        int above = allTiles.size() - index - 1;
+        int above = group.getFloorCount() - index - 1;
         if(below < above){
             below = Math.min(below, button_count);
             above = Math.min(above, button_count * 2 - below);
@@ -119,10 +119,10 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         GlStateManager.translate(0, 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, -0.002);
         GlStateManager.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
-            this.drawQuad((startIndex + i == index ? DISPLAY_BUTTONS_OFF : DISPLAY_BUTTONS).get(allTiles.get(startIndex + i).getDisplayLabelColor()), tile.getPos().up());
+            this.drawQuad((startIndex + i == index ? DISPLAY_BUTTONS_OFF : DISPLAY_BUTTONS).get(group.getFloorDisplayColor(startIndex + i)), tile.getPos().up());
             GlStateManager.pushMatrix();
             GlStateManager.translate(18.5 / 32d, 0, 0);
-            this.drawString(allTiles.get(startIndex + i).getFloorName());
+            this.drawString(ClientProxy.formatFloorDisplayName(group.getFloorDisplayName(startIndex + i), startIndex + i));
             GlStateManager.popMatrix();
             GlStateManager.translate(0, 1, 0);
         }
@@ -131,11 +131,11 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         // render platform dot
         if(tile.getGroup().isMoving()){
             double platformY = tile.getGroup().getCurrentY();
-            if(platformY >= allTiles.get(0).getPos().getY() && platformY < allTiles.get(allTiles.size() - 1).getPos().getY()){
+            if(platformY >= group.getFloorYLevel(0) && platformY < group.getFloorYLevel(group.getFloorCount() - 1)){
                 double yOffset = 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d;
-                for(int i = 0; i < allTiles.size() - 1; i++){
-                    int belowY = allTiles.get(i).getPos().getY();
-                    int aboveY = allTiles.get(i + 1).getPos().getY();
+                for(int i = 0; i < group.getFloorCount() - 1; i++){
+                    int belowY = group.getFloorYLevel(i);
+                    int aboveY = group.getFloorYLevel(i + 1);
                     if(platformY >= belowY && platformY < aboveY)
                         yOffset += (i + (platformY - belowY) / (aboveY - belowY)) * DisplayBlock.BUTTON_HEIGHT;
                 }

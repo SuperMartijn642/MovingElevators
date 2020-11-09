@@ -12,8 +12,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.List;
-
 /**
  * Created 4/8/2020 by SuperMartijn642
  */
@@ -75,10 +73,10 @@ public class DisplayBlock extends MEBlock {
                 if(tile instanceof ElevatorInputTile && ((ElevatorInputTile)tile).hasGroup()){
                     ElevatorInputTile inputTile = (ElevatorInputTile)tile;
 
-                    List<ElevatorBlockTile> allTiles = inputTile.getGroup().getTiles();
+                    ElevatorGroup group = inputTile.getGroup();
                     int index = inputTile.getGroup().getFloorNumber(inputTile.getFloorLevel());
                     int below = index;
-                    int above = allTiles.size() - index - 1;
+                    int above = group.getFloorCount() - index - 1;
                     if(below < above){
                         below = Math.min(below, button_count);
                         above = Math.min(above, button_count * 2 - below);
@@ -95,7 +93,6 @@ public class DisplayBlock extends MEBlock {
                         inputTile.getGroup().onDisplayPress(inputTile.getFloorLevel(), floorOffset);
                     else{
                         EnumDyeColor color = EnumDyeColor.byDyeDamage(player.getHeldItem(handIn).getMetadata());
-                        ElevatorGroup group = inputTile.getGroup();
                         int floor = group.getFloorNumber(inputTile.getFloorLevel()) + floorOffset;
                         ElevatorBlockTile elevatorTile = group.getTileForFloor(floor);
                         if(elevatorTile != null)

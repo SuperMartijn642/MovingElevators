@@ -9,6 +9,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -21,26 +22,31 @@ import net.minecraft.world.World;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created 4/7/2020 by SuperMartijn642
  */
 public class ElevatorGroup {
 
-    private World world;
-    private final int x, z;
-    private EnumFacing facing;
+    public final World world;
+    public final int x, z;
+    public final EnumFacing facing;
 
     private boolean isMoving = false;
     private int targetY;
     private double lastY;
     private double currentY;
     private int size = 3;
-    private int nextSize = size;
+    private int nextSize = this.size;
     private double speed = 0.2;
-    private double nextSpeed = speed;
+    private double nextSpeed = this.speed;
     private IBlockState[][] platform = new IBlockState[this.size][this.size];
+    /**
+     * The y coordinates of the controllers
+     */
     private final ArrayList<Integer> floors = new ArrayList<>();
+    private final ArrayList<FloorData> floorData = new ArrayList<>();
 
     public ElevatorGroup(World world, int x, int z, EnumFacing facing){
         this.world = world;
@@ -49,9 +55,7 @@ public class ElevatorGroup {
         this.facing = facing;
     }
 
-    public void update(ElevatorBlockTile tile){
-        if(this.world == null)
-            this.world = tile.getWorld();
+    public void update(){
         if(this.isMoving){
             this.lastY = this.currentY;
             if(this.currentY == this.targetY)
@@ -67,9 +71,7 @@ public class ElevatorGroup {
             this.size = this.nextSize;
             this.speed = this.nextSpeed;
             this.platform = new IBlockState[this.size][this.size];
-            IBlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
-            this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
-            this.markDirty();
+            this.updateGroup();
         }
     }
 
@@ -95,9 +97,6 @@ public class ElevatorGroup {
                     MovingElevators.channel.sendToServer(new PacketOnElevator());
             }
         }
-
-        if(!this.world.isRemote)
-            this.markDirty();
     }
 
     private boolean canCollideWith(Entity entity){
@@ -130,10 +129,8 @@ public class ElevatorGroup {
         }
 
         if(!this.world.isRemote){
-            IBlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
-            this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
             this.world.updateComparatorOutputLevel(this.getPos(this.targetY + 1), MovingElevators.elevator_block);
-            this.markDirty();
+            this.updateGroup();
             double x = this.x + this.facing.getFrontOffsetX() * (int)Math.ceil(size / 2f) + 0.5;
             double z = this.z + this.facing.getFrontOffsetZ() * (int)Math.ceil(size / 2f) + 0.5;
             this.world.playSound(null, x, this.targetY + 2.5, z, SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
@@ -174,10 +171,8 @@ public class ElevatorGroup {
         this.currentY = currentY - 1;
         this.lastY = this.currentY;
         if(!this.world.isRemote){
-            IBlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
-            this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
             this.world.updateComparatorOutputLevel(this.getPos(currentY), MovingElevators.elevator_block);
-            this.markDirty();
+            this.updateGroup();
         }
     }
 
@@ -250,11 +245,13 @@ public class ElevatorGroup {
             this.startElevator(yLevel, toY);
     }
 
-    public void remove(int y){
-        this.floors.remove((Integer)y);
+    public void remove(ElevatorBlockTile tile){
+        int floor = this.getFloorNumber(tile.getPos().getY());
+        this.floors.remove(floor);
+        this.floorData.remove(floor);
         if(this.floors.isEmpty()){
             if(this.isMoving){
-                BlockPos spawnPos = this.getPos(y).offset(this.facing, this.size / 2 + 1);
+                BlockPos spawnPos = this.getPos(tile.getPos().getY()).offset(this.facing, this.size / 2 + 1);
                 for(IBlockState[] arr : this.platform){
                     for(IBlockState state : arr){
                         EntityItem entity = new EntityItem(this.world, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, new ItemStack(state.getBlock()));
@@ -262,36 +259,40 @@ public class ElevatorGroup {
                     }
                 }
             }
-        }else if(!this.world.isRemote){
-            IBlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
-            this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
-            this.markDirty();
-        }
+        }else
+            this.updateGroup();
     }
 
     public void add(ElevatorBlockTile tile){
         if(tile == null)
             return;
-        if(this.world == null)
-            this.world = tile.getWorld();
-        tile.setGroup(this);
         int y = tile.getPos().getY();
         if(this.floors.contains(y))
             return;
-        if(this.floors.isEmpty())
-            this.floors.add(y);
+        FloorData floorData = new FloorData(tile.getFloorName(), tile.getDisplayLabelColor());
         for(int i = 0; i < this.floors.size(); i++){
             if(y < this.floors.get(i)){
                 this.floors.add(i, y);
+                this.floorData.add(i, floorData);
                 break;
             }
         }
-        if(!this.floors.contains(y))
+        if(!this.floors.contains(y)){
             this.floors.add(y);
-        if(!this.world.isRemote){
-            IBlockState state = this.world.getBlockState(this.getPos(this.getLowest()));
-            this.world.notifyBlockUpdate(this.getPos(this.getLowest()), state, state, 2);
-            this.markDirty();
+            this.floorData.add(floorData);
+        }
+        this.updateGroup();
+    }
+
+    public void updateFloorData(ElevatorBlockTile tile, String name, EnumDyeColor color){
+        int floor = this.getFloorNumber(tile.getPos().getY());
+        if(floor == -1)
+            return;
+        FloorData data = this.floorData.get(floor);
+        if(!Objects.equals(name, data.name) || color != data.color){
+            data.name = name;
+            data.color = color;
+            this.updateGroup();
         }
     }
 
@@ -327,6 +328,14 @@ public class ElevatorGroup {
         this.nextSpeed = speed;
     }
 
+    public EnumDyeColor getFloorDisplayColor(int floor){
+        return this.floorData.get(floor).color;
+    }
+
+    public String getFloorDisplayName(int floor){
+        return this.floorData.get(floor).name;
+    }
+
     public NBTTagCompound write(){
         NBTTagCompound tag = new NBTTagCompound();
         tag.setBoolean("moving", this.isMoving);
@@ -346,6 +355,10 @@ public class ElevatorGroup {
         for(int i = 0; i < this.floors.size(); i++)
             arr[i] = this.floors.get(i);
         tag.setIntArray("floors", arr);
+        NBTTagCompound floorDataTag = new NBTTagCompound();
+        for(int i = 0; i < this.floorData.size(); i++)
+            floorDataTag.setTag("" + i, this.floorData.get(i).write());
+        tag.setTag("floorData", floorDataTag);
         return tag;
     }
 
@@ -374,12 +387,14 @@ public class ElevatorGroup {
         }
         if(tag.hasKey("floors")){
             this.floors.clear();
-            for(int y : tag.getIntArray("floors")){
+            for(int y : tag.getIntArray("floors"))
                 this.floors.add(y);
-                ElevatorBlockTile tile = this.getTile(y);
-                if(tile != null)
-                    tile.setGroup(this);
-            }
+        }
+        if(tag.hasKey("floorData")){
+            this.floorData.clear();
+            NBTTagCompound floorDataTag = tag.getCompoundTag("floorData");
+            for(String key : floorDataTag.getKeySet())
+                this.floorData.add(FloorData.read(floorDataTag.getCompoundTag(key)));
         }
     }
 
@@ -394,26 +409,16 @@ public class ElevatorGroup {
         return tile instanceof ElevatorBlockTile ? (ElevatorBlockTile)tile : null;
     }
 
-    public int getLowest(){
-        return this.floors.get(0);
-    }
-
-    public void setFacing(EnumFacing facing){
-        this.facing = facing;
-    }
-
-    public List<ElevatorBlockTile> getTiles(){
-        ArrayList<ElevatorBlockTile> tiles = new ArrayList<>(this.floors.size());
-        for(int y : this.floors){
-            ElevatorBlockTile tile = this.getTile(y);
-            if(tile != null)
-                tiles.add(tile);
-        }
-        return tiles;
+    public int getFloorCount(){
+        return this.floors.size();
     }
 
     public int getFloorNumber(int y){
         return this.floors.indexOf(y);
+    }
+
+    public int getFloorYLevel(int floor){
+        return this.floors.get(floor);
     }
 
     public ElevatorBlockTile getTileForFloor(int floor){
@@ -422,9 +427,32 @@ public class ElevatorGroup {
         return this.getTile(this.floors.get(floor));
     }
 
-    private void markDirty(){
-        ElevatorBlockTile tile = this.getTile(this.getLowest());
-        if(tile != null)
-            tile.markDirty();
+    private void updateGroup(){
+        ElevatorGroupCapability groups = this.world.getCapability(ElevatorGroupCapability.CAPABILITY, null);
+        if(groups != null)
+            groups.updateGroup(this);
+    }
+
+    private static class FloorData {
+
+        public String name;
+        public EnumDyeColor color;
+
+        public FloorData(String name, EnumDyeColor color){
+            this.name = name;
+            this.color = color;
+        }
+
+        public NBTTagCompound write(){
+            NBTTagCompound tag = new NBTTagCompound();
+            if(this.name != null)
+                tag.setString("name", this.name);
+            tag.setInteger("color", this.color.getDyeDamage());
+            return tag;
+        }
+
+        public static FloorData read(NBTTagCompound tag){
+            return new FloorData(tag.hasKey("name") ? tag.getString("name") : null, EnumDyeColor.byDyeDamage(tag.getInteger("color")));
+        }
     }
 }

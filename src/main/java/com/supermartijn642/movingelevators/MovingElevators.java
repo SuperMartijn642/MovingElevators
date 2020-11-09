@@ -1,11 +1,9 @@
 package com.supermartijn642.movingelevators;
 
-import com.supermartijn642.movingelevators.packets.PacketElevatorName;
-import com.supermartijn642.movingelevators.packets.PacketElevatorSize;
-import com.supermartijn642.movingelevators.packets.PacketElevatorSpeed;
-import com.supermartijn642.movingelevators.packets.PacketOnElevator;
+import com.supermartijn642.movingelevators.packets.*;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -42,6 +40,13 @@ public class MovingElevators {
         channel.registerMessage(PacketElevatorSpeed.class, PacketElevatorSpeed.class, 1, Side.SERVER);
         channel.registerMessage(PacketElevatorName.class, PacketElevatorName.class, 2, Side.SERVER);
         channel.registerMessage(PacketOnElevator.class, PacketOnElevator.class, 3, Side.SERVER);
+        channel.registerMessage(ElevatorGroupPacket.class, ElevatorGroupPacket.class, 4, Side.CLIENT);
+        channel.registerMessage(ElevatorGroupsPacket.class, ElevatorGroupsPacket.class, 5, Side.CLIENT);
+    }
+
+    @Mod.EventHandler
+    public void init(FMLInitializationEvent e){
+        ElevatorGroupCapability.register();
     }
 
 }
