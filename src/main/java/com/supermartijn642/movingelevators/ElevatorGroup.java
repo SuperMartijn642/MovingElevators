@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators;
 
+import com.supermartijn642.movingelevators.packets.ElevatorMovementPacket;
 import com.supermartijn642.movingelevators.packets.PacketOnElevator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -19,6 +20,7 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,6 +32,8 @@ import java.util.Objects;
  */
 public class ElevatorGroup {
 
+    private static final int RE_SYNC_INTERVAL = 10;
+
     public final World world;
     public final int x, z;
     public final Direction facing;
@@ -38,6 +42,7 @@ public class ElevatorGroup {
     private int targetY;
     private double lastY;
     private double currentY;
+    private double syncCurrentY = Integer.MAX_VALUE;
     private int size = 3;
     private int nextSize = this.size;
     private double speed = 0.2;
@@ -48,6 +53,8 @@ public class ElevatorGroup {
      */
     private final ArrayList<Integer> floors = new ArrayList<>();
     private final ArrayList<FloorData> floorData = new ArrayList<>();
+
+    private int syncCounter = 0;
 
     public ElevatorGroup(World world, int x, int z, Direction facing){
         this.world = world;
@@ -65,9 +72,18 @@ public class ElevatorGroup {
                 this.currentY = this.targetY;
                 this.moveElevator(this.lastY, this.currentY);
             }else{
-                this.currentY += Math.signum(this.targetY - this.currentY) * speed;
+                if(this.syncCurrentY != Integer.MAX_VALUE){
+                    this.currentY = this.syncCurrentY;
+                    this.syncCurrentY = Integer.MAX_VALUE;
+                }else
+                    this.currentY += Math.signum(this.targetY - this.currentY) * speed;
                 this.moveElevator(this.lastY, this.currentY);
             }
+            if(this.syncCounter >= RE_SYNC_INTERVAL){
+                this.syncMovement();
+                this.syncCounter = 0;
+            }
+            this.syncCounter++;
         }else if(this.nextSize != this.size || this.nextSpeed != this.speed){
             this.size = this.nextSize;
             this.speed = this.nextSpeed;
@@ -135,6 +151,7 @@ public class ElevatorGroup {
             double x = this.x + this.facing.getXOffset() * (int)Math.ceil(size / 2f) + 0.5;
             double z = this.z + this.facing.getZOffset() * (int)Math.ceil(size / 2f) + 0.5;
             this.world.playSound(null, x, this.targetY + 2.5, z, SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
+            this.syncCounter = 0;
         }
     }
 
@@ -308,6 +325,11 @@ public class ElevatorGroup {
         return this.currentY;
     }
 
+    public void updateCurrentY(double y){
+        if(this.isMoving && (this.currentY < this.lastY ? y < this.currentY : y > this.currentY))
+            this.syncCurrentY = y;
+    }
+
     public BlockState[][] getPlatform(){
         return this.platform;
     }
@@ -426,6 +448,11 @@ public class ElevatorGroup {
 
     private void updateGroup(){
         this.world.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.updateGroup(this));
+    }
+
+    private void syncMovement(){
+        if(!this.world.isRemote)
+            MovingElevators.CHANNEL.send(PacketDistributor.DIMENSION.with(this.world::getDimensionKey), new ElevatorMovementPacket(this.x, this.z, this.facing, this.currentY));
     }
 
     private static class FloorData {
