@@ -27,9 +27,14 @@ public abstract class METile extends TileEntity {
     private IBlockState camoState = Blocks.AIR.getDefaultState();
     private IBlockState lastCamoState = this.camoState;
 
+    private boolean dataChanged = false;
+
     @Nullable
     @Override
     public SPacketUpdateTileEntity getUpdatePacket(){
+        if(!this.dataChanged)
+            return null;
+        this.dataChanged = false;
         NBTTagCompound compound = this.getChangedData();
         return compound == null || compound.hasNoTags() ? null : new SPacketUpdateTileEntity(this.pos, 0, compound);
     }
@@ -100,8 +105,7 @@ public abstract class METile extends TileEntity {
 
     public boolean setCamoState(IBlockState state){
         this.camoState = state == null ? Blocks.AIR.getDefaultState() : state;
-        this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
-        this.markDirty();
+        this.dataChanged();
         return true;
     }
 
@@ -123,4 +127,11 @@ public abstract class METile extends TileEntity {
     protected IBlockState getBlockState(){
         return this.world.getBlockState(this.pos);
     }
+
+    protected void dataChanged(){
+        this.dataChanged = true;
+        this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
+        this.markDirty();
+    }
+
 }

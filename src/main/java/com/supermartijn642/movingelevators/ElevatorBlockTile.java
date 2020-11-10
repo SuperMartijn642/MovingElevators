@@ -22,8 +22,6 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickable {
     public boolean redstone;
     private boolean lastRedstone;
 
-    private boolean dataChanged = false;
-
     public ElevatorBlockTile(){
     }
 
@@ -88,7 +86,12 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickable {
 
     @Override
     protected NBTTagCompound getChangedData(){
-        return this.dataChanged ? this.getAllData() : null;
+        NBTTagCompound data = super.getChangedData();
+        if(this.name != null)
+            data.setString("name", this.name);
+        data.setInteger("color", this.color.getMetadata());
+        data.setBoolean("redstone", this.lastRedstone);
+        return data;
     }
 
     protected NBTTagCompound getAllData(){
@@ -165,11 +168,5 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickable {
     @Override
     public int getFloorLevel(){
         return this.pos.getY();
-    }
-
-    public void dataChanged(){
-        this.dataChanged = true;
-        this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
-        this.markDirty();
     }
 }
