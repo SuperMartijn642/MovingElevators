@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators;
 
+import com.supermartijn642.movingelevators.packets.ElevatorMovementPacket;
 import com.supermartijn642.movingelevators.packets.PacketOnElevator;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.EnumPushReaction;
@@ -29,6 +30,8 @@ import java.util.Objects;
  */
 public class ElevatorGroup {
 
+    private static final int RE_SYNC_INTERVAL = 10;
+
     public final World world;
     public final int x, z;
     public final EnumFacing facing;
@@ -37,6 +40,7 @@ public class ElevatorGroup {
     private int targetY;
     private double lastY;
     private double currentY;
+    private double syncCurrentY = Integer.MAX_VALUE;
     private int size = 3;
     private int nextSize = this.size;
     private double speed = 0.2;
@@ -47,6 +51,8 @@ public class ElevatorGroup {
      */
     private final ArrayList<Integer> floors = new ArrayList<>();
     private final ArrayList<FloorData> floorData = new ArrayList<>();
+
+    private int syncCounter = 0;
 
     public ElevatorGroup(World world, int x, int z, EnumFacing facing){
         this.world = world;
@@ -64,9 +70,18 @@ public class ElevatorGroup {
                 this.currentY = this.targetY;
                 this.moveElevator(this.lastY, this.currentY);
             }else{
-                this.currentY += Math.signum(this.targetY - this.currentY) * speed;
+                if(this.syncCurrentY != Integer.MAX_VALUE){
+                    this.currentY = this.syncCurrentY;
+                    this.syncCurrentY = Integer.MAX_VALUE;
+                }else
+                    this.currentY += Math.signum(this.targetY - this.currentY) * speed;
                 this.moveElevator(this.lastY, this.currentY);
             }
+            if(this.syncCounter >= RE_SYNC_INTERVAL){
+                this.syncMovement();
+                this.syncCounter = 0;
+            }
+            this.syncCounter++;
         }else if(this.nextSize != this.size || this.nextSpeed != this.speed){
             this.size = this.nextSize;
             this.speed = this.nextSpeed;
@@ -308,6 +323,11 @@ public class ElevatorGroup {
         return this.currentY;
     }
 
+    public void updateCurrentY(double y){
+        if(this.isMoving && (this.currentY < this.lastY ? y < this.currentY : y > this.currentY))
+            this.syncCurrentY = y;
+    }
+
     public IBlockState[][] getPlatform(){
         return this.platform;
     }
@@ -431,6 +451,11 @@ public class ElevatorGroup {
         ElevatorGroupCapability groups = this.world.getCapability(ElevatorGroupCapability.CAPABILITY, null);
         if(groups != null)
             groups.updateGroup(this);
+    }
+
+    private void syncMovement(){
+        if(!this.world.isRemote)
+            MovingElevators.channel.sendToDimension(new ElevatorMovementPacket(this.x, this.z, this.facing, this.currentY), this.world.provider.getDimension());
     }
 
     private static class FloorData {

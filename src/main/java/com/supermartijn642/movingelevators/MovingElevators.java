@@ -18,7 +18,7 @@ public class MovingElevators {
 
     public static final String MODID = "movingelevators";
     public static final String NAME = "Moving Elevators";
-    public static final String VERSION = "1.2.25";
+    public static final String VERSION = "1.2.25-test";
     public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2779,)";
 
     public static SimpleNetworkWrapper channel;
@@ -42,6 +42,7 @@ public class MovingElevators {
         channel.registerMessage(PacketOnElevator.class, PacketOnElevator.class, 3, Side.SERVER);
         channel.registerMessage(ElevatorGroupPacket.class, ElevatorGroupPacket.class, 4, Side.CLIENT);
         channel.registerMessage(ElevatorGroupsPacket.class, ElevatorGroupsPacket.class, 5, Side.CLIENT);
+        channel.registerMessage(ElevatorMovementPacket.class, ElevatorMovementPacket.class, 6, Side.CLIENT);
     }
 
     @Mod.EventHandler
