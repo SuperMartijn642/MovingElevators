@@ -47,7 +47,7 @@ public class MovingElevators {
         }, buffer -> new PacketOnElevator(), PacketOnElevator::handle);
         CHANNEL.registerMessage(4, ElevatorGroupPacket.class, ElevatorGroupPacket::encode, ElevatorGroupPacket::new, ElevatorGroupPacket::handle);
         CHANNEL.registerMessage(5, ElevatorGroupsPacket.class, ElevatorGroupsPacket::encode, ElevatorGroupsPacket::new, ElevatorGroupsPacket::handle);
-        CHANNEL.registerMessage(5, ElevatorMovementPacket.class, ElevatorMovementPacket::encode, ElevatorMovementPacket::new, ElevatorMovementPacket::handle);
+        CHANNEL.registerMessage(6, ElevatorMovementPacket.class, ElevatorMovementPacket::encode, ElevatorMovementPacket::new, ElevatorMovementPacket::handle);
     }
 
     public void init(FMLCommonSetupEvent e){
