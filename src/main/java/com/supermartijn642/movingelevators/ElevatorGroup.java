@@ -13,6 +13,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
@@ -374,9 +376,9 @@ public class ElevatorGroup {
         }
         tag.putDouble("speed", this.speed);
         tag.putIntArray("floors", this.floors);
-        CompoundNBT floorDataTag = new CompoundNBT();
-        for(int i = 0; i < this.floorData.size(); i++)
-            floorDataTag.put("" + i, this.floorData.get(i).write());
+        ListNBT floorDataTag = new ListNBT();
+        for(FloorData floorDatum : this.floorData)
+            floorDataTag.add(floorDatum.write());
         tag.put("floorData", floorDataTag);
         return tag;
     }
@@ -411,9 +413,9 @@ public class ElevatorGroup {
         }
         if(tag.contains("floorData")){
             this.floorData.clear();
-            CompoundNBT floorDataTag = tag.getCompound("floorData");
-            for(String key : floorDataTag.keySet())
-                this.floorData.add(FloorData.read(floorDataTag.getCompound(key)));
+            ListNBT floorDataTag = (ListNBT)tag.get("floorData");
+            for(INBT compound : floorDataTag)
+                this.floorData.add(FloorData.read((CompoundNBT)compound));
         }
     }
 
