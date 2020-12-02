@@ -12,7 +12,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
@@ -375,9 +377,9 @@ public class ElevatorGroup {
         for(int i = 0; i < this.floors.size(); i++)
             arr[i] = this.floors.get(i);
         tag.setIntArray("floors", arr);
-        NBTTagCompound floorDataTag = new NBTTagCompound();
-        for(int i = 0; i < this.floorData.size(); i++)
-            floorDataTag.setTag("" + i, this.floorData.get(i).write());
+        NBTTagList floorDataTag = new NBTTagList();
+        for(FloorData floorDatum : this.floorData)
+            floorDataTag.appendTag(floorDatum.write());
         tag.setTag("floorData", floorDataTag);
         return tag;
     }
@@ -412,9 +414,9 @@ public class ElevatorGroup {
         }
         if(tag.hasKey("floorData")){
             this.floorData.clear();
-            NBTTagCompound floorDataTag = tag.getCompoundTag("floorData");
-            for(String key : floorDataTag.getKeySet())
-                this.floorData.add(FloorData.read(floorDataTag.getCompoundTag(key)));
+            NBTTagList floorDataTag = (NBTTagList)tag.getTag("floorData");
+            for(NBTBase compound : floorDataTag)
+                this.floorData.add(FloorData.read((NBTTagCompound)compound));
         }
     }
 
