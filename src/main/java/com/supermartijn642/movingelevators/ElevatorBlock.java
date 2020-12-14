@@ -82,11 +82,4 @@ public class ElevatorBlock extends ElevatorInputBlock {
             return 0;
         return worldIn.isAirBlock(pos.offset(state.get(FACING)).down()) ? 0 : 15;
     }
-
-    @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving){
-        TileEntity tile = world.getTileEntity(pos);
-        if(tile instanceof ElevatorBlockTile)
-            ((ElevatorBlockTile)tile).redstone = world.isBlockPowered(pos) || world.isBlockPowered(pos.up());
-    }
 }

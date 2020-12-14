@@ -16,14 +16,12 @@ import net.minecraft.util.text.StringTextComponent;
 /**
  * Created 3/29/2020 by SuperMartijn642
  */
-public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTileEntity {
+public class ElevatorBlockTile extends ElevatorInputTile {
 
     private boolean initialized = false;
     private Direction facing;
     private String name;
     private DyeColor color = DyeColor.GRAY;
-    public boolean redstone;
-    private boolean lastRedstone;
 
     public ElevatorBlockTile(){
         super(MovingElevators.elevator_tile);
@@ -31,16 +29,11 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
 
     @Override
     public void tick(){
+        super.tick();
         if(!this.initialized){
             this.world.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(cap -> cap.add(this));
             this.getGroup().updateFloorData(this, this.name, this.color);
             this.initialized = true;
-        }
-        if(!this.world.isRemote && this.lastRedstone != this.redstone){
-            if(this.redstone)
-                this.getGroup().onButtonPress(false, false, this.pos.getY());
-            this.lastRedstone = this.redstone;
-            this.markDirty();
         }
     }
 
@@ -90,7 +83,6 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
         if(this.name != null)
             data.putString("name", ITextComponent.Serializer.toJson(new StringTextComponent(this.name)));
         data.putInt("color", this.color.getId());
-        data.putBoolean("redstone", this.lastRedstone);
         return data;
     }
 
@@ -99,7 +91,6 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
         if(this.name != null)
             data.putString("name", ITextComponent.Serializer.toJson(new StringTextComponent(this.name)));
         data.putInt("color", this.color.getId());
-        data.putBoolean("redstone", this.lastRedstone);
         return data;
     }
 
@@ -115,10 +106,6 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickableTil
             this.name = null;
         if(data.contains("color"))
             this.color = DyeColor.byId(data.getInt("color"));
-        if(data.contains("redstone")){
-            this.redstone = data.getBoolean("redstone");
-            this.lastRedstone = this.redstone;
-        }
     }
 
     @Override
