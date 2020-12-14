@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.base;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -34,5 +35,12 @@ public class ElevatorInputBlock extends MEBlock {
 
         double y = rayTraceResult.getHitVec().y - pos.getY();
         inputTile.getGroup().onButtonPress(y > 2 / 3D, y < 1 / 3D, inputTile.getFloorLevel());
+    }
+
+    @Override
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving){
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile instanceof ElevatorInputTile)
+            ((ElevatorInputTile)tile).redstone = world.isBlockPowered(pos) || world.isBlockPowered(pos.up());
     }
 }
