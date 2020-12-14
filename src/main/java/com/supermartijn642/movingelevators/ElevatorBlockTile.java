@@ -13,14 +13,12 @@ import net.minecraft.util.math.BlockPos;
 /**
  * Created 4/5/2020 by SuperMartijn642
  */
-public class ElevatorBlockTile extends ElevatorInputTile implements ITickable {
+public class ElevatorBlockTile extends ElevatorInputTile {
 
     private boolean initialized = false;
     private EnumFacing facing;
     private String name;
     private EnumDyeColor color = EnumDyeColor.GRAY;
-    public boolean redstone;
-    private boolean lastRedstone;
 
     public ElevatorBlockTile(){
     }
@@ -34,12 +32,6 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickable {
                 this.getGroup().updateFloorData(this, this.name, this.color);
                 this.initialized = true;
             }
-        }
-        if(!this.world.isRemote && this.lastRedstone != this.redstone){
-            if(this.redstone)
-                this.getGroup().onButtonPress(false, false, this.pos.getY());
-            this.lastRedstone = this.redstone;
-            this.markDirty();
         }
     }
 
@@ -90,7 +82,6 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickable {
         if(this.name != null)
             data.setString("name", this.name);
         data.setInteger("color", this.color.getMetadata());
-        data.setBoolean("redstone", this.lastRedstone);
         return data;
     }
 
@@ -99,7 +90,6 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickable {
         if(this.name != null)
             data.setString("name", this.name);
         data.setInteger("color", this.color.getMetadata());
-        data.setBoolean("redstone", this.lastRedstone);
         return data;
     }
 
@@ -108,10 +98,6 @@ public class ElevatorBlockTile extends ElevatorInputTile implements ITickable {
         this.name = tag.hasKey("name") ? tag.getString("name") : null;
         if(tag.hasKey("color"))
             this.color = EnumDyeColor.byMetadata(tag.getInteger("color"));
-        if(tag.hasKey("redstone")){
-            this.redstone = tag.getBoolean("redstone");
-            this.lastRedstone = this.redstone;
-        }
     }
 
     @Override
