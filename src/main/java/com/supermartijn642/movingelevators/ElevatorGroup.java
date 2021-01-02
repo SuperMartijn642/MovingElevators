@@ -414,9 +414,12 @@ public class ElevatorGroup {
         }
         if(tag.hasKey("floorData")){
             this.floorData.clear();
-            NBTTagList floorDataTag = (NBTTagList)tag.getTag("floorData");
-            for(NBTBase compound : floorDataTag)
-                this.floorData.add(FloorData.read((NBTTagCompound)compound));
+            NBTBase base = tag.getTag("floorData");
+            if(base instanceof NBTTagList){
+                NBTTagList floorDataTag = (NBTTagList)base;
+                for(NBTBase compound : floorDataTag)
+                    this.floorData.add(FloorData.read((NBTTagCompound)compound));
+            }
         }
     }
 

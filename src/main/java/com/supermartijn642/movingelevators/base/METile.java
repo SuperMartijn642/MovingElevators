@@ -2,6 +2,7 @@ package com.supermartijn642.movingelevators.base;
 
 import com.supermartijn642.movingelevators.MovingElevators;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -25,7 +26,6 @@ public abstract class METile extends TileEntity {
     }
 
     private IBlockState camoState = Blocks.AIR.getDefaultState();
-    private IBlockState lastCamoState = this.camoState;
 
     private boolean dataChanged = false;
 
@@ -72,10 +72,7 @@ public abstract class METile extends TileEntity {
 
     protected NBTTagCompound getChangedData(){
         NBTTagCompound data = new NBTTagCompound();
-        if(this.lastCamoState != this.camoState){
-            data.setInteger("camoState", Block.getStateId(this.camoState));
-            this.lastCamoState = this.camoState;
-        }
+        data.setInteger("camoState", Block.getStateId(this.camoState));
         return data;
     }
 
@@ -113,7 +110,15 @@ public abstract class METile extends TileEntity {
         if(stack.isEmpty() || !(stack.getItem() instanceof ItemBlock))
             return false;
         Block block = ((ItemBlock)stack.getItem()).getBlock();
-        return block != MovingElevators.elevator_block && block != MovingElevators.display_block && block != MovingElevators.button_block && block.isFullCube(block.getDefaultState());
+        return block != MovingElevators.elevator_block && block != MovingElevators.display_block && block != MovingElevators.button_block &&
+            this.isFullCube(block.getDefaultState());
+    }
+
+    private boolean isFullCube(IBlockState state){
+        for(EnumFacing side : EnumFacing.values())
+            if(state.getBlockFaceShape(this.world, this.pos, side) != BlockFaceShape.SOLID)
+                return false;
+        return true;
     }
 
     public IBlockState getCamoBlock(){
