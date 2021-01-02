@@ -172,7 +172,7 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         matrixStack.push();
         matrixStack.translate(0, 0.07, -0.005);
         matrixStack.scale(-0.01f, -0.08f, 1);
-        fontRenderer.renderString(s, -fontRenderer.getStringWidth(s) / 2f, -fontRenderer.FONT_HEIGHT, NativeImage.getCombined(255, 255, 255, 255), true, matrixStack.getLast().getMatrix(), buffer, false, 0, Integer.MAX_VALUE);
+        fontRenderer.renderString(s, -fontRenderer.getStringWidth(s) / 2f, -fontRenderer.FONT_HEIGHT, NativeImage.getCombined(255, 255, 255, 255), true, matrixStack.getLast().getMatrix(), buffer, false, 0, combinedLight);
         matrixStack.pop();
     }
 
