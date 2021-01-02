@@ -13,8 +13,10 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Created 4/6/2020 by SuperMartijn642
@@ -26,7 +28,6 @@ public abstract class METile extends TileEntity {
     }
 
     private BlockState camoState = Blocks.AIR.getDefaultState();
-    private BlockState lastCamoState = this.camoState;
 
     private boolean dataChanged = false;
 
@@ -73,10 +74,7 @@ public abstract class METile extends TileEntity {
 
     protected CompoundNBT getChangedData(){
         CompoundNBT data = new CompoundNBT();
-        if(this.lastCamoState != this.camoState){
-            data.putInt("camoState", Block.getStateId(this.camoState));
-            this.lastCamoState = this.camoState;
-        }
+        data.putInt("camoState", Block.getStateId(this.camoState));
         return data;
     }
 
@@ -114,7 +112,13 @@ public abstract class METile extends TileEntity {
         if(stack.isEmpty() || !(stack.getItem() instanceof BlockItem))
             return false;
         Block block = ((BlockItem)stack.getItem()).getBlock();
-        return block != MovingElevators.elevator_block && block != MovingElevators.display_block && block != MovingElevators.button_block && !block.func_220074_n(block.getDefaultState()) && block.isNormalCube(block.getDefaultState(), this.world, this.pos);
+        return block != MovingElevators.elevator_block && block != MovingElevators.display_block && block != MovingElevators.button_block &&
+            this.isFullCube(block.getDefaultState());
+    }
+
+    private boolean isFullCube(BlockState state){
+        List<AxisAlignedBB> shapes = state.getCollisionShape(this.world, this.pos).toBoundingBoxList();
+        return shapes.size() == 1 && shapes.get(0).equals(new AxisAlignedBB(0, 0, 0, 1, 1, 1));
     }
 
     public BlockState getCamoBlock(){
