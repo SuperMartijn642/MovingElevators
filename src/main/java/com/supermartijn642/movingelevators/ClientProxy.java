@@ -4,6 +4,8 @@ import com.supermartijn642.movingelevators.base.ElevatorInputTileRenderer;
 import com.supermartijn642.movingelevators.base.METileRenderer;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -25,6 +27,10 @@ public class ClientProxy {
         ClientRegistry.bindTileEntityRenderer(MovingElevators.elevator_tile, ElevatorInputTileRenderer::new);
         ClientRegistry.bindTileEntityRenderer(MovingElevators.display_tile, METileRenderer::new);
         ClientRegistry.bindTileEntityRenderer(MovingElevators.button_tile, ElevatorInputTileRenderer::new);
+
+        RenderTypeLookup.setRenderLayer(MovingElevators.elevator_block, RenderType.getCutoutMipped());
+        RenderTypeLookup.setRenderLayer(MovingElevators.display_block, RenderType.getCutoutMipped());
+        RenderTypeLookup.setRenderLayer(MovingElevators.button_block, RenderType.getCutoutMipped());
     }
 
     public static void openElevatorScreen(BlockPos pos){
