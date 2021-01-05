@@ -52,9 +52,6 @@ public class METileRenderer<T extends METile> extends TileEntitySpecialRenderer<
     private void renderCamouflage(){
         if(tile.getCamoBlock() == null)
             return;
-        GlStateManager.pushMatrix();
-
-        GlStateManager.translate(x, y, z);
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
@@ -68,15 +65,13 @@ public class METileRenderer<T extends METile> extends TileEntitySpecialRenderer<
         try{
             BlockRendererDispatcher brd = Minecraft.getMinecraft().getBlockRendererDispatcher();
             IBakedModel model = brd.getModelForState(state);
+            buffer.setTranslation(x - tile.getPos().getX(), y - tile.getPos().getY(), z - tile.getPos().getZ());
             brd.getBlockModelRenderer().renderModel(tile.getWorld(), model, state, tile.getPos(), buffer, false);
         }catch(Exception e){
             e.printStackTrace();
         }
 
-        GlStateManager.translate(-tile.getPos().getX(), -tile.getPos().getY(), -tile.getPos().getZ());
-
+        buffer.setTranslation(0,0,0);
         tessellator.draw();
-
-        GlStateManager.popMatrix();
     }
 }
