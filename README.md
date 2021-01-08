@@ -2,6 +2,9 @@
 **Moving Elevators** allows you to build real **moving elevators**! These elevator will move **you** as well as **other entities** on the platform to **multiple floors** at the press of a button!
 The platform can have **different sizes** and can move at **different speeds**! You can even **disguise** the Elevator Controller and Display as **other blocks**!
 
+### CurseForge
+For more info and downloads, check out the project on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/moving-elevators)
+
 ### Content:
 
 #### Elevator Controller
