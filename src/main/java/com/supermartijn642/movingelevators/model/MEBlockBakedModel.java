@@ -36,7 +36,7 @@ public class MEBlockBakedModel implements IDynamicBakedModel {
             return this.originalModel.getQuads(state, side, rand, extraData);
 
         IBakedModel model = Minecraft.getInstance().getBlockRendererDispatcher().getModelForState(camouflage);
-        return model.getQuads(state, side, rand, EmptyModelData.INSTANCE);
+        return model.getQuads(camouflage, side, rand, EmptyModelData.INSTANCE);
     }
 
     @Override
