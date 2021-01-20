@@ -46,20 +46,17 @@ public class MEBlock extends Block {
         if(tile instanceof METile){
             METile meTile = (METile)tile;
             if(meTile.getFacing() == null || meTile.getFacing() != rayTraceResult.getFace()){
-                if(player.isShiftKeyDown() && player.getHeldItem(handIn).isEmpty()){
-                    if(!worldIn.isRemote)
-                        meTile.setCamoState(null);
+                if(player.isCrouching() && player.getHeldItem(handIn).isEmpty()){
+                    meTile.setCamoState(null);
                     return ActionResultType.SUCCESS;
-                }else if(!player.isShiftKeyDown() && meTile.canBeCamoStack(player.getHeldItem(handIn))){
-                    if(!worldIn.isRemote){
-                        Item item = player.getHeldItem(handIn).getItem();
-                        if(item instanceof BlockItem){
-                            Block block = ((BlockItem)item).getBlock();
-                            BlockState state1 = block.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(player, handIn, rayTraceResult)));
-                            if(state1 == null)
-                                state1 = block.getDefaultState();
-                            meTile.setCamoState(state1);
-                        }
+                }else if(!player.isCrouching() && meTile.canBeCamoStack(player.getHeldItem(handIn))){
+                    Item item = player.getHeldItem(handIn).getItem();
+                    if(item instanceof BlockItem){
+                        Block block = ((BlockItem)item).getBlock();
+                        BlockState state1 = block.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(player, handIn, rayTraceResult)));
+                        if(state1 == null)
+                            state1 = block.getDefaultState();
+                        meTile.setCamoState(state1);
                     }
                     return ActionResultType.SUCCESS;
                 }
@@ -91,7 +88,7 @@ public class MEBlock extends Block {
 
     @Override
     public BlockRenderType getRenderType(BlockState state){
-        return BlockRenderType.ENTITYBLOCK_ANIMATED;
+        return BlockRenderType.MODEL;
     }
 
     @Override
