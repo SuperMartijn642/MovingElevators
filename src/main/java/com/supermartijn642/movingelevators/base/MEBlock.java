@@ -49,19 +49,16 @@ public class MEBlock extends Block {
             METile meTile = (METile)tile;
             if(meTile.getFacing() == null || meTile.getFacing() != rayTraceResult.getFace()){
                 if(player.isSneaking() && player.getHeldItem(handIn).isEmpty()){
-                    if(!worldIn.isRemote)
-                        meTile.setCamoState(null);
+                    meTile.setCamoState(null);
                     return ActionResultType.SUCCESS;
                 }else if(!player.isSneaking() && meTile.canBeCamoStack(player.getHeldItem(handIn))){
-                    if(!worldIn.isRemote){
-                        Item item = player.getHeldItem(handIn).getItem();
-                        if(item instanceof BlockItem){
-                            Block block = ((BlockItem)item).getBlock();
-                            BlockState state1 = block.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(player, handIn, rayTraceResult)));
-                            if(state1 == null)
-                                state1 = block.getDefaultState();
-                            meTile.setCamoState(state1);
-                        }
+                    Item item = player.getHeldItem(handIn).getItem();
+                    if(item instanceof BlockItem){
+                        Block block = ((BlockItem)item).getBlock();
+                        BlockState state1 = block.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(player, handIn, rayTraceResult)));
+                        if(state1 == null)
+                            state1 = block.getDefaultState();
+                        meTile.setCamoState(state1);
                     }
                     return ActionResultType.SUCCESS;
                 }
@@ -93,7 +90,7 @@ public class MEBlock extends Block {
 
     @Override
     public BlockRenderType getRenderType(BlockState state){
-        return BlockRenderType.ENTITYBLOCK_ANIMATED;
+        return BlockRenderType.MODEL;
     }
 
     @Override

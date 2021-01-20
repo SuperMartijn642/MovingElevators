@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.base;
 
 import com.supermartijn642.movingelevators.MovingElevators;
+import com.supermartijn642.movingelevators.model.MEBlockModelData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -14,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -135,4 +137,8 @@ public abstract class METile extends TileEntity {
         this.markDirty();
     }
 
+    @Override
+    public IModelData getModelData(){
+        return new MEBlockModelData(this.camoState == null || this.camoState.isAir() ? null : this.camoState);
+    }
 }

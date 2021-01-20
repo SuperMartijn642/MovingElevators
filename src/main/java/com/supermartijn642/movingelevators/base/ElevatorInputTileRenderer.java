@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.supermartijn642.movingelevators.ClientProxy;
 import com.supermartijn642.movingelevators.DisplayBlock;
 import com.supermartijn642.movingelevators.ElevatorGroup;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
@@ -16,6 +17,7 @@ import net.minecraft.item.DyeColor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector3d;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
@@ -32,6 +34,8 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
     private static final RenderType DISPLAY_GREEN_DOT = getTexture("green_dot");
     private static final HashMap<DyeColor,RenderType> DISPLAY_BUTTONS = new HashMap<>();
     private static final HashMap<DyeColor,RenderType> DISPLAY_BUTTONS_OFF = new HashMap<>();
+
+    private static final double TEXT_RENDER_DISTANCE = 15 * 15;
 
     static{
         for(DyeColor color : DyeColor.values()){
@@ -122,16 +126,22 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         int total = below + 1 + above;
 
         // render buttons
+        Vector3d buttonPos = new Vector3d(tile.getPos().getX() + 0.5, tile.getPos().getY() + 1 + 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, tile.getPos().getZ() + 0.5);
+        Vector3d cameraPos = Minecraft.getInstance().renderViewEntity.getEyePosition(partialTicks);
         matrixStack.push();
         matrixStack.translate(0, 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, -0.002);
         matrixStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             this.drawQuad((startIndex + i == index ? DISPLAY_BUTTONS_OFF : DISPLAY_BUTTONS).get(group.getFloorDisplayColor(startIndex + i)));
-            matrixStack.push();
-            matrixStack.translate(18.5 / 32d, 0, 0);
-            this.drawString(ClientProxy.formatFloorDisplayName(group.getFloorDisplayName(startIndex + i), startIndex + i));
-            matrixStack.pop();
+            boolean drawText = cameraPos.squareDistanceTo(buttonPos) < TEXT_RENDER_DISTANCE; // text rendering is VERY slow apparently, so only draw it within a certain distance
+            if(drawText){
+                matrixStack.push();
+                matrixStack.translate(18.5 / 32d, 0, 0);
+                this.drawString(ClientProxy.formatFloorDisplayName(group.getFloorDisplayName(startIndex + i), startIndex + i));
+                matrixStack.pop();
+            }
             matrixStack.translate(0, 1, 0);
+            buttonPos = buttonPos.add(0, DisplayBlock.BUTTON_HEIGHT, 0);
         }
         matrixStack.pop();
 
@@ -174,10 +184,5 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         matrixStack.scale(-0.01f, -0.08f, 1);
         fontRenderer.renderString(s, -fontRenderer.getStringWidth(s) / 2f, -fontRenderer.FONT_HEIGHT, NativeImage.getCombined(255, 255, 255, 255), true, matrixStack.getLast().getMatrix(), buffer, false, 0, combinedLight);
         matrixStack.pop();
-    }
-
-    @Override
-    public boolean isGlobalRenderer(T te){
-        return true;
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.math.AxisAlignedBB;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -22,7 +23,6 @@ public abstract class ElevatorInputTile extends METile implements ITickableTileE
     @Override
     public void tick(){
         if(!this.world.isRemote && this.lastRedstone != this.redstone){
-            System.out.println("Redstone changed!");
             if(this.redstone)
                 this.getGroup().onButtonPress(false, false, this.pos.getY());
             this.lastRedstone = this.redstone;
@@ -71,5 +71,10 @@ public abstract class ElevatorInputTile extends METile implements ITickableTileE
             this.redstone = data.getBoolean("redstone");
             this.lastRedstone = this.redstone;
         }
+    }
+
+    @Override
+    public AxisAlignedBB getRenderBoundingBox(){
+        return new AxisAlignedBB(this.pos, this.pos.up().up().east().south());
     }
 }
