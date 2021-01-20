@@ -5,10 +5,7 @@ import com.supermartijn642.movingelevators.base.ElevatorInputTile;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -106,11 +103,6 @@ public class ElevatorBlockTile extends ElevatorInputTile {
             this.name = null;
         if(data.contains("color"))
             this.color = DyeColor.byId(data.getInt("color"));
-    }
-
-    @Override
-    public AxisAlignedBB getRenderBoundingBox(){
-        return TileEntity.INFINITE_EXTENT_AABB;
     }
 
     public void onBreak(){
