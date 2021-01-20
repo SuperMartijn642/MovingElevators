@@ -1,24 +1,14 @@
 package com.supermartijn642.movingelevators.base;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
-
-import java.util.Random;
 
 /**
  * Created 4/7/2020 by SuperMartijn642
  */
-public class METileRenderer<T extends METile> extends TileEntityRenderer<T> {
+public abstract class METileRenderer<T extends METile> extends TileEntityRenderer<T> {
 
     protected T tile;
     protected float partialTicks;
@@ -43,33 +33,8 @@ public class METileRenderer<T extends METile> extends TileEntityRenderer<T> {
         this.combinedLight = combinedLight;
         this.combinedOverlay = combinedOverlay;
 
-        // render camouflage
-        this.renderCamouflage();
-
         this.render();
     }
 
-    protected void render(){
-    }
-
-    private void renderCamouflage(){
-        if(tile.getCamoBlock() == null)
-            return;
-        matrixStack.push();
-
-        matrixStack.translate(-0.001, -0.001, -0.001);
-        matrixStack.scale(1.002f, 1.002f, 1.002f);
-
-        BlockState state = tile.getCamoBlock();
-        IModelData data = Minecraft.getInstance().getBlockRendererDispatcher().getModelForState(state).getModelData(tile.getWorld(), tile.getPos(), state, EmptyModelData.INSTANCE);
-        for(RenderType type : RenderType.getBlockRenderTypes()){
-            if(RenderTypeLookup.canRenderInLayer(state, type)){
-                BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRendererDispatcher();
-                IBakedModel model = blockRenderer.getModelForState(state);
-                blockRenderer.getBlockModelRenderer().renderModel(tile.getWorld(), model, state, tile.getPos(), matrixStack, buffer.getBuffer(type), true, new Random(), 0, this.combinedOverlay, data);
-            }
-        }
-
-        matrixStack.pop();
-    }
+    protected abstract void render();
 }
