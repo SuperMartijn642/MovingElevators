@@ -5,6 +5,7 @@ import com.supermartijn642.movingelevators.MovingElevators;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.AxisAlignedBB;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -17,7 +18,6 @@ public abstract class ElevatorInputTile extends METile implements ITickable {
     @Override
     public void update(){
         if(!this.world.isRemote && this.lastRedstone != this.redstone){
-            System.out.println("Redstone changed!");
             if(this.redstone)
                 this.getGroup().onButtonPress(false, false, this.pos.getY());
             this.lastRedstone = this.redstone;
@@ -66,5 +66,10 @@ public abstract class ElevatorInputTile extends METile implements ITickable {
             this.redstone = data.getBoolean("redstone");
             this.lastRedstone = this.redstone;
         }
+    }
+
+    @Override
+    public AxisAlignedBB getRenderBoundingBox(){
+        return new AxisAlignedBB(this.pos, this.pos.up().up().east().south());
     }
 }

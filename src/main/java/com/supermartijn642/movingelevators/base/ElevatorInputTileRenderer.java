@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
@@ -29,6 +30,8 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
     private static final ResourceLocation DISPLAY_GREEN_DOT = getTexture("green_dot");
     private static final HashMap<EnumDyeColor,ResourceLocation> DISPLAY_BUTTONS = new HashMap<>();
     private static final HashMap<EnumDyeColor,ResourceLocation> DISPLAY_BUTTONS_OFF = new HashMap<>();
+
+    private static final double TEXT_RENDER_DISTANCE = 15 * 15;
 
     static{
         for(EnumDyeColor color : EnumDyeColor.values()){
@@ -115,16 +118,22 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         int total = below + 1 + above;
 
         // render buttons
+        Vec3d buttonPos = new Vec3d(tile.getPos().getX() + 0.5, tile.getPos().getY() + 1 + 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, tile.getPos().getZ() + 0.5);
+        Vec3d cameraPos = Minecraft.getMinecraft().getRenderViewEntity().getPositionEyes(partialTicks);
         GlStateManager.pushMatrix();
         GlStateManager.translate(0, 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, -0.002);
         GlStateManager.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             this.drawQuad((startIndex + i == index ? DISPLAY_BUTTONS_OFF : DISPLAY_BUTTONS).get(group.getFloorDisplayColor(startIndex + i)), tile.getPos().up());
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(18.5 / 32d, 0, 0);
-            this.drawString(ClientProxy.formatFloorDisplayName(group.getFloorDisplayName(startIndex + i), startIndex + i));
-            GlStateManager.popMatrix();
+            boolean drawText = cameraPos.squareDistanceTo(buttonPos) < TEXT_RENDER_DISTANCE; // text rendering is VERY slow apparently, so only draw it within a certain distance
+            if(drawText){
+                GlStateManager.pushMatrix();
+                GlStateManager.translate(18.5 / 32d, 0, 0);
+                this.drawString(ClientProxy.formatFloorDisplayName(group.getFloorDisplayName(startIndex + i), startIndex + i));
+                GlStateManager.popMatrix();
+            }
             GlStateManager.translate(0, 1, 0);
+            buttonPos = buttonPos.add(new Vec3d(0, DisplayBlock.BUTTON_HEIGHT, 0));
         }
         GlStateManager.popMatrix();
 

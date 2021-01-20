@@ -1,10 +1,9 @@
 package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.base.ElevatorInputBlock;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -57,8 +56,8 @@ public class ElevatorBlock extends ElevatorInputBlock {
     }
 
     @Override
-    protected BlockStateContainer createBlockState(){
-        return new BlockStateContainer(this, FACING);
+    protected IProperty<?>[] getProperties(){
+        return new IProperty[]{FACING};
     }
 
     @Override

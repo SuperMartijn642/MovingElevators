@@ -1,15 +1,19 @@
 package com.supermartijn642.movingelevators.base;
 
 import com.supermartijn642.movingelevators.MovingElevators;
+import com.supermartijn642.movingelevators.model.MEBlockModelData;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
@@ -20,6 +24,10 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
+import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -28,6 +36,28 @@ import java.util.function.Supplier;
  * Created 4/7/2020 by SuperMartijn642
  */
 public class MEBlock extends Block {
+
+    public static final IUnlistedProperty<MEBlockModelData> MODEL_DATA = new IUnlistedProperty<MEBlockModelData>() {
+        @Override
+        public String getName(){
+            return "model_data";
+        }
+
+        @Override
+        public boolean isValid(MEBlockModelData value){
+            return true;
+        }
+
+        @Override
+        public Class<MEBlockModelData> getType(){
+            return MEBlockModelData.class;
+        }
+
+        @Override
+        public String valueToString(MEBlockModelData value){
+            return value.toString();
+        }
+    };
 
     private final Supplier<? extends METile> tileSupplier;
 
@@ -51,17 +81,14 @@ public class MEBlock extends Block {
             METile meTile = (METile)tile;
             if(meTile.getFacing() == null || meTile.getFacing() != facing){
                 if(player.isSneaking() && player.getHeldItem(handIn).isEmpty()){
-                    if(!worldIn.isRemote)
-                        meTile.setCamoState(null);
+                    meTile.setCamoState(null);
                     return true;
                 }else if(!player.isSneaking() && meTile.canBeCamoStack(player.getHeldItem(handIn))){
-                    if(!worldIn.isRemote){
-                        Item item = player.getHeldItem(handIn).getItem();
-                        if(item instanceof ItemBlock){
-                            Block block = ((ItemBlock)item).getBlock();
-                            IBlockState state1 = block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, player.getHeldItem(handIn).getMetadata(), player, handIn);
-                            meTile.setCamoState(state1);
-                        }
+                    Item item = player.getHeldItem(handIn).getItem();
+                    if(item instanceof ItemBlock){
+                        Block block = ((ItemBlock)item).getBlock();
+                        IBlockState state1 = block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, player.getHeldItem(handIn).getMetadata(), player, handIn);
+                        meTile.setCamoState(state1);
                     }
                     return true;
                 }
@@ -93,7 +120,7 @@ public class MEBlock extends Block {
 
     @Override
     public EnumBlockRenderType getRenderType(IBlockState state){
-        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
+        return EnumBlockRenderType.MODEL;
     }
 
     @Override
@@ -109,5 +136,28 @@ public class MEBlock extends Block {
     @Override
     public BlockRenderLayer getBlockLayer(){
         return BlockRenderLayer.CUTOUT_MIPPED;
+    }
+
+    @Override
+    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos){
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile instanceof METile){
+            IBlockState camouflage = ((METile)tile).getCamoBlock();
+            return ((IExtendedBlockState)state).withProperty(MODEL_DATA,
+                new MEBlockModelData(camouflage == null || camouflage.getBlock() == Blocks.AIR ? null : camouflage));
+        }
+        return null;
+    }
+
+    @Override
+    protected BlockStateContainer createBlockState(){
+        BlockStateContainer container = super.createBlockState();
+        IProperty<?>[] properties = container.getProperties().toArray(new IProperty[0]);
+        properties = ArrayUtils.addAll(properties, this.getProperties());
+        return new ExtendedBlockState(this, properties, new IUnlistedProperty[]{MODEL_DATA});
+    }
+
+    protected IProperty<?>[] getProperties(){
+        return new IProperty[0];
     }
 }

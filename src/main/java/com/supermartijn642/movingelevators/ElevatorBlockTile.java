@@ -4,9 +4,7 @@ import com.supermartijn642.movingelevators.base.ElevatorInputTile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
@@ -98,11 +96,6 @@ public class ElevatorBlockTile extends ElevatorInputTile {
         this.name = tag.hasKey("name") ? tag.getString("name") : null;
         if(tag.hasKey("color"))
             this.color = EnumDyeColor.byMetadata(tag.getInteger("color"));
-    }
-
-    @Override
-    public AxisAlignedBB getRenderBoundingBox(){
-        return TileEntity.INFINITE_EXTENT_AABB;
     }
 
     public void onBreak(){
