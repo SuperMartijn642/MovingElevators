@@ -160,4 +160,14 @@ public class MEBlock extends Block {
     protected IProperty<?>[] getProperties(){
         return new IProperty[0];
     }
+
+    @Override
+    public float getAmbientOcclusionLightValue(IBlockState state){
+        return 1.0F;
+    }
+
+    @Override
+    public boolean isFullCube(IBlockState state){
+        return false;
+    }
 }
