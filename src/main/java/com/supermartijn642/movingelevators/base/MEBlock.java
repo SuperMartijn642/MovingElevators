@@ -22,6 +22,8 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
@@ -101,9 +103,18 @@ public class MEBlock extends Block {
         return VoxelShapes.empty();
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public float getAmbientOcclusionLightValue(BlockState state, IBlockReader worldIn, BlockPos pos){
+        return 1.0F;
+    }
+
+    public boolean propagatesSkylightDown(BlockState state, IBlockReader reader, BlockPos pos){
+        return true;
+    }
+
     @Override
-    public VoxelShape getRenderShape(BlockState state, IBlockReader worldIn, BlockPos pos){
-        return VoxelShapes.empty();
+    public boolean isNormalCube(BlockState state, IBlockReader worldIn, BlockPos pos){
+        return false;
     }
 
     @Override
