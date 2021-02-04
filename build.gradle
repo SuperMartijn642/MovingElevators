@@ -3,14 +3,17 @@ buildscript {
         maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
+        maven { url = 'https://plugins.gradle.org/m2'}
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'com.wynprice.cursemaven', name: 'CurseMaven', version: '2.1.4'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
+apply plugin: 'com.wynprice.cursemaven'
 
 version = '1.2.32-mc1.16.5'
 group = 'com.supermartijn642.movingelevators' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -24,6 +27,8 @@ minecraft {
 
     runs {
         client {
+            properties 'mixin.env.disableRefMap': 'true'
+
             workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
@@ -80,10 +85,20 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.4-35.0.7'
+    minecraft 'net.minecraftforge:forge:1.16.4-35.1.37'
 
     // compile against the JEI API but do not include it at runtime
 //    compileOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2:api")
     // at runtime, use the full JEI jar
 //    runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2")
+
+    // Applied Energistics 2
+    runtimeOnly fg.deobf('curse.maven:applied-energistics-2:3185882')
+
+    // Integrated Dynamics
+    runtimeOnly fg.deobf('curse.maven:integrated-dynamics:3190265')
+    // Cyclops Core
+    runtimeOnly fg.deobf('curse.maven:cyclops-core:3184812')
+    // Common Capabilities
+    runtimeOnly fg.deobf('curse.maven:common-capabilities:3151332')
 }
