@@ -24,6 +24,8 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
@@ -37,7 +39,7 @@ public class MEBlock extends Block {
     private final Supplier<? extends METile> tileSupplier;
 
     public MEBlock(String registry_name, Supplier<? extends METile> tileSupplier){
-        super(Block.Properties.create(Material.ROCK, MaterialColor.GRAY).sound(SoundType.METAL).harvestTool(ToolType.PICKAXE).hardnessAndResistance(1.5F, 6.0F));
+        super(Block.Properties.create(Material.ROCK, MaterialColor.GRAY).sound(SoundType.METAL).harvestTool(ToolType.PICKAXE).hardnessAndResistance(1.5F, 6.0F).notSolid());
         this.tileSupplier = tileSupplier;
         this.setRegistryName(registry_name);
     }
@@ -103,8 +105,12 @@ public class MEBlock extends Block {
         return VoxelShapes.empty();
     }
 
-    @Override
-    public VoxelShape getRenderShape(BlockState state, IBlockReader worldIn, BlockPos pos){
-        return VoxelShapes.empty();
+    @OnlyIn(Dist.CLIENT)
+    public float getAmbientOcclusionLightValue(BlockState state, IBlockReader worldIn, BlockPos pos){
+        return 1.0F;
+    }
+
+    public boolean propagatesSkylightDown(BlockState state, IBlockReader reader, BlockPos pos){
+        return true;
     }
 }
