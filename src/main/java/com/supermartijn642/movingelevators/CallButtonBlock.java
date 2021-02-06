@@ -21,10 +21,10 @@ import java.util.List;
 /**
  * Created 5/5/2020 by SuperMartijn642
  */
-public class ButtonBlock extends ElevatorInputBlock {
+public class CallButtonBlock extends ElevatorInputBlock {
 
-    public ButtonBlock(){
-        super("button_block", ButtonBlockTile::new);
+    public CallButtonBlock(){
+        super("call_button_block", CallButtonBlockTile::new);
     }
 
     @Override
@@ -32,12 +32,28 @@ public class ButtonBlock extends ElevatorInputBlock {
         if(worldIn == null || pos == null || placer == null || stack.isEmpty())
             return;
         TileEntity tile = worldIn.getTileEntity(pos);
-        if(tile instanceof ButtonBlockTile){
+        if(tile instanceof CallButtonBlockTile){
             NBTTagCompound compound = stack.getTagCompound();
             if(compound == null || !compound.hasKey("controllerDim"))
                 return;
-            ((ButtonBlockTile)tile).setValues(placer.getHorizontalFacing().getOpposite(), new BlockPos(compound.getInteger("controllerX"), compound.getInteger("controllerY"), compound.getInteger("controllerZ")));
+            ((CallButtonBlockTile)tile).setValues(placer.getHorizontalFacing().getOpposite(), new BlockPos(compound.getInteger("controllerX"), compound.getInteger("controllerY"), compound.getInteger("controllerZ")));
         }
+    }
+
+    @Override
+    protected void onRightClick(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand handIn, EnumFacing facing, float hitX, float hitY, float hitZ){
+        if(worldIn.isRemote)
+            return;
+
+        TileEntity tile = worldIn.getTileEntity(pos);
+        if(!(tile instanceof ElevatorInputTile))
+            return;
+
+        ElevatorInputTile inputTile = (ElevatorInputTile)tile;
+        if(inputTile.getFacing() != facing || !inputTile.hasGroup())
+            return;
+
+        inputTile.getGroup().onButtonPress(false, false, inputTile.getFloorLevel());
     }
 
     @Override

@@ -1,6 +1,8 @@
 tile.movingelevators:elevator_block.name=Elevator Controller
 tile.movingelevators:display_block.name=Elevator Display
 tile.movingelevators:button_block.name=Remote Elevator Panel
+tile.movingelevators:call_button_block.name=Remote Elevator Caller
+tile.movingelevators:presence_block.name=Elevator Platform Detector
 block.movingelevators.button_block.info=Controller at $x$, $y$, $z$
 block.movingelevators.button_block.bind=Bound to Elevator Controller!
 block.movingelevators.button_block.place=The block must be bound to an Elevator Controller!

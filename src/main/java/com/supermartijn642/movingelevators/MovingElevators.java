@@ -1,6 +1,9 @@
 package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.packets.*;
+import net.minecraft.block.BlockRedstoneDiode;
+import net.minecraft.block.BlockRedstoneLight;
+import net.minecraft.block.BlockRedstoneTorch;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -18,7 +21,7 @@ public class MovingElevators {
 
     public static final String MODID = "movingelevators";
     public static final String NAME = "Moving Elevators";
-    public static final String VERSION = "1.2.33";
+    public static final String VERSION = "1.2.34";
     public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2779,)";
 
     public static SimpleNetworkWrapper channel;
@@ -29,12 +32,16 @@ public class MovingElevators {
     public static DisplayBlock display_block;
     @GameRegistry.ObjectHolder("movingelevators:button_block")
     public static ButtonBlock button_block;
+    @GameRegistry.ObjectHolder("movingelevators:call_button_block")
+    public static CallButtonBlock call_button_block;
+    @GameRegistry.ObjectHolder("movingelevators:presence_block")
+    public static PresenceBlock presence_block;
 
     @SidedProxy(clientSide = "com.supermartijn642.movingelevators.ClientProxy", serverSide = "com.supermartijn642.movingelevators.CommonProxy")
     public static CommonProxy proxy;
 
     @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent e){
+    public void preInit(FMLPreInitializationEvent e) {
         channel = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
         channel.registerMessage(PacketElevatorSize.class, PacketElevatorSize.class, 0, Side.SERVER);
         channel.registerMessage(PacketElevatorSpeed.class, PacketElevatorSpeed.class, 1, Side.SERVER);

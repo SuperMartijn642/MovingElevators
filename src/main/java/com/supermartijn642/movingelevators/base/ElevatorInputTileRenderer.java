@@ -23,8 +23,9 @@ import java.util.Locale;
  * Created 5/5/2020 by SuperMartijn642
  */
 public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METileRenderer<T> {
-
-    private static final ResourceLocation BUTTONS = getTexture("buttons");
+    private ResourceLocation BUTTONS = null;
+    private static final ResourceLocation BUTTONS_ELEVATOR = getTexture("buttons");
+    private static final ResourceLocation BUTTONS_CONTROLLER = getTexture("buttons_controller");
     private static final ResourceLocation DISPLAY_BACKGROUND = getTexture("display_overlay");
     private static final ResourceLocation DISPLAY_BACKGROUND_BIG = getTexture("display_overlay_big");
     private static final ResourceLocation DISPLAY_GREEN_DOT = getTexture("green_dot");
@@ -44,8 +45,9 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         return new ResourceLocation("movingelevators", "textures/blocks/" + name + ".png");
     }
 
-    public ElevatorInputTileRenderer(){
+    public ElevatorInputTileRenderer(boolean is_button){
         super();
+        this.BUTTONS = is_button ? BUTTONS_CONTROLLER : BUTTONS_ELEVATOR;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDoor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
@@ -23,6 +24,10 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(DisplayBlockTile.class, new ResourceLocation(MovingElevators.MODID, "displayblocktile"));
         e.getRegistry().register(new ButtonBlock());
         GameRegistry.registerTileEntity(ButtonBlockTile.class, new ResourceLocation(MovingElevators.MODID, "buttonblocktile"));
+        e.getRegistry().register(new CallButtonBlock());
+        GameRegistry.registerTileEntity(CallButtonBlockTile.class, new ResourceLocation(MovingElevators.MODID, "callbuttonblocktile"));
+        e.getRegistry().register(new PresenceBlock());
+        GameRegistry.registerTileEntity(PresenceBlockTile.class, new ResourceLocation(MovingElevators.MODID, "presenceblocktile"));
     }
 
     @SubscribeEvent
@@ -30,5 +35,7 @@ public class CommonProxy {
         e.getRegistry().register(new ItemBlock(MovingElevators.elevator_block).setRegistryName(MovingElevators.elevator_block.getRegistryName()));
         e.getRegistry().register(new ItemBlock(MovingElevators.display_block).setRegistryName(MovingElevators.display_block.getRegistryName()));
         e.getRegistry().register(new ButtonBlockItem(MovingElevators.button_block).setRegistryName(MovingElevators.button_block.getRegistryName()));
+        e.getRegistry().register(new CallButtonBlockItem(MovingElevators.call_button_block).setRegistryName(MovingElevators.call_button_block.getRegistryName()));
+        e.getRegistry().register(new PresenceBlockItem(MovingElevators.presence_block).setRegistryName(MovingElevators.presence_block.getRegistryName()));
     }
 }

@@ -33,8 +33,9 @@ public class ClientProxy extends CommonProxy {
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> e){
-        ClientRegistry.bindTileEntitySpecialRenderer(ElevatorBlockTile.class, new ElevatorInputTileRenderer<>());
-        ClientRegistry.bindTileEntitySpecialRenderer(ButtonBlockTile.class, new ElevatorInputTileRenderer<>());
+        ClientRegistry.bindTileEntitySpecialRenderer(ElevatorBlockTile.class, new ElevatorInputTileRenderer<>(false));
+        ClientRegistry.bindTileEntitySpecialRenderer(ButtonBlockTile.class, new ElevatorInputTileRenderer<>(false));
+        ClientRegistry.bindTileEntitySpecialRenderer(CallButtonBlockTile.class, new ElevatorInputTileRenderer<>(true));
     }
 
     @SubscribeEvent
@@ -42,6 +43,8 @@ public class ClientProxy extends CommonProxy {
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(MovingElevators.elevator_block), 0, new ModelResourceLocation(MovingElevators.elevator_block.getRegistryName(), "inventory"));
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(MovingElevators.display_block), 0, new ModelResourceLocation(MovingElevators.display_block.getRegistryName(), "inventory"));
         ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(MovingElevators.button_block), 0, new ModelResourceLocation(MovingElevators.button_block.getRegistryName(), "inventory"));
+        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(MovingElevators.call_button_block), 0, new ModelResourceLocation(MovingElevators.call_button_block.getRegistryName(), "inventory"));
+        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(MovingElevators.presence_block), 0, new ModelResourceLocation(MovingElevators.presence_block.getRegistryName(), "inventory"));
     }
 
     @SubscribeEvent
@@ -49,6 +52,8 @@ public class ClientProxy extends CommonProxy {
         setCamouflageModel(e, MovingElevators.elevator_block);
         setCamouflageModel(e, MovingElevators.display_block);
         setCamouflageModel(e, MovingElevators.button_block);
+        setCamouflageModel(e, MovingElevators.call_button_block);
+        setCamouflageModel(e, MovingElevators.presence_block);
     }
 
     private static void setCamouflageModel(ModelBakeEvent e, Block block){

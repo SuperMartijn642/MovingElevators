@@ -31,7 +31,7 @@ public class ElevatorBlock extends ElevatorInputBlock {
 
     @Override
     protected void onRightClick(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand handIn, EnumFacing facing, float hitX, float hitY, float hitZ){
-        if(player != null && player.getHeldItem(handIn).getItem() instanceof ButtonBlockItem){
+        if(player != null && ((player.getHeldItem(handIn).getItem() instanceof ButtonBlockItem) || (player.getHeldItem(handIn).getItem() instanceof PresenceBlockItem) || (player.getHeldItem(handIn).getItem() instanceof CallButtonBlockItem))){
             if(!worldIn.isRemote){
                 ItemStack stack = player.getHeldItem(handIn);
                 if(stack.getTagCompound() == null)
