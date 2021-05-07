@@ -91,14 +91,4 @@ dependencies {
 //    compileOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2:api")
     // at runtime, use the full JEI jar
 //    runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.2")
-
-    // Applied Energistics 2
-    runtimeOnly fg.deobf('curse.maven:applied-energistics-2:3185882')
-
-    // Integrated Dynamics
-    runtimeOnly fg.deobf('curse.maven:integrated-dynamics:3190265')
-    // Cyclops Core
-    runtimeOnly fg.deobf('curse.maven:cyclops-core:3184812')
-    // Common Capabilities
-    runtimeOnly fg.deobf('curse.maven:common-capabilities:3151332')
 }
