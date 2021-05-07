@@ -20,3 +20,8 @@ build
 # other
 eclipse
 run
+
+images
+logs
+libs
+desktop.ini
