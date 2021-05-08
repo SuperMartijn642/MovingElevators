@@ -25,7 +25,7 @@ import java.util.Set;
 @Mod("movingelevators")
 public class MovingElevators {
 
-    public static final Set<String> CAMOUFLAGE_MOD_BLACKLIST = Sets.newHashSet("secretroomsmod", "movingelevators");
+    public static final Set<String> CAMOUFLAGE_MOD_BLACKLIST = Sets.newHashSet("movingelevators");
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("movingelevators", "main"), () -> "1", "1"::equals, "1"::equals);
 
