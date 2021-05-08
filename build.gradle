@@ -15,7 +15,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'com.wynprice.cursemaven'
 
-version = "1.2.33-mc1.12"
+version = "1.2.34-mc1.12"
 group = "com.supermartijn642.movingelevators" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "movingelevators"
 
@@ -78,6 +78,6 @@ dependencies {
 //    runtimeOnly fg.deobf("mezz.jei:jei_1.12.2:4.16.1.301")
 }
 
-sourceSets {
-    main { output.resourcesDir = output.classesDir }
-}
+//sourceSets {
+//    main { output.resourcesDir = output.classesDir }
+//}

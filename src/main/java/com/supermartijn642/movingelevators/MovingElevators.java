@@ -21,7 +21,7 @@ public class MovingElevators {
 
     public static final String MODID = "movingelevators";
     public static final String NAME = "Moving Elevators";
-    public static final String VERSION = "1.2.33";
+    public static final String VERSION = "1.2.34";
     public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2779,)";
 
     public static final Set<String> CAMOUFLAGE_MOD_BLACKLIST = Sets.newHashSet("secretroomsmod", "movingelevators");
