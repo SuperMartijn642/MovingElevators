@@ -1,31 +1,59 @@
 buildscript {
     repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
-        maven { url = "https://files.minecraftforge.net/maven" }
+        mavenCentral()
+        maven { url = 'https://plugins.gradle.org/m2'}
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'com.wynprice.cursemaven', name: 'CurseMaven', version: '2.1.4'
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
-//Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-
+apply plugin: 'net.minecraftforge.gradle'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'eclipse'
+apply plugin: 'com.wynprice.cursemaven'
 
 version = "1.2.33-mc1.12"
 group = "com.supermartijn642.movingelevators" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "movingelevators"
 
-sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-}
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
-    version = "1.12.2-14.23.5.2847"
-    runDir = "run"
-
-    mappings = "snapshot_20171003"
+    mappings channel: 'snapshot', version: '20171003-1.12'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            mods {
+                movingelevators {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            mods {
+                movingelevators {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
 }
 
 repositories {
@@ -39,42 +67,14 @@ repositories {
         name = "ModMaven"
         url = "https://modmaven.k-4u.nl"
     }
-//    maven {
-//        // open computers maven
-//        url = "http://maven.cil.li/"
-//    }
 }
 
 dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2855'
+
     // compile against the JEI API but do not include it at runtime
-    provided "mezz.jei:jei_1.12.2:4.16.1.301:api"
+//    compileOnly fg.deobf("mezz.jei:jei_1.12.2:4.16.1.301:api")
     // at runtime, use the full JEI jar
-    runtime "mezz.jei:jei_1.12.2:4.16.1.301"
+//    runtimeOnly fg.deobf("mezz.jei:jei_1.12.2:4.16.1.301")
 
-    // Open Computers
-//    provided "li.cil.oc:OpenComputers:MC1.12.2-1.7.5.192:api"
-//    runtime "li.cil.oc:OpenComputers:MC1.12.2-1.7.5.192"
 }
-
-processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-
-        // replace version and mcversion
-        expand 'version': project.version, 'mcversion': project.minecraft.version
-    }
-
-    // copy everything else except the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-}
-
-//sourceSets {
-//    main { output.resourcesDir = output.classesDir }
-//}
