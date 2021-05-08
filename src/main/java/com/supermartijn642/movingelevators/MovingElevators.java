@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators;
 
+import com.google.common.collect.Sets;
 import com.supermartijn642.movingelevators.packets.*;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -9,6 +10,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+
+import java.util.Set;
 
 /**
  * Created 4/5/2020 by SuperMartijn642
@@ -20,6 +23,8 @@ public class MovingElevators {
     public static final String NAME = "Moving Elevators";
     public static final String VERSION = "1.2.33";
     public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2779,)";
+
+    public static final Set<String> CAMOUFLAGE_MOD_BLACKLIST = Sets.newHashSet("secretroomsmod", "movingelevators");
 
     public static SimpleNetworkWrapper channel;
 

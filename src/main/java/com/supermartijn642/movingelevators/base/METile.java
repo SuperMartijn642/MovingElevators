@@ -110,8 +110,7 @@ public abstract class METile extends TileEntity {
         if(stack.isEmpty() || !(stack.getItem() instanceof ItemBlock))
             return false;
         Block block = ((ItemBlock)stack.getItem()).getBlock();
-        return block != MovingElevators.elevator_block && block != MovingElevators.display_block && block != MovingElevators.button_block &&
-            this.isFullCube(block.getDefaultState());
+        return !MovingElevators.CAMOUFLAGE_MOD_BLACKLIST.contains(block.getRegistryName().getResourceDomain()) && this.isFullCube(block.getDefaultState());
     }
 
     private boolean isFullCube(IBlockState state){
