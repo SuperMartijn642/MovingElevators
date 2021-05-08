@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators;
 
+import com.google.common.collect.Sets;
 import com.supermartijn642.movingelevators.packets.*;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
@@ -16,11 +17,15 @@ import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.minecraftforge.registries.ObjectHolder;
 
+import java.util.Set;
+
 /**
  * Created 3/28/2020 by SuperMartijn642
  */
 @Mod("movingelevators")
 public class MovingElevators {
+
+    public static final Set<String> CAMOUFLAGE_MOD_BLACKLIST = Sets.newHashSet("movingelevators");
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("movingelevators", "main"), () -> "1", "1"::equals, "1"::equals);
 
