@@ -44,7 +44,7 @@ public class ElevatorScreen extends Screen {
             return;
         int width = 150;
         int height = 20;
-        final BlockPos pos = tile.getPos();
+        final BlockPos pos = tile.getBlockPos();
         this.sizeSlider = this.addButton(new ElevatorSizeSlider(this.width / 2 - width - 10, this.height / 2 - height / 2, width, height, tile.getGroup().getSize(), slider -> {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSize(pos, slider.getValueInt()));
         }));
@@ -52,11 +52,11 @@ public class ElevatorScreen extends Screen {
             MovingElevators.CHANNEL.sendToServer(new PacketElevatorSpeed(pos, slider.getValue()));
         }));
         this.children.add(this.nameField = new TextFieldWidget(this.font, (this.width - width) / 2, this.height / 13 * 4, width, height, new StringTextComponent("")));
-        this.nameField.setText(ClientProxy.formatFloorDisplayName(tile.getFloorName(), tile.getGroup().getFloorNumber(tile.getFloorLevel())));
-        this.lastTickName = this.nameField.getText();
+        this.nameField.setValue(ClientProxy.formatFloorDisplayName(tile.getFloorName(), tile.getGroup().getFloorNumber(tile.getFloorLevel())));
+        this.lastTickName = this.nameField.getValue();
         this.nameField.setCanLoseFocus(true);
-        this.nameField.setFocused2(false);
-        this.nameField.setMaxStringLength(MAX_NAME_CHARACTER_COUNT);
+        this.nameField.setFocus(false);
+        this.nameField.setMaxLength(MAX_NAME_CHARACTER_COUNT);
     }
 
     @Override
@@ -65,11 +65,11 @@ public class ElevatorScreen extends Screen {
         if(tile == null || !tile.hasGroup())
             return;
         this.nameField.tick();
-        if(!this.lastTickName.equals(this.nameField.getText())){
-            String name = this.nameField.getText();
+        if(!this.lastTickName.equals(this.nameField.getValue())){
+            String name = this.nameField.getValue();
             String defaultName = ClientProxy.formatFloorDisplayName(null, tile.getGroup().getFloorNumber(tile.getFloorLevel()));
             if(name.isEmpty() ? !defaultName.equals(tile.getFloorName()) : !name.equals(tile.getFloorName()))
-                MovingElevators.CHANNEL.sendToServer(new PacketElevatorName(tile.getPos(), name.isEmpty() || name.equals(defaultName) ? null : name));
+                MovingElevators.CHANNEL.sendToServer(new PacketElevatorName(tile.getBlockPos(), name.isEmpty() || name.equals(defaultName) ? null : name));
             this.lastTickName = name;
         }
     }
@@ -77,7 +77,7 @@ public class ElevatorScreen extends Screen {
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks){
         this.renderBackground(matrixStack);
-        this.font.drawString(matrixStack, I18n.format("gui.movingelevators.floorname.label"), this.nameField.x + 2, this.height / 4f, Integer.MAX_VALUE);
+        this.font.draw(matrixStack, I18n.get("gui.movingelevators.floorname.label"), this.nameField.x + 2, this.height / 4f, Integer.MAX_VALUE);
         this.nameField.render(matrixStack, mouseX, mouseY, partialTicks);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
     }
@@ -88,14 +88,14 @@ public class ElevatorScreen extends Screen {
     }
 
     private ElevatorBlockTile getTileOrClose(){
-        World world = Minecraft.getInstance().world;
+        World world = Minecraft.getInstance().level;
         PlayerEntity player = Minecraft.getInstance().player;
         if(world == null || player == null)
             return null;
-        TileEntity tile = world.getTileEntity(this.elevatorPos);
+        TileEntity tile = world.getBlockEntity(this.elevatorPos);
         if(tile instanceof ElevatorBlockTile)
             return (ElevatorBlockTile)tile;
-        player.closeScreen();
+        player.closeContainer();
         return null;
     }
 
@@ -103,8 +103,8 @@ public class ElevatorScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int mouseButton){
         if(mouseButton == 1){ // text field
             if(mouseX >= this.nameField.x && mouseX < this.nameField.x + this.nameField.getWidth()
-                && mouseY >= this.nameField.y && mouseY < this.nameField.y + this.nameField.getHeightRealms())
-                this.nameField.setText("");
+                && mouseY >= this.nameField.y && mouseY < this.nameField.y + this.nameField.getHeight())
+                this.nameField.setValue("");
         }
         super.mouseClicked(mouseX, mouseY, mouseButton);
         return false;
@@ -114,9 +114,9 @@ public class ElevatorScreen extends Screen {
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_){
         if(super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_))
             return true;
-        InputMappings.Input mouseKey = InputMappings.getInputByCode(p_keyPressed_1_, p_keyPressed_2_);
-        if(!this.nameField.isFocused() && (p_keyPressed_1_ == 256 || Minecraft.getInstance().gameSettings.keyBindInventory.isActiveAndMatches(mouseKey))){
-            Minecraft.getInstance().player.closeScreen();
+        InputMappings.Input mouseKey = InputMappings.getKey(p_keyPressed_1_, p_keyPressed_2_);
+        if(!this.nameField.isFocused() && (p_keyPressed_1_ == 256 || Minecraft.getInstance().options.keyInventory.isActiveAndMatches(mouseKey))){
+            Minecraft.getInstance().player.closeContainer();
             return true;
         }
         return false;

@@ -25,17 +25,17 @@ public class ElevatorGroupsPacket {
     }
 
     public void encode(PacketBuffer buffer){
-        buffer.writeCompoundTag(this.capabilityData);
+        buffer.writeNbt(this.capabilityData);
     }
 
     public void decode(PacketBuffer buffer){
-        this.capabilityData = buffer.readCompoundTag();
+        this.capabilityData = buffer.readNbt();
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
         NetworkEvent.Context context = contextSupplier.get();
         context.setPacketHandled(true);
-        World world = ClientProxy.getPlayer().world;
+        World world = ClientProxy.getPlayer().level;
         if(world == null)
             return;
         ElevatorGroupCapability groups = world.getCapability(ElevatorGroupCapability.CAPABILITY).orElse(null);

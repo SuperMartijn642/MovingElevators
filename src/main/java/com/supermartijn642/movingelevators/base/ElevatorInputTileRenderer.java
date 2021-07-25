@@ -45,15 +45,15 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
     }
 
     private static RenderType getTexture(final String name){
-        RenderType.State state = RenderType.State.getBuilder().transparency(new RenderState.TransparencyState("translucent_transparency", () -> {
+        RenderType.State state = RenderType.State.builder().setTransparencyState(new RenderState.TransparencyState("translucent_transparency", () -> {
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             RenderSystem.enableAlphaTest();
         }, () -> {
             RenderSystem.disableBlend();
             RenderSystem.disableAlphaTest();
-        })).texture(new RenderState.TextureState(new ResourceLocation("movingelevators", "textures/blocks/" + name + ".png"), false, false)).build(false);
-        return RenderType.makeType("movingelevators_texture_" + name, DefaultVertexFormats.POSITION_TEX, GL11.GL_QUADS, 256, false, true, state);
+        })).setTextureState(new RenderState.TextureState(new ResourceLocation("movingelevators", "textures/blocks/" + name + ".png"), false, false)).createCompositeState(false);
+        return RenderType.create("movingelevators_texture_" + name, DefaultVertexFormats.POSITION_TEX, GL11.GL_QUADS, 256, false, true, state);
     }
 
     public ElevatorInputTileRenderer(TileEntityRendererDispatcher rendererDispatcherIn){
@@ -73,15 +73,15 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
     }
 
     private void renderButtons(){
-        matrixStack.push();
+        matrixStack.pushPose();
 
         matrixStack.translate(0.5, 0.5, 0.5);
-        matrixStack.rotate(new Quaternion(0, 180 - tile.getFacing().getHorizontalAngle(), 0, true));
+        matrixStack.mulPose(new Quaternion(0, 180 - tile.getFacing().toYRot(), 0, true));
         matrixStack.translate(-0.5, -0.5, -0.51);
 
         this.drawQuad(BUTTONS);
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     private void renderDisplay(){
@@ -89,10 +89,10 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         if(height <= 0)
             return;
 
-        matrixStack.push();
+        matrixStack.pushPose();
 
         matrixStack.translate(0.5, 0.5 + 1, 0.5);
-        matrixStack.rotate(new Quaternion(0, 180 - tile.getFacing().getHorizontalAngle(), 0, true));
+        matrixStack.mulPose(new Quaternion(0, 180 - tile.getFacing().toYRot(), 0, true));
         matrixStack.translate(-0.5, -0.5, -0.51);
 
         int button_count;
@@ -106,10 +106,10 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         }
 
         // render background
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.scale(1, height, 1);
         this.drawQuad(background);
-        matrixStack.pop();
+        matrixStack.popPose();
 
         ElevatorGroup group = tile.getGroup();
         int index = group.getFloorNumber(tile.getFloorLevel());
@@ -126,24 +126,24 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         int total = below + 1 + above;
 
         // render buttons
-        Vector3d buttonPos = new Vector3d(tile.getPos().getX() + 0.5, tile.getPos().getY() + 1 + 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, tile.getPos().getZ() + 0.5);
-        Vector3d cameraPos = Minecraft.getInstance().renderViewEntity.getEyePosition(partialTicks);
-        matrixStack.push();
+        Vector3d buttonPos = new Vector3d(tile.getBlockPos().getX() + 0.5, tile.getBlockPos().getY() + 1 + 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, tile.getBlockPos().getZ() + 0.5);
+        Vector3d cameraPos = Minecraft.getInstance().cameraEntity.getEyePosition(partialTicks);
+        matrixStack.pushPose();
         matrixStack.translate(0, 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, -0.002);
         matrixStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             this.drawQuad((startIndex + i == index ? DISPLAY_BUTTONS_OFF : DISPLAY_BUTTONS).get(group.getFloorDisplayColor(startIndex + i)));
-            boolean drawText = cameraPos.squareDistanceTo(buttonPos) < TEXT_RENDER_DISTANCE; // text rendering is VERY slow apparently, so only draw it within a certain distance
+            boolean drawText = cameraPos.distanceToSqr(buttonPos) < TEXT_RENDER_DISTANCE; // text rendering is VERY slow apparently, so only draw it within a certain distance
             if(drawText){
-                matrixStack.push();
+                matrixStack.pushPose();
                 matrixStack.translate(18.5 / 32d, 0, 0);
                 this.drawString(ClientProxy.formatFloorDisplayName(group.getFloorDisplayName(startIndex + i), startIndex + i));
-                matrixStack.pop();
+                matrixStack.popPose();
             }
             matrixStack.translate(0, 1, 0);
             buttonPos = buttonPos.add(0, DisplayBlock.BUTTON_HEIGHT, 0);
         }
-        matrixStack.pop();
+        matrixStack.popPose();
 
         // render platform dot
         if(tile.getGroup().isMoving()){
@@ -162,27 +162,27 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
             }
         }
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     private void drawQuad(RenderType type){
-        Matrix4f matrix = matrixStack.getLast().getMatrix();
+        Matrix4f matrix = matrixStack.last().pose();
         IVertexBuilder builder = buffer.getBuffer(type);
 
-        builder.pos(matrix, 0, 0, 0).tex(1, 1).endVertex();
-        builder.pos(matrix, 0, 1, 0).tex(1, 0).endVertex();
-        builder.pos(matrix, 1, 1, 0).tex(0, 0).endVertex();
-        builder.pos(matrix, 1, 0, 0).tex(0, 1).endVertex();
+        builder.vertex(matrix, 0, 0, 0).uv(1, 1).endVertex();
+        builder.vertex(matrix, 0, 1, 0).uv(1, 0).endVertex();
+        builder.vertex(matrix, 1, 1, 0).uv(0, 0).endVertex();
+        builder.vertex(matrix, 1, 0, 0).uv(0, 1).endVertex();
     }
 
     private void drawString(String s){
         if(s == null)
             return;
-        FontRenderer fontRenderer = this.renderDispatcher.fontRenderer;
-        matrixStack.push();
+        FontRenderer fontRenderer = this.renderer.font;
+        matrixStack.pushPose();
         matrixStack.translate(0, 0.07, -0.005);
         matrixStack.scale(-0.01f, -0.08f, 1);
-        fontRenderer.renderString(s, -fontRenderer.getStringWidth(s) / 2f, -fontRenderer.FONT_HEIGHT, NativeImage.getCombined(255, 255, 255, 255), true, matrixStack.getLast().getMatrix(), buffer, false, 0, combinedLight);
-        matrixStack.pop();
+        fontRenderer.drawInBatch(s, -fontRenderer.width(s) / 2f, -fontRenderer.lineHeight, NativeImage.combine(255, 255, 255, 255), true, matrixStack.last().pose(), buffer, false, 0, combinedLight);
+        matrixStack.popPose();
     }
 }

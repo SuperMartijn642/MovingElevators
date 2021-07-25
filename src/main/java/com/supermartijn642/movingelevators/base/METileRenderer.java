@@ -23,7 +23,7 @@ public abstract class METileRenderer<T extends METile> extends TileEntityRendere
 
     @Override
     public void render(T tile, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer buffer, int combinedLight, int combinedOverlay){
-        if(tile == null || tile.getWorld() == null)
+        if(tile == null || tile.getLevel() == null)
             return;
 
         this.tile = tile;

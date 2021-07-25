@@ -27,24 +27,24 @@ public class ButtonBlock extends ElevatorInputBlock {
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack){
+    public void setPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack){
         if(worldIn == null || pos == null || placer == null || stack.isEmpty())
             return;
-        TileEntity tile = worldIn.getTileEntity(pos);
+        TileEntity tile = worldIn.getBlockEntity(pos);
         if(tile instanceof ButtonBlockTile){
             CompoundNBT compound = stack.getTag();
             if(compound == null || !compound.contains("controllerDim"))
                 return;
-            ((ButtonBlockTile)tile).setValues(placer.getHorizontalFacing().getOpposite(), new BlockPos(compound.getInt("controllerX"), compound.getInt("controllerY"), compound.getInt("controllerZ")));
+            ((ButtonBlockTile)tile).setValues(placer.getDirection().getOpposite(), new BlockPos(compound.getInt("controllerX"), compound.getInt("controllerY"), compound.getInt("controllerZ")));
         }
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn){
+    public void appendHoverText(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn){
         CompoundNBT tag = stack.getTag();
         if(tag != null && tag.contains("controllerDim"))
             tooltip.add(new StringTextComponent(ClientProxy.translate("block.movingelevators.button_block.info").replace("$x$", Integer.toString(tag.getInt("controllerX")))
-                .replace("$y$", Integer.toString(tag.getInt("controllerY"))).replace("$z$", Integer.toString(tag.getInt("controllerZ")))).mergeStyle(TextFormatting.AQUA));
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+                .replace("$y$", Integer.toString(tag.getInt("controllerY"))).replace("$z$", Integer.toString(tag.getInt("controllerZ")))).withStyle(TextFormatting.AQUA));
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 }

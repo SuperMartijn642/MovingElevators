@@ -25,21 +25,21 @@ public class ElevatorGroupRenderer {
 
     @SubscribeEvent
     public static void onRender(RenderWorldLastEvent e){
-        ElevatorGroupCapability groups = Minecraft.getInstance().world.getCapability(ElevatorGroupCapability.CAPABILITY).orElse(null);
+        ElevatorGroupCapability groups = Minecraft.getInstance().level.getCapability(ElevatorGroupCapability.CAPABILITY).orElse(null);
         if(groups == null)
             return;
 
-        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
-        e.getMatrixStack().push();
-        Vector3d matrix = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
+        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
+        e.getMatrixStack().pushPose();
+        Vector3d matrix = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         e.getMatrixStack().translate(-matrix.x, -matrix.y, -matrix.z);
         for(ElevatorGroup group : groups.getGroups()){
             BlockPos elevatorPos = new BlockPos(group.x, group.getCurrentY(), group.z);
-            if(elevatorPos.distanceSq(Minecraft.getInstance().player.getPosition()) < RENDER_DISTANCE)
+            if(elevatorPos.distSqr(Minecraft.getInstance().player.blockPosition()) < RENDER_DISTANCE)
                 renderGroup(e.getMatrixStack(), group, buffer, e.getPartialTicks());
         }
-        e.getMatrixStack().pop();
-        buffer.finish();
+        e.getMatrixStack().popPose();
+        buffer.endBatch();
     }
 
     public static void renderGroup(MatrixStack matrixStack, ElevatorGroup group, IRenderTypeBuffer.Impl buffer, float partialTicks){
@@ -49,21 +49,21 @@ public class ElevatorGroupRenderer {
         int size = group.getSize();
         double lastY = group.getLastY(), currentY = group.getCurrentY();
         double y = lastY + (currentY - lastY) * partialTicks;
-        int startX = group.x + group.facing.getXOffset() * (int)Math.ceil(size / 2f) - size / 2;
-        int startZ = group.z + group.facing.getZOffset() * (int)Math.ceil(size / 2f) - size / 2;
+        int startX = group.x + group.facing.getStepX() * (int)Math.ceil(size / 2f) - size / 2;
+        int startZ = group.z + group.facing.getStepZ() * (int)Math.ceil(size / 2f) - size / 2;
 
-        BlockPos topPos = new BlockPos(group.x, y, group.z).offset(group.facing, (int)Math.ceil(size / 2f));
-        int currentLight = WorldRenderer.getCombinedLight(group.world, topPos);
+        BlockPos topPos = new BlockPos(group.x, y, group.z).relative(group.facing, (int)Math.ceil(size / 2f));
+        int currentLight = WorldRenderer.getLightColor(group.world, topPos);
 
         for(int x = 0; x < size; x++){
             for(int z = 0; z < size; z++){
-                matrixStack.push();
+                matrixStack.pushPose();
 
                 matrixStack.translate(startX + x, y, startZ + z);
 
-                Minecraft.getInstance().getBlockRendererDispatcher().renderBlock(state[x][z], matrixStack, buffer, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                Minecraft.getInstance().getBlockRenderer().renderBlock(state[x][z], matrixStack, buffer, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
 
-                matrixStack.pop();
+                matrixStack.popPose();
             }
         }
     }

@@ -14,7 +14,7 @@ public class ElevatorSizeSlider extends Slider {
         }, slider);
         int val = (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
         precision = 0;
-        setMessage(new StringTextComponent(I18n.format("movingelevators.platform.size").replace("$number$", val + "x" + val)));
+        setMessage(new StringTextComponent(I18n.get("movingelevators.platform.size").replace("$number$", val + "x" + val)));
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ElevatorSizeSlider extends Slider {
 
         int val = (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
 
-        setMessage(new StringTextComponent(I18n.format("movingelevators.platform.size").replace("$number$", val + "x" + val)));
+        setMessage(new StringTextComponent(I18n.get("movingelevators.platform.size").replace("$number$", val + "x" + val)));
 
         if(parent != null){
             parent.onChangeSliderValue(this);

@@ -16,22 +16,22 @@ public class DisplayBlockTile extends METile {
 
     @Override
     public Direction getFacing(){
-        TileEntity tile = this.world.getTileEntity(this.pos.down());
+        TileEntity tile = this.level.getBlockEntity(this.worldPosition.below());
         if(tile instanceof METile)
             return ((METile)tile).getFacing();
         return null;
     }
 
     public int getDisplayCategory(){
-        TileEntity tile = this.world.getTileEntity(this.pos.down());
+        TileEntity tile = this.level.getBlockEntity(this.worldPosition.below());
         if(tile instanceof ElevatorInputTile){
-            tile = this.world.getTileEntity(this.pos.up());
+            tile = this.level.getBlockEntity(this.worldPosition.above());
             if(tile instanceof DisplayBlockTile)
                 return 2;
             return 1;
         }
         if(tile instanceof DisplayBlockTile){
-            tile = this.world.getTileEntity(this.pos.down(2));
+            tile = this.level.getBlockEntity(this.worldPosition.below(2));
             if(tile instanceof ElevatorInputTile)
                 return 3;
             return 0;

@@ -33,21 +33,21 @@ public class ElevatorMovementPacket {
     public void encode(PacketBuffer buffer){
         buffer.writeInt(this.x);
         buffer.writeInt(this.z);
-        buffer.writeInt(this.facing.getHorizontalIndex());
+        buffer.writeInt(this.facing.get2DDataValue());
         buffer.writeDouble(this.currentY);
     }
 
     public void decode(PacketBuffer buffer){
         this.x = buffer.readInt();
         this.z = buffer.readInt();
-        this.facing = Direction.byHorizontalIndex(buffer.readInt());
+        this.facing = Direction.from2DDataValue(buffer.readInt());
         this.currentY = buffer.readDouble();
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
         NetworkEvent.Context context = contextSupplier.get();
         context.setPacketHandled(true);
-        World world = ClientProxy.getPlayer().world;
+        World world = ClientProxy.getPlayer().level;
         if(world == null)
             return;
         ElevatorGroupCapability groups = world.getCapability(ElevatorGroupCapability.CAPABILITY).orElse(null);

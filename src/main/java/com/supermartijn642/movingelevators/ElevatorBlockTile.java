@@ -28,26 +28,26 @@ public class ElevatorBlockTile extends ElevatorInputTile {
     public void tick(){
         super.tick();
         if(!this.initialized){
-            this.world.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(cap -> cap.add(this));
+            this.level.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(cap -> cap.add(this));
             this.getGroup().updateFloorData(this, this.name, this.color);
             this.initialized = true;
         }
     }
 
     public boolean hasPlatform(){
-        int startX = this.pos.getX() + this.getFacing().getXOffset() * (int)Math.ceil(this.getGroup().getSize() / 2f) - this.getGroup().getSize() / 2;
-        int startZ = this.pos.getZ() + this.getFacing().getZOffset() * (int)Math.ceil(this.getGroup().getSize() / 2f) - this.getGroup().getSize() / 2;
+        int startX = this.worldPosition.getX() + this.getFacing().getStepX() * (int)Math.ceil(this.getGroup().getSize() / 2f) - this.getGroup().getSize() / 2;
+        int startZ = this.worldPosition.getZ() + this.getFacing().getStepZ() * (int)Math.ceil(this.getGroup().getSize() / 2f) - this.getGroup().getSize() / 2;
         for(int x = 0; x < this.getGroup().getSize(); x++){
             for(int z = 0; z < this.getGroup().getSize(); z++){
-                BlockPos pos = new BlockPos(startX + x, this.pos.getY() - 1, startZ + z);
-                if(this.world.isAirBlock(pos) || this.world.getTileEntity(pos) != null)
+                BlockPos pos = new BlockPos(startX + x, this.worldPosition.getY() - 1, startZ + z);
+                if(this.level.isEmptyBlock(pos) || this.level.getBlockEntity(pos) != null)
                     return false;
-                BlockState state = this.world.getBlockState(pos);
-                if(state.getBlockHardness(this.world, pos) < 0)
+                BlockState state = this.level.getBlockState(pos);
+                if(state.getDestroySpeed(this.level, pos) < 0)
                     return false;
-                if(!(state.getShape(this.world, pos).getEnd(Direction.Axis.Y) == 1.0 &&
-                    state.getShape(this.world, pos).getStart(Direction.Axis.X) == 0 && state.getShape(this.world, pos).getEnd(Direction.Axis.X) == 1.0 &&
-                    state.getShape(this.world, pos).getStart(Direction.Axis.Z) == 0 && state.getShape(this.world, pos).getEnd(Direction.Axis.Z) == 1.0))
+                if(!(state.getShape(this.level, pos).max(Direction.Axis.Y) == 1.0 &&
+                    state.getShape(this.level, pos).min(Direction.Axis.X) == 0 && state.getShape(this.level, pos).max(Direction.Axis.X) == 1.0 &&
+                    state.getShape(this.level, pos).min(Direction.Axis.Z) == 0 && state.getShape(this.level, pos).max(Direction.Axis.Z) == 1.0))
                     return false;
             }
         }
@@ -55,12 +55,12 @@ public class ElevatorBlockTile extends ElevatorInputTile {
     }
 
     public boolean hasSpaceForPlatform(){
-        int startX = this.pos.getX() + this.getFacing().getXOffset() * (int)Math.ceil(this.getGroup().getSize() / 2f) - this.getGroup().getSize() / 2;
-        int startZ = this.pos.getZ() + this.getFacing().getZOffset() * (int)Math.ceil(this.getGroup().getSize() / 2f) - this.getGroup().getSize() / 2;
+        int startX = this.worldPosition.getX() + this.getFacing().getStepX() * (int)Math.ceil(this.getGroup().getSize() / 2f) - this.getGroup().getSize() / 2;
+        int startZ = this.worldPosition.getZ() + this.getFacing().getStepZ() * (int)Math.ceil(this.getGroup().getSize() / 2f) - this.getGroup().getSize() / 2;
         for(int x = 0; x < this.getGroup().getSize(); x++){
             for(int z = 0; z < this.getGroup().getSize(); z++){
-                BlockPos pos = new BlockPos(startX + x, this.pos.getY() - 1, startZ + z);
-                if(!this.world.isAirBlock(pos))
+                BlockPos pos = new BlockPos(startX + x, this.worldPosition.getY() - 1, startZ + z);
+                if(!this.level.isEmptyBlock(pos))
                     return false;
             }
         }
@@ -70,7 +70,7 @@ public class ElevatorBlockTile extends ElevatorInputTile {
     @Override
     public Direction getFacing(){
         if(this.facing == null)
-            this.facing = this.world.getBlockState(pos).get(ElevatorBlock.FACING);
+            this.facing = this.level.getBlockState(worldPosition).getValue(ElevatorBlock.FACING);
         return this.facing;
     }
 
@@ -95,7 +95,7 @@ public class ElevatorBlockTile extends ElevatorInputTile {
         super.handleData(data);
         if(data.contains("name")){
             try{
-                this.name = ITextComponent.Serializer.getComponentFromJson(data.getString("name")).getStringTruncated(Integer.MAX_VALUE);
+                this.name = ITextComponent.Serializer.fromJson(data.getString("name")).getString(Integer.MAX_VALUE);
             }catch(JsonParseException ignore){
                 this.name = data.getString("name");
             }
@@ -106,11 +106,11 @@ public class ElevatorBlockTile extends ElevatorInputTile {
     }
 
     public void onBreak(){
-        this.world.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.remove(this));
+        this.level.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.remove(this));
     }
 
     @Override
-    public double getMaxRenderDistanceSquared(){
+    public double getViewDistance(){
         return 255 * 255 * 4;
     }
 
@@ -140,7 +140,7 @@ public class ElevatorBlockTile extends ElevatorInputTile {
 
     @Override
     public ElevatorGroup getGroup(){
-        return this.world.getCapability(ElevatorGroupCapability.CAPABILITY).map(groups -> groups.getGroup(this)).orElse(null);
+        return this.level.getCapability(ElevatorGroupCapability.CAPABILITY).map(groups -> groups.getGroup(this)).orElse(null);
     }
 
     @Override
@@ -150,6 +150,6 @@ public class ElevatorBlockTile extends ElevatorInputTile {
 
     @Override
     public int getFloorLevel(){
-        return this.pos.getY();
+        return this.worldPosition.getY();
     }
 }

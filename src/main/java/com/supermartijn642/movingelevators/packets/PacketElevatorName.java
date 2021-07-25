@@ -27,11 +27,11 @@ public class PacketElevatorName {
         buffer.writeBlockPos(this.pos);
         buffer.writeBoolean(this.name == null);
         if(this.name != null)
-            buffer.writeString(this.name);
+            buffer.writeUtf(this.name);
     }
 
     public static PacketElevatorName decode(PacketBuffer buffer){
-        return new PacketElevatorName(buffer.readBlockPos(), buffer.readBoolean() ? null : buffer.readString(32767));
+        return new PacketElevatorName(buffer.readBlockPos(), buffer.readBoolean() ? null : buffer.readUtf(32767));
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
@@ -40,10 +40,10 @@ public class PacketElevatorName {
         PlayerEntity player = context.getSender();
         if(player == null)
             return;
-        World world = player.world;
+        World world = player.level;
         if(world == null)
             return;
-        TileEntity tile = world.getTileEntity(this.pos);
+        TileEntity tile = world.getBlockEntity(this.pos);
         if(!(tile instanceof ElevatorBlockTile))
             return;
         context.enqueueWork(() -> ((ElevatorBlockTile)tile).setFloorName(this.name));

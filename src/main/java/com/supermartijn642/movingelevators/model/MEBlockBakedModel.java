@@ -35,18 +35,18 @@ public class MEBlockBakedModel implements IDynamicBakedModel {
         if(camouflage == null)
             return this.originalModel.getQuads(state, side, rand, extraData);
 
-        IBakedModel model = Minecraft.getInstance().getBlockRendererDispatcher().getModelForState(camouflage);
+        IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(camouflage);
         return model.getQuads(camouflage, side, rand, EmptyModelData.INSTANCE);
     }
 
     @Override
     public IModelData getModelData(IBlockDisplayReader world, BlockPos pos, BlockState state, IModelData tileData){
-        TileEntity tile = world.getTileEntity(pos);
+        TileEntity tile = world.getBlockEntity(pos);
         return tile == null ? EmptyModelData.INSTANCE : tile.getModelData();
     }
 
     @Override
-    public boolean isAmbientOcclusion(){
+    public boolean useAmbientOcclusion(){
         return false;
     }
 
@@ -56,18 +56,18 @@ public class MEBlockBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public boolean isSideLit(){
+    public boolean usesBlockLight(){
         return true;
     }
 
     @Override
-    public boolean isBuiltInRenderer(){
+    public boolean isCustomRenderer(){
         return false;
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture(){
-        return this.originalModel.getParticleTexture();
+    public TextureAtlasSprite getParticleIcon(){
+        return this.originalModel.getParticleIcon();
     }
 
     @Override

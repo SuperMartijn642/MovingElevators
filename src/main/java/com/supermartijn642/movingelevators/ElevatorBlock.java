@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  */
 public class ElevatorBlock extends ElevatorInputBlock {
 
-    public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
+    public static final DirectionProperty FACING = HorizontalBlock.FACING;
 
     public ElevatorBlock(){
         super("elevator_block", ElevatorBlockTile::new);
@@ -33,18 +33,18 @@ public class ElevatorBlock extends ElevatorInputBlock {
 
     @Override
     protected void onRightClick(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
-        if(player != null && player.getHeldItem(handIn).getItem() instanceof ButtonBlockItem){
-            if(!worldIn.isRemote){
-                ItemStack stack = player.getHeldItem(handIn);
+        if(player != null && player.getItemInHand(handIn).getItem() instanceof ButtonBlockItem){
+            if(!worldIn.isClientSide){
+                ItemStack stack = player.getItemInHand(handIn);
                 CompoundNBT tag = stack.getOrCreateTag();
-                tag.putString("controllerDim", worldIn.getDimensionKey().getRegistryName().toString());
+                tag.putString("controllerDim", worldIn.dimension().getRegistryName().toString());
                 tag.putInt("controllerX", pos.getX());
                 tag.putInt("controllerY", pos.getY());
                 tag.putInt("controllerZ", pos.getZ());
-                player.sendMessage(new TranslationTextComponent("block.movingelevators.button_block.bind").mergeStyle(TextFormatting.YELLOW), player.getUniqueID());
+                player.sendMessage(new TranslationTextComponent("block.movingelevators.button_block.bind").withStyle(TextFormatting.YELLOW), player.getUUID());
             }
-        }else if(state.get(FACING) != rayTraceResult.getFace()){
-            if(worldIn.isRemote)
+        }else if(state.getValue(FACING) != rayTraceResult.getDirection()){
+            if(worldIn.isClientSide)
                 ClientProxy.openElevatorScreen(pos);
         }else
             super.onRightClick(state, worldIn, pos, player, handIn, rayTraceResult);
@@ -53,33 +53,33 @@ public class ElevatorBlock extends ElevatorInputBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context){
-        return this.getDefaultState().with(FACING, context.getPlacementHorizontalFacing().getOpposite());
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block,BlockState> builder){
+    protected void createBlockStateDefinition(StateContainer.Builder<Block,BlockState> builder){
         builder.add(FACING);
     }
 
     @Override
-    public void onReplaced(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving){
+    public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving){
         if(state.getBlock() != newState.getBlock()){
-            TileEntity tile = worldIn.getTileEntity(pos);
+            TileEntity tile = worldIn.getBlockEntity(pos);
             if(tile instanceof ElevatorBlockTile)
                 ((ElevatorBlockTile)tile).onBreak();
         }
-        super.onReplaced(state, worldIn, pos, newState, isMoving);
+        super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Override
-    public boolean hasComparatorInputOverride(BlockState state){
+    public boolean hasAnalogOutputSignal(BlockState state){
         return true;
     }
 
     @Override
-    public int getComparatorInputOverride(BlockState state, World worldIn, BlockPos pos){
+    public int getAnalogOutputSignal(BlockState state, World worldIn, BlockPos pos){
         if(!state.hasProperty(FACING))
             return 0;
-        return worldIn.isAirBlock(pos.offset(state.get(FACING)).down()) ? 0 : 15;
+        return worldIn.isEmptyBlock(pos.relative(state.getValue(FACING)).below()) ? 0 : 15;
     }
 }

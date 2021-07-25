@@ -17,7 +17,7 @@ public class ElevatorSpeedSlider extends Slider {
 
         float val = ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
         this.precision = 0;
-        setMessage(new StringTextComponent(I18n.format("movingelevators.platform.speed").replace("$number$", Float.toString(val))));
+        setMessage(new StringTextComponent(I18n.get("movingelevators.platform.speed").replace("$number$", Float.toString(val))));
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ElevatorSpeedSlider extends Slider {
 
         float val = ((int)Math.round(this.sliderValue * (this.max - this.min)) + this.min) / 10f;
 
-        setMessage(new StringTextComponent(I18n.format("movingelevators.platform.speed").replace("$number$", Float.toString(val))));
+        setMessage(new StringTextComponent(I18n.get("movingelevators.platform.speed").replace("$number$", Float.toString(val))));
 
         if(parent != null){
             parent.onChangeSliderValue(this);

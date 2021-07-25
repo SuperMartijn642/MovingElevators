@@ -22,11 +22,11 @@ public abstract class ElevatorInputTile extends METile implements ITickableTileE
 
     @Override
     public void tick(){
-        if(!this.world.isRemote && this.lastRedstone != this.redstone){
+        if(!this.level.isClientSide && this.lastRedstone != this.redstone){
             if(this.redstone)
-                this.getGroup().onButtonPress(false, false, this.pos.getY());
+                this.getGroup().onButtonPress(false, false, this.worldPosition.getY());
             this.lastRedstone = this.redstone;
-            this.markDirty();
+            this.setChanged();
         }
     }
 
@@ -37,8 +37,8 @@ public abstract class ElevatorInputTile extends METile implements ITickableTileE
     public abstract String getFloorName();
 
     public int getDisplayHeight(){
-        if(this.world.getBlockState(this.pos.up()).getBlock() == MovingElevators.display_block){
-            if(this.world.getBlockState(this.pos.up(2)).getBlock() == MovingElevators.display_block)
+        if(this.level.getBlockState(this.worldPosition.above()).getBlock() == MovingElevators.display_block){
+            if(this.level.getBlockState(this.worldPosition.above(2)).getBlock() == MovingElevators.display_block)
                 return 2;
             return 1;
         }
@@ -75,6 +75,6 @@ public abstract class ElevatorInputTile extends METile implements ITickableTileE
 
     @Override
     public AxisAlignedBB getRenderBoundingBox(){
-        return new AxisAlignedBB(this.pos, this.pos.up().up().east().south());
+        return new AxisAlignedBB(this.worldPosition, this.worldPosition.above().above().east().south());
     }
 }

@@ -89,7 +89,7 @@ public class ElevatorGroupCapability {
     @SubscribeEvent
     public static void onJoinWorld(PlayerEvent.PlayerChangedDimensionEvent e){
         ServerPlayerEntity player = (ServerPlayerEntity)e.getPlayer();
-        player.world.getCapability(CAPABILITY).ifPresent(groups ->
+        player.level.getCapability(CAPABILITY).ifPresent(groups ->
             MovingElevators.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ElevatorGroupsPacket(groups.write()))
         );
     }
@@ -97,7 +97,7 @@ public class ElevatorGroupCapability {
     @SubscribeEvent
     public static void onJoin(PlayerEvent.PlayerLoggedInEvent e){
         ServerPlayerEntity player = (ServerPlayerEntity)e.getPlayer();
-        player.world.getCapability(CAPABILITY).ifPresent(groups ->
+        player.level.getCapability(CAPABILITY).ifPresent(groups ->
             MovingElevators.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ElevatorGroupsPacket(groups.write()))
         );
     }
@@ -118,13 +118,13 @@ public class ElevatorGroupCapability {
     }
 
     public void add(ElevatorBlockTile controller){
-        ElevatorGroupPosition pos = new ElevatorGroupPosition(controller.getPos(), controller.getFacing());
+        ElevatorGroupPosition pos = new ElevatorGroupPosition(controller.getBlockPos(), controller.getFacing());
         this.groups.putIfAbsent(pos, new ElevatorGroup(this.world, pos.x, pos.z, pos.facing));
         this.groups.get(pos).add(controller);
     }
 
     public void remove(ElevatorBlockTile controller){
-        ElevatorGroupPosition pos = new ElevatorGroupPosition(controller.getPos(), controller.getFacing());
+        ElevatorGroupPosition pos = new ElevatorGroupPosition(controller.getBlockPos(), controller.getFacing());
         ElevatorGroup group = this.groups.get(pos);
         group.remove(controller);
         if(group.getFloorCount() == 0)
@@ -137,12 +137,12 @@ public class ElevatorGroupCapability {
     }
 
     public void updateGroup(ElevatorGroup group){
-        if(!this.world.isRemote && group != null)
-            MovingElevators.CHANNEL.send(PacketDistributor.DIMENSION.with(this.world::getDimensionKey), new ElevatorGroupPacket(this.writeGroup(group)));
+        if(!this.world.isClientSide && group != null)
+            MovingElevators.CHANNEL.send(PacketDistributor.DIMENSION.with(this.world::dimension), new ElevatorGroupPacket(this.writeGroup(group)));
     }
 
     public ElevatorGroup getGroup(ElevatorBlockTile tile){
-        return this.groups.get(new ElevatorGroupPosition(tile.getPos().getX(), tile.getPos().getZ(), tile.getFacing()));
+        return this.groups.get(new ElevatorGroupPosition(tile.getBlockPos().getX(), tile.getBlockPos().getZ(), tile.getFacing()));
     }
 
     public Collection<ElevatorGroup> getGroups(){
@@ -162,7 +162,7 @@ public class ElevatorGroupCapability {
 
     public void read(CompoundNBT compound){
         this.groups.clear();
-        for(String key : compound.keySet()){
+        for(String key : compound.getAllKeys()){
             CompoundNBT groupTag = compound.getCompound(key);
             if(groupTag.contains("group") && groupTag.contains("pos")){
                 ElevatorGroupPosition pos = ElevatorGroupPosition.read(groupTag.getCompound("pos"));
@@ -227,12 +227,12 @@ public class ElevatorGroupCapability {
             CompoundNBT tag = new CompoundNBT();
             tag.putInt("x", this.x);
             tag.putInt("z", this.z);
-            tag.putInt("facing", this.facing.getHorizontalIndex());
+            tag.putInt("facing", this.facing.get2DDataValue());
             return tag;
         }
 
         public static ElevatorGroupPosition read(CompoundNBT tag){
-            return new ElevatorGroupPosition(tag.getInt("x"), tag.getInt("z"), Direction.byHorizontalIndex(tag.getInt("facing")));
+            return new ElevatorGroupPosition(tag.getInt("x"), tag.getInt("z"), Direction.from2DDataValue(tag.getInt("facing")));
         }
     }
 

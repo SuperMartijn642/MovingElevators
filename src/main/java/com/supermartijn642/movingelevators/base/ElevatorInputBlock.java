@@ -22,25 +22,25 @@ public class ElevatorInputBlock extends MEBlock {
 
     @Override
     protected void onRightClick(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
-        if(worldIn.isRemote)
+        if(worldIn.isClientSide)
             return;
 
-        TileEntity tile = worldIn.getTileEntity(pos);
+        TileEntity tile = worldIn.getBlockEntity(pos);
         if(!(tile instanceof ElevatorInputTile))
             return;
 
         ElevatorInputTile inputTile = (ElevatorInputTile)tile;
-        if(inputTile.getFacing() != rayTraceResult.getFace() || !inputTile.hasGroup())
+        if(inputTile.getFacing() != rayTraceResult.getDirection() || !inputTile.hasGroup())
             return;
 
-        double y = rayTraceResult.getHitVec().y - pos.getY();
+        double y = rayTraceResult.getLocation().y - pos.getY();
         inputTile.getGroup().onButtonPress(y > 2 / 3D, y < 1 / 3D, inputTile.getFloorLevel());
     }
 
     @Override
     public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving){
-        TileEntity tile = world.getTileEntity(pos);
+        TileEntity tile = world.getBlockEntity(pos);
         if(tile instanceof ElevatorInputTile)
-            ((ElevatorInputTile)tile).redstone = world.isBlockPowered(pos) || world.isBlockPowered(pos.up());
+            ((ElevatorInputTile)tile).redstone = world.hasNeighborSignal(pos) || world.hasNeighborSignal(pos.above());
     }
 }

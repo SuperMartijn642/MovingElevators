@@ -30,7 +30,7 @@ public class ButtonBlockTile extends ElevatorInputTile {
     protected CompoundNBT getChangedData(){
         CompoundNBT data = super.getChangedData();
         if(this.lastFacing != this.facing){
-            data.putInt("facing", this.facing.getIndex());
+            data.putInt("facing", this.facing.get3DDataValue());
             this.lastFacing = this.facing;
         }
         return data;
@@ -39,7 +39,7 @@ public class ButtonBlockTile extends ElevatorInputTile {
     @Override
     protected CompoundNBT getAllData(){
         CompoundNBT data = super.getAllData();
-        data.putInt("facing", this.facing.getIndex());
+        data.putInt("facing", this.facing.get3DDataValue());
         data.putInt("controllerX", this.controllerPos.getX());
         data.putInt("controllerY", this.controllerPos.getY());
         data.putInt("controllerZ", this.controllerPos.getZ());
@@ -50,7 +50,7 @@ public class ButtonBlockTile extends ElevatorInputTile {
     protected void handleData(CompoundNBT data){
         super.handleData(data);
         if(data.contains("facing"))
-            this.facing = Direction.byIndex(data.getInt("facing"));
+            this.facing = Direction.from3DDataValue(data.getInt("facing"));
         if(data.contains("controllerX"))
             this.controllerPos = new BlockPos(data.getInt("controllerX"), data.getInt("controllerY"), data.getInt("controllerZ"));
     }
@@ -61,9 +61,9 @@ public class ButtonBlockTile extends ElevatorInputTile {
     }
 
     public ElevatorBlockTile getController(){
-        if(this.world == null || this.controllerPos == null)
+        if(this.level == null || this.controllerPos == null)
             return null;
-        TileEntity tile = this.world.getTileEntity(this.controllerPos);
+        TileEntity tile = this.level.getBlockEntity(this.controllerPos);
         return tile instanceof ElevatorBlockTile ? (ElevatorBlockTile)tile : null;
     }
 

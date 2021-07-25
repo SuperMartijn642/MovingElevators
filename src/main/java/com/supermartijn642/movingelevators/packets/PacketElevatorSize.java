@@ -38,10 +38,10 @@ public class PacketElevatorSize {
         PlayerEntity player = context.getSender();
         if(player == null)
             return;
-        World world = player.world;
+        World world = player.level;
         if(world == null)
             return;
-        TileEntity tile = world.getTileEntity(this.pos);
+        TileEntity tile = world.getBlockEntity(this.pos);
         if(!(tile instanceof ElevatorBlockTile))
             return;
         context.enqueueWork(() -> ((ElevatorBlockTile)tile).getGroup().setSize(this.size));

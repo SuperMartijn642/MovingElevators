@@ -29,19 +29,19 @@ public class DisplayBlock extends MEBlock {
 
     @Override
     protected void onRightClick(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
-        if(worldIn.isRemote)
+        if(worldIn.isClientSide)
             return;
 
-        TileEntity tile = worldIn.getTileEntity(pos);
+        TileEntity tile = worldIn.getBlockEntity(pos);
         if(!(tile instanceof DisplayBlockTile))
             return;
         DisplayBlockTile displayTile = (DisplayBlockTile)tile;
 
-        if(displayTile.getFacing() == rayTraceResult.getFace()){
+        if(displayTile.getFacing() == rayTraceResult.getDirection()){
             int displayCat = displayTile.getDisplayCategory();
 
-            Vector3d hitVec = rayTraceResult.getHitVec().subtract(pos.getX(), pos.getY(), pos.getZ());
-            double hitHorizontal = rayTraceResult.getFace().getAxis() == Direction.Axis.Z ? hitVec.x : hitVec.z;
+            Vector3d hitVec = rayTraceResult.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
+            double hitHorizontal = rayTraceResult.getDirection().getAxis() == Direction.Axis.Z ? hitVec.x : hitVec.z;
             double hitY = hitVec.y;
 
             if(hitHorizontal > 2 / 32d && hitHorizontal < 30 / 32d){
@@ -51,19 +51,19 @@ public class DisplayBlock extends MEBlock {
 
                 if(displayCat == 1){ // single
                     if(hitY > 2 / 32d && hitY < 30 / 32d){
-                        inputTilePos = pos.down();
+                        inputTilePos = pos.below();
                         button_count = BUTTON_COUNT;
                         height = 1;
                     }
                 }else if(displayCat == 2){ // bottom
                     if(hitY > 2 / 32d){
-                        inputTilePos = pos.down();
+                        inputTilePos = pos.below();
                         button_count = BUTTON_COUNT_BIG;
                         height = 2;
                     }
                 }else if(displayCat == 3){ // top
                     if(hitY < 30 / 32d){
-                        inputTilePos = pos.down(2);
+                        inputTilePos = pos.below(2);
                         button_count = BUTTON_COUNT_BIG;
                         height = 2;
                         hitY++;
@@ -73,7 +73,7 @@ public class DisplayBlock extends MEBlock {
                 if(inputTilePos == null)
                     return;
 
-                tile = worldIn.getTileEntity(inputTilePos);
+                tile = worldIn.getBlockEntity(inputTilePos);
                 if(tile instanceof ElevatorInputTile && ((ElevatorInputTile)tile).hasGroup()){
                     ElevatorInputTile inputTile = (ElevatorInputTile)tile;
 
@@ -93,10 +93,10 @@ public class DisplayBlock extends MEBlock {
 
                     int floorOffset = (int)Math.floor((hitY - (height - total * BUTTON_HEIGHT) / 2d) / BUTTON_HEIGHT) + startIndex - index;
 
-                    if(player == null || player.getHeldItem(handIn).isEmpty() || !(player.getHeldItem(handIn).getItem() instanceof DyeItem))
+                    if(player == null || player.getItemInHand(handIn).isEmpty() || !(player.getItemInHand(handIn).getItem() instanceof DyeItem))
                         inputTile.getGroup().onDisplayPress(inputTile.getFloorLevel(), floorOffset);
                     else{
-                        DyeColor color = ((DyeItem)player.getHeldItem(handIn).getItem()).getDyeColor();
+                        DyeColor color = ((DyeItem)player.getItemInHand(handIn).getItem()).getDyeColor();
                         int floor = group.getFloorNumber(inputTile.getFloorLevel()) + floorOffset;
                         ElevatorBlockTile elevatorTile = group.getTileForFloor(floor);
                         if(elevatorTile != null)

@@ -29,7 +29,7 @@ public abstract class METile extends TileEntity {
         super(tileEntityTypeIn);
     }
 
-    private BlockState camoState = Blocks.AIR.getDefaultState();
+    private BlockState camoState = Blocks.AIR.defaultBlockState();
 
     private boolean dataChanged = false;
 
@@ -40,12 +40,12 @@ public abstract class METile extends TileEntity {
             return null;
         this.dataChanged = false;
         CompoundNBT compound = this.getChangedData();
-        return compound == null || compound.isEmpty() ? null : new SUpdateTileEntityPacket(this.pos, 0, compound);
+        return compound == null || compound.isEmpty() ? null : new SUpdateTileEntityPacket(this.worldPosition, 0, compound);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt){
-        this.handleData(pkt.getNbtCompound());
+        this.handleData(pkt.getTag());
     }
 
     @Override
@@ -62,50 +62,50 @@ public abstract class METile extends TileEntity {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT compound){
-        super.write(compound);
+    public CompoundNBT save(CompoundNBT compound){
+        super.save(compound);
         compound.put("info", this.getAllData());
         return compound;
     }
 
     @Override
-    public void read(BlockState state, CompoundNBT compound){
-        super.read(state, compound);
+    public void load(BlockState state, CompoundNBT compound){
+        super.load(state, compound);
         this.handleData(compound.getCompound("info"));
     }
 
     protected CompoundNBT getChangedData(){
         CompoundNBT data = new CompoundNBT();
-        data.putInt("camoState", Block.getStateId(this.camoState));
+        data.putInt("camoState", Block.getId(this.camoState));
         return data;
     }
 
     protected CompoundNBT getAllData(){
         CompoundNBT data = new CompoundNBT();
-        data.putInt("camoState", Block.getStateId(this.camoState));
+        data.putInt("camoState", Block.getId(this.camoState));
         return data;
     }
 
     protected void handleData(CompoundNBT data){
         if(data.contains("camoState"))
-            this.camoState = Block.getStateById(data.getInt("camoState"));
+            this.camoState = Block.stateById(data.getInt("camoState"));
         else if(data.contains("hasCamo")){ // Do this for older versions
             if(data.getBoolean("hasCamo"))
-                this.camoState = Block.getStateById(data.getInt("camo"));
+                this.camoState = Block.stateById(data.getInt("camo"));
             else
-                this.camoState = Blocks.AIR.getDefaultState();
+                this.camoState = Blocks.AIR.defaultBlockState();
         }else if(data.contains("camo")){ // Do this for older versions
-            ItemStack camoStack = ItemStack.read(data.getCompound("camo"));
+            ItemStack camoStack = ItemStack.of(data.getCompound("camo"));
             Item item = camoStack.getItem();
             if(item instanceof BlockItem){
                 Block block = ((BlockItem)item).getBlock();
-                this.camoState = block.getDefaultState();
+                this.camoState = block.defaultBlockState();
             }
         }
     }
 
     public boolean setCamoState(BlockState state){
-        this.camoState = state == null ? Blocks.AIR.getDefaultState() : state;
+        this.camoState = state == null ? Blocks.AIR.defaultBlockState() : state;
         this.dataChanged();
         return true;
     }
@@ -114,11 +114,11 @@ public abstract class METile extends TileEntity {
         if(stack.isEmpty() || !(stack.getItem() instanceof BlockItem))
             return false;
         Block block = ((BlockItem)stack.getItem()).getBlock();
-        return !MovingElevators.CAMOUFLAGE_MOD_BLACKLIST.contains(block.getRegistryName().getNamespace()) && this.isFullCube(block.getDefaultState());
+        return !MovingElevators.CAMOUFLAGE_MOD_BLACKLIST.contains(block.getRegistryName().getNamespace()) && this.isFullCube(block.defaultBlockState());
     }
 
     private boolean isFullCube(BlockState state){
-        List<AxisAlignedBB> shapes = state.getCollisionShape(this.world, this.pos).toBoundingBoxList();
+        List<AxisAlignedBB> shapes = state.getCollisionShape(this.level, this.worldPosition).toAabbs();
         return shapes.size() == 1 && shapes.get(0).equals(new AxisAlignedBB(0, 0, 0, 1, 1, 1));
     }
 
@@ -132,8 +132,8 @@ public abstract class METile extends TileEntity {
 
     protected void dataChanged(){
         this.dataChanged = true;
-        this.world.notifyBlockUpdate(this.pos, this.getBlockState(), this.getBlockState(), 2);
-        this.markDirty();
+        this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 2);
+        this.setChanged();
     }
 
     @Override

@@ -17,13 +17,13 @@ import java.lang.reflect.Field;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class FallDamageHandler {
 
-    public static final Field floatingTickCount = ObfuscationReflectionHelper.findField(ServerPlayNetHandler.class, "field_147365_f");
+    public static final Field floatingTickCount = ObfuscationReflectionHelper.findField(ServerPlayNetHandler.class, "aboveGroundTickCount");
 
     @SubscribeEvent
     public static void onFallDamage(LivingFallEvent e){
         CompoundNBT compound = e.getEntityLiving().getPersistentData();
         if(compound.contains("elevatorTime")){
-            if(e.getEntity().ticksExisted - compound.getLong("elevatorTime") < 20 * 5)
+            if(e.getEntity().tickCount - compound.getLong("elevatorTime") < 20 * 5)
                 e.setCanceled(true);
             else
                 compound.remove("elevatorTime");
@@ -31,7 +31,7 @@ public class FallDamageHandler {
     }
 
     public static void resetElevatorTime(PlayerEntity player){
-        player.getPersistentData().putLong("elevatorTime", player.ticksExisted);
+        player.getPersistentData().putLong("elevatorTime", player.tickCount);
         if(player instanceof ServerPlayerEntity)
             resetFloatingTicks((ServerPlayerEntity)player);
     }

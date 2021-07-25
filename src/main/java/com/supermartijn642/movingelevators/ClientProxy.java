@@ -35,9 +35,9 @@ public class ClientProxy {
         ClientRegistry.bindTileEntityRenderer(MovingElevators.elevator_tile, ElevatorInputTileRenderer::new);
         ClientRegistry.bindTileEntityRenderer(MovingElevators.button_tile, ElevatorInputTileRenderer::new);
 
-        RenderTypeLookup.setRenderLayer(MovingElevators.elevator_block, RenderType.getCutoutMipped());
-        RenderTypeLookup.setRenderLayer(MovingElevators.display_block, RenderType.getCutoutMipped());
-        RenderTypeLookup.setRenderLayer(MovingElevators.button_block, RenderType.getCutoutMipped());
+        RenderTypeLookup.setRenderLayer(MovingElevators.elevator_block, RenderType.cutoutMipped());
+        RenderTypeLookup.setRenderLayer(MovingElevators.display_block, RenderType.cutoutMipped());
+        RenderTypeLookup.setRenderLayer(MovingElevators.button_block, RenderType.cutoutMipped());
     }
 
     @SubscribeEvent
@@ -48,7 +48,7 @@ public class ClientProxy {
     }
 
     private static void setCamouflageModel(ModelBakeEvent e, Block block){
-        for(BlockState state : block.getStateContainer().getValidStates()){
+        for(BlockState state : block.getStateDefinition().getPossibleStates()){
             StringBuilder builder = new StringBuilder();
             if(!state.getValues().isEmpty())
                 builder.append(state.getValues().entrySet().stream().map(entry -> getPropertyName(entry.getKey(), entry.getValue())).collect(Collectors.joining(",")));
@@ -65,11 +65,11 @@ public class ClientProxy {
     }
 
     public static void openElevatorScreen(BlockPos pos){
-        Minecraft.getInstance().displayGuiScreen(new ElevatorScreen(pos));
+        Minecraft.getInstance().setScreen(new ElevatorScreen(pos));
     }
 
     public static String translate(String s){
-        return I18n.format(s);
+        return I18n.get(s);
     }
 
     public static String formatFloorDisplayName(String name, int floor){
@@ -84,8 +84,8 @@ public class ClientProxy {
     public static class ForgeEventListeners {
         @SubscribeEvent
         public static void onClientTick(TickEvent.ClientTickEvent e){
-            if(e.phase == TickEvent.Phase.END && !Minecraft.getInstance().isGamePaused() && Minecraft.getInstance().world != null)
-                ElevatorGroupCapability.tickWorldCapability(Minecraft.getInstance().world);
+            if(e.phase == TickEvent.Phase.END && !Minecraft.getInstance().isPaused() && Minecraft.getInstance().level != null)
+                ElevatorGroupCapability.tickWorldCapability(Minecraft.getInstance().level);
         }
     }
 }

@@ -39,27 +39,27 @@ public class MEBlock extends Block {
     private final Supplier<? extends METile> tileSupplier;
 
     public MEBlock(String registry_name, Supplier<? extends METile> tileSupplier){
-        super(Block.Properties.create(Material.ROCK, MaterialColor.GRAY).sound(SoundType.METAL).harvestTool(ToolType.PICKAXE).hardnessAndResistance(1.5F, 6.0F).notSolid());
+        super(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).harvestTool(ToolType.PICKAXE).strength(1.5F, 6.0F).noOcclusion());
         this.tileSupplier = tileSupplier;
         this.setRegistryName(registry_name);
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
-        TileEntity tile = worldIn.getTileEntity(pos);
+    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
+        TileEntity tile = worldIn.getBlockEntity(pos);
         if(tile instanceof METile){
             METile meTile = (METile)tile;
-            if(meTile.getFacing() == null || meTile.getFacing() != rayTraceResult.getFace()){
-                if(player.isSneaking() && player.getHeldItem(handIn).isEmpty()){
+            if(meTile.getFacing() == null || meTile.getFacing() != rayTraceResult.getDirection()){
+                if(player.isShiftKeyDown() && player.getItemInHand(handIn).isEmpty()){
                     meTile.setCamoState(null);
                     return ActionResultType.SUCCESS;
-                }else if(!player.isSneaking() && meTile.canBeCamoStack(player.getHeldItem(handIn))){
-                    Item item = player.getHeldItem(handIn).getItem();
+                }else if(!player.isShiftKeyDown() && meTile.canBeCamoStack(player.getItemInHand(handIn))){
+                    Item item = player.getItemInHand(handIn).getItem();
                     if(item instanceof BlockItem){
                         Block block = ((BlockItem)item).getBlock();
                         BlockState state1 = block.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(player, handIn, rayTraceResult)));
                         if(state1 == null)
-                            state1 = block.getDefaultState();
+                            state1 = block.defaultBlockState();
                         meTile.setCamoState(state1);
                     }
                     return ActionResultType.SUCCESS;
@@ -86,12 +86,12 @@ public class MEBlock extends Block {
     }
 
     @Override
-    public PushReaction getPushReaction(BlockState state){
+    public PushReaction getPistonPushReaction(BlockState state){
         return PushReaction.BLOCK;
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state){
+    public BlockRenderType getRenderShape(BlockState state){
         return BlockRenderType.MODEL;
     }
 
@@ -101,12 +101,12 @@ public class MEBlock extends Block {
     }
 
     @Override
-    public VoxelShape getRayTraceShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext context){
+    public VoxelShape getVisualShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext context){
         return VoxelShapes.empty();
     }
 
     @OnlyIn(Dist.CLIENT)
-    public float getAmbientOcclusionLightValue(BlockState state, IBlockReader worldIn, BlockPos pos){
+    public float getShadeBrightness(BlockState state, IBlockReader worldIn, BlockPos pos){
         return 1.0F;
     }
 

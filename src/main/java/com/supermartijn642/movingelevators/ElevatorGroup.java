@@ -95,64 +95,64 @@ public class ElevatorGroup {
     }
 
     private void moveElevator(double oldY, double newY){
-        int x = this.x + this.facing.getXOffset() * (int)Math.ceil(size / 2f) - size / 2;
-        int z = this.z + this.facing.getZOffset() * (int)Math.ceil(size / 2f) - size / 2;
+        int x = this.x + this.facing.getStepX() * (int)Math.ceil(size / 2f) - size / 2;
+        int z = this.z + this.facing.getStepZ() * (int)Math.ceil(size / 2f) - size / 2;
 
         AxisAlignedBB box = new AxisAlignedBB(x, Math.min(oldY, newY), z, x + this.size, Math.max(oldY, newY) + 1 + 3 * this.speed, z + this.size);
 
-        List<? extends Entity> entities = this.world.getEntitiesWithinAABB((EntityType<?>)null, box, this::canCollideWith);
+        List<? extends Entity> entities = this.world.getEntities((EntityType<?>)null, box, this::canCollideWith);
 
         for(Entity entity : entities){
-            if((newY < oldY && entity.hasNoGravity()) || (entity instanceof PlayerEntity && entity.getMotion().y >= 0 && entity.getPosY() > Math.min(oldY, newY) + 1))
+            if((newY < oldY && entity.isNoGravity()) || (entity instanceof PlayerEntity && entity.getDeltaMovement().y >= 0 && entity.getY() > Math.min(oldY, newY) + 1))
                 continue;
-            entity.setPosition(entity.getPosX(), newY + 1, entity.getPosZ());
+            entity.setPos(entity.getX(), newY + 1, entity.getZ());
             entity.setOnGround(true);
-            entity.onLivingFall(entity.fallDistance, 1);
+            entity.causeFallDamage(entity.fallDistance, 1);
             entity.fallDistance = 0;
-            entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);
+            entity.setDeltaMovement(entity.getDeltaMovement().x, 0, entity.getDeltaMovement().z);
             if(entity instanceof PlayerEntity){
                 FallDamageHandler.resetElevatorTime((PlayerEntity)entity);
-                if(this.world.isRemote)
+                if(this.world.isClientSide)
                     MovingElevators.CHANNEL.sendToServer(new PacketOnElevator());
             }
         }
     }
 
     private boolean canCollideWith(Entity entity){
-        return !entity.isSpectator() && !entity.noClip && entity.getPushReaction() == PushReaction.NORMAL;
+        return !entity.isSpectator() && !entity.noPhysics && entity.getPistonPushReaction() == PushReaction.NORMAL;
     }
 
     private void stopElevator(){
         this.isMoving = false;
 
-        int startX = this.x + this.facing.getXOffset() * (int)Math.ceil(size / 2f) - size / 2;
-        int startZ = this.z + this.facing.getZOffset() * (int)Math.ceil(size / 2f) - size / 2;
+        int startX = this.x + this.facing.getStepX() * (int)Math.ceil(size / 2f) - size / 2;
+        int startZ = this.z + this.facing.getStepZ() * (int)Math.ceil(size / 2f) - size / 2;
         for(int x = 0; x < this.size; x++){
             for(int z = 0; z < this.size; z++){
                 BlockPos pos = new BlockPos(startX + x, this.targetY, startZ + z);
-                if(!this.world.isAirBlock(pos))
+                if(!this.world.isEmptyBlock(pos))
                     this.world.destroyBlock(pos, true);
-                this.world.setBlockState(pos, this.platform[x][z]);
+                this.world.setBlockAndUpdate(pos, this.platform[x][z]);
             }
         }
 
         AxisAlignedBB box = new AxisAlignedBB(startX, this.currentY, startZ, startX + this.size, this.currentY + 1, startZ + this.size);
 
-        List<? extends Entity> entities = this.world.getEntitiesWithinAABB((EntityType<?>)null, box, this::canCollideWith);
+        List<? extends Entity> entities = this.world.getEntities((EntityType<?>)null, box, this::canCollideWith);
 
         for(Entity entity : entities){
-            entity.setPositionAndUpdate(entity.getPosX(), this.currentY + 1, entity.getPosZ());
+            entity.teleportTo(entity.getX(), this.currentY + 1, entity.getZ());
             entity.setOnGround(true);
             entity.fallDistance = 0;
-            entity.setMotion(entity.getMotion().x, 0, entity.getMotion().z);
+            entity.setDeltaMovement(entity.getDeltaMovement().x, 0, entity.getDeltaMovement().z);
         }
 
-        if(!this.world.isRemote){
-            this.world.updateComparatorOutputLevel(this.getPos(this.targetY + 1), MovingElevators.elevator_block);
+        if(!this.world.isClientSide){
+            this.world.updateNeighbourForOutputSignal(this.getPos(this.targetY + 1), MovingElevators.elevator_block);
             this.updateGroup();
-            double x = this.x + this.facing.getXOffset() * (int)Math.ceil(size / 2f) + 0.5;
-            double z = this.z + this.facing.getZOffset() * (int)Math.ceil(size / 2f) + 0.5;
-            this.world.playSound(null, x, this.targetY + 2.5, z, SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
+            double x = this.x + this.facing.getStepX() * (int)Math.ceil(size / 2f) + 0.5;
+            double z = this.z + this.facing.getStepZ() * (int)Math.ceil(size / 2f) + 0.5;
+            this.world.playSound(null, x, this.targetY + 2.5, z, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
             this.syncCounter = 0;
         }
     }
@@ -161,19 +161,19 @@ public class ElevatorGroup {
         if(this.world == null || this.isMoving)
             return;
 
-        int startX = this.x + this.facing.getXOffset() * (int)Math.ceil(size / 2f) - size / 2;
-        int startZ = this.z + this.facing.getZOffset() * (int)Math.ceil(size / 2f) - size / 2;
+        int startX = this.x + this.facing.getStepX() * (int)Math.ceil(size / 2f) - size / 2;
+        int startZ = this.z + this.facing.getStepZ() * (int)Math.ceil(size / 2f) - size / 2;
         for(int x = 0; x < this.size; x++){
             for(int z = 0; z < this.size; z++){
                 BlockPos pos = new BlockPos(startX + x, currentY - 1, startZ + z);
-                if(this.world.isAirBlock(pos) || this.world.getTileEntity(pos) != null)
+                if(this.world.isEmptyBlock(pos) || this.world.getBlockEntity(pos) != null)
                     return;
                 BlockState state = this.world.getBlockState(pos);
-                if(state.getBlockHardness(this.world, pos) < 0)
+                if(state.getDestroySpeed(this.world, pos) < 0)
                     return;
-                if(!(state.getShape(this.world, pos).getEnd(Direction.Axis.Y) == 1.0 &&
-                    state.getShape(this.world, pos).getStart(Direction.Axis.X) == 0 && state.getShape(this.world, pos).getEnd(Direction.Axis.X) == 1.0 &&
-                    state.getShape(this.world, pos).getStart(Direction.Axis.Z) == 0 && state.getShape(this.world, pos).getEnd(Direction.Axis.Z) == 1.0))
+                if(!(state.getShape(this.world, pos).max(Direction.Axis.Y) == 1.0 &&
+                    state.getShape(this.world, pos).min(Direction.Axis.X) == 0 && state.getShape(this.world, pos).max(Direction.Axis.X) == 1.0 &&
+                    state.getShape(this.world, pos).min(Direction.Axis.Z) == 0 && state.getShape(this.world, pos).max(Direction.Axis.Z) == 1.0))
                     return;
                 this.platform[x][z] = state;
             }
@@ -181,7 +181,7 @@ public class ElevatorGroup {
 
         for(int x = 0; x < this.size; x++){
             for(int z = 0; z < this.size; z++){
-                this.world.setBlockState(new BlockPos(startX + x, currentY - 1, startZ + z), Blocks.AIR.getDefaultState());
+                this.world.setBlockAndUpdate(new BlockPos(startX + x, currentY - 1, startZ + z), Blocks.AIR.defaultBlockState());
             }
         }
 
@@ -189,8 +189,8 @@ public class ElevatorGroup {
         this.targetY = targetY - 1;
         this.currentY = currentY - 1;
         this.lastY = this.currentY;
-        if(!this.world.isRemote){
-            this.world.updateComparatorOutputLevel(this.getPos(currentY), MovingElevators.elevator_block);
+        if(!this.world.isClientSide){
+            this.world.updateNeighbourForOutputSignal(this.getPos(currentY), MovingElevators.elevator_block);
             this.updateGroup();
         }
     }
@@ -265,16 +265,16 @@ public class ElevatorGroup {
     }
 
     public void remove(ElevatorBlockTile tile){
-        int floor = this.getFloorNumber(tile.getPos().getY());
+        int floor = this.getFloorNumber(tile.getBlockPos().getY());
         this.floors.remove(floor);
         this.floorData.remove(floor);
         if(this.floors.isEmpty()){
             if(this.isMoving){
-                BlockPos spawnPos = this.getPos(tile.getPos().getY()).offset(this.facing, this.size / 2 + 1);
+                BlockPos spawnPos = this.getPos(tile.getBlockPos().getY()).relative(this.facing, this.size / 2 + 1);
                 for(BlockState[] arr : this.platform){
                     for(BlockState state : arr){
                         ItemEntity entity = new ItemEntity(this.world, spawnPos.getX() + 0.5, spawnPos.getY() + 0.5, spawnPos.getZ() + 0.5, new ItemStack(state.getBlock()));
-                        this.world.addEntity(entity);
+                        this.world.addFreshEntity(entity);
                     }
                 }
             }
@@ -285,7 +285,7 @@ public class ElevatorGroup {
     public void add(ElevatorBlockTile tile){
         if(tile == null)
             return;
-        int y = tile.getPos().getY();
+        int y = tile.getBlockPos().getY();
         if(this.floors.contains(y))
             return;
         FloorData floorData = new FloorData(tile.getFloorName(), tile.getDisplayLabelColor());
@@ -304,7 +304,7 @@ public class ElevatorGroup {
     }
 
     public void updateFloorData(ElevatorBlockTile tile, String name, DyeColor color){
-        int floor = this.getFloorNumber(tile.getPos().getY());
+        int floor = this.getFloorNumber(tile.getBlockPos().getY());
         if(floor == -1)
             return;
         FloorData data = this.floorData.get(floor);
@@ -370,7 +370,7 @@ public class ElevatorGroup {
             tag.putDouble("currentY", this.currentY);
             for(int x = 0; x < this.size; x++){
                 for(int z = 0; z < this.size; z++){
-                    tag.putInt("platform" + x + "," + z, Block.getStateId(this.platform[x][z]));
+                    tag.putInt("platform" + x + "," + z, Block.getId(this.platform[x][z]));
                 }
             }
         }
@@ -403,7 +403,7 @@ public class ElevatorGroup {
         }
         for(int x = 0; x < this.size; x++){
             for(int z = 0; z < this.size; z++){
-                this.platform[x][z] = Block.getStateById(tag.getInt("platform" + x + "," + z));
+                this.platform[x][z] = Block.stateById(tag.getInt("platform" + x + "," + z));
             }
         }
         if(tag.contains("floors")){
@@ -426,7 +426,7 @@ public class ElevatorGroup {
     private ElevatorBlockTile getTile(int y){
         if(this.world == null)
             return null;
-        TileEntity tile = this.world.getTileEntity(this.getPos(y));
+        TileEntity tile = this.world.getBlockEntity(this.getPos(y));
         return tile instanceof ElevatorBlockTile ? (ElevatorBlockTile)tile : null;
     }
 
@@ -453,8 +453,8 @@ public class ElevatorGroup {
     }
 
     private void syncMovement(){
-        if(!this.world.isRemote)
-            MovingElevators.CHANNEL.send(PacketDistributor.DIMENSION.with(this.world::getDimensionKey), new ElevatorMovementPacket(this.x, this.z, this.facing, this.currentY));
+        if(!this.world.isClientSide)
+            MovingElevators.CHANNEL.send(PacketDistributor.DIMENSION.with(this.world::dimension), new ElevatorMovementPacket(this.x, this.z, this.facing, this.currentY));
     }
 
     private static class FloorData {

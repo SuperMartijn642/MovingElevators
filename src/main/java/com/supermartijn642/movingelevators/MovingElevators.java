@@ -70,16 +70,16 @@ public class MovingElevators {
 
         @SubscribeEvent
         public static void onTileRegistry(final RegistryEvent.Register<TileEntityType<?>> e){
-            e.getRegistry().register(TileEntityType.Builder.create(ElevatorBlockTile::new, elevator_block).build(null).setRegistryName("elevator_tile"));
-            e.getRegistry().register(TileEntityType.Builder.create(DisplayBlockTile::new, display_block).build(null).setRegistryName("display_tile"));
-            e.getRegistry().register(TileEntityType.Builder.create(ButtonBlockTile::new, button_block).build(null).setRegistryName("button_tile"));
+            e.getRegistry().register(TileEntityType.Builder.of(ElevatorBlockTile::new, elevator_block).build(null).setRegistryName("elevator_tile"));
+            e.getRegistry().register(TileEntityType.Builder.of(DisplayBlockTile::new, display_block).build(null).setRegistryName("display_tile"));
+            e.getRegistry().register(TileEntityType.Builder.of(ButtonBlockTile::new, button_block).build(null).setRegistryName("button_tile"));
         }
 
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> e){
-            e.getRegistry().register(new BlockItem(elevator_block, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("elevator_block"));
-            e.getRegistry().register(new BlockItem(display_block, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("display_block"));
-            e.getRegistry().register(new ButtonBlockItem(button_block, new Item.Properties().group(ItemGroup.SEARCH)).setRegistryName("button_block"));
+            e.getRegistry().register(new BlockItem(elevator_block, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("elevator_block"));
+            e.getRegistry().register(new BlockItem(display_block, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("display_block"));
+            e.getRegistry().register(new ButtonBlockItem(button_block, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("button_block"));
         }
     }
 }
