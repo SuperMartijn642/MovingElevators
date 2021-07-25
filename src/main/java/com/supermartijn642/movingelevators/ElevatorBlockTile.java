@@ -2,13 +2,13 @@ package com.supermartijn642.movingelevators;
 
 import com.google.gson.JsonParseException;
 import com.supermartijn642.movingelevators.base.ElevatorInputTile;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.DyeColor;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Created 3/29/2020 by SuperMartijn642
@@ -20,8 +20,8 @@ public class ElevatorBlockTile extends ElevatorInputTile {
     private String name;
     private DyeColor color = DyeColor.GRAY;
 
-    public ElevatorBlockTile(){
-        super(MovingElevators.elevator_tile);
+    public ElevatorBlockTile(BlockPos pos, BlockState state){
+        super(MovingElevators.elevator_tile, pos, state);
     }
 
     @Override
@@ -70,32 +70,32 @@ public class ElevatorBlockTile extends ElevatorInputTile {
     @Override
     public Direction getFacing(){
         if(this.facing == null)
-            this.facing = this.level.getBlockState(worldPosition).getValue(ElevatorBlock.FACING);
+            this.facing = this.level.getBlockState(this.worldPosition).getValue(ElevatorBlock.FACING);
         return this.facing;
     }
 
     @Override
-    protected CompoundNBT getChangedData(){
-        CompoundNBT data = super.getChangedData();
+    protected CompoundTag getChangedData(){
+        CompoundTag data = super.getChangedData();
         if(this.name != null)
-            data.putString("name", ITextComponent.Serializer.toJson(new StringTextComponent(this.name)));
+            data.putString("name", Component.Serializer.toJson(new TextComponent(this.name)));
         data.putInt("color", this.color.getId());
         return data;
     }
 
-    protected CompoundNBT getAllData(){
-        CompoundNBT data = super.getAllData();
+    protected CompoundTag getAllData(){
+        CompoundTag data = super.getAllData();
         if(this.name != null)
-            data.putString("name", ITextComponent.Serializer.toJson(new StringTextComponent(this.name)));
+            data.putString("name", Component.Serializer.toJson(new TextComponent(this.name)));
         data.putInt("color", this.color.getId());
         return data;
     }
 
-    protected void handleData(CompoundNBT data){
+    protected void handleData(CompoundTag data){
         super.handleData(data);
         if(data.contains("name")){
             try{
-                this.name = ITextComponent.Serializer.fromJson(data.getString("name")).getString(Integer.MAX_VALUE);
+                this.name = Component.Serializer.fromJson(data.getString("name")).getString(Integer.MAX_VALUE);
             }catch(JsonParseException ignore){
                 this.name = data.getString("name");
             }
@@ -107,11 +107,6 @@ public class ElevatorBlockTile extends ElevatorInputTile {
 
     public void onBreak(){
         this.level.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.remove(this));
-    }
-
-    @Override
-    public double getViewDistance(){
-        return 255 * 255 * 4;
     }
 
     @Override

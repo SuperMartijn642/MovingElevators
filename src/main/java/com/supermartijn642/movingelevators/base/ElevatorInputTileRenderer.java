@@ -1,24 +1,21 @@
 package com.supermartijn642.movingelevators.base;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Quaternion;
 import com.supermartijn642.movingelevators.ClientProxy;
 import com.supermartijn642.movingelevators.DisplayBlock;
 import com.supermartijn642.movingelevators.ElevatorGroup;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.RenderState;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.item.DyeColor;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -45,19 +42,8 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
     }
 
     private static RenderType getTexture(final String name){
-        RenderType.State state = RenderType.State.builder().setTransparencyState(new RenderState.TransparencyState("translucent_transparency", () -> {
-            RenderSystem.enableBlend();
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            RenderSystem.enableAlphaTest();
-        }, () -> {
-            RenderSystem.disableBlend();
-            RenderSystem.disableAlphaTest();
-        })).setTextureState(new RenderState.TextureState(new ResourceLocation("movingelevators", "textures/blocks/" + name + ".png"), false, false)).createCompositeState(false);
-        return RenderType.create("movingelevators_texture_" + name, DefaultVertexFormats.POSITION_TEX, GL11.GL_QUADS, 256, false, true, state);
-    }
-
-    public ElevatorInputTileRenderer(TileEntityRendererDispatcher rendererDispatcherIn){
-        super(rendererDispatcherIn);
+        RenderType.CompositeState state = RenderType.CompositeState.builder().setShaderState(RenderTypeExtension.getPositionTexShader()).setTransparencyState(RenderTypeExtension.getTranslucentTransparency()).setTextureState(new RenderStateShard.TextureStateShard(new ResourceLocation("movingelevators", "textures/blocks/" + name + ".png"), false, false)).createCompositeState(false);
+        return RenderType.create("movingelevators_texture_" + name, DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS, 256, false, true, state);
     }
 
     @Override
@@ -126,8 +112,8 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
         int total = below + 1 + above;
 
         // render buttons
-        Vector3d buttonPos = new Vector3d(tile.getBlockPos().getX() + 0.5, tile.getBlockPos().getY() + 1 + 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, tile.getBlockPos().getZ() + 0.5);
-        Vector3d cameraPos = Minecraft.getInstance().cameraEntity.getEyePosition(partialTicks);
+        Vec3 buttonPos = new Vec3(tile.getBlockPos().getX() + 0.5, tile.getBlockPos().getY() + 1 + 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, tile.getBlockPos().getZ() + 0.5);
+        Vec3 cameraPos = Minecraft.getInstance().cameraEntity.getEyePosition(partialTicks);
         matrixStack.pushPose();
         matrixStack.translate(0, 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, -0.002);
         matrixStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
@@ -167,7 +153,7 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
 
     private void drawQuad(RenderType type){
         Matrix4f matrix = matrixStack.last().pose();
-        IVertexBuilder builder = buffer.getBuffer(type);
+        VertexConsumer builder = buffer.getBuffer(type);
 
         builder.vertex(matrix, 0, 0, 0).uv(1, 1).endVertex();
         builder.vertex(matrix, 0, 1, 0).uv(1, 0).endVertex();
@@ -178,11 +164,26 @@ public class ElevatorInputTileRenderer<T extends ElevatorInputTile> extends METi
     private void drawString(String s){
         if(s == null)
             return;
-        FontRenderer fontRenderer = this.renderer.font;
+        Font fontRenderer = Minecraft.getInstance().font;
         matrixStack.pushPose();
         matrixStack.translate(0, 0.07, -0.005);
         matrixStack.scale(-0.01f, -0.08f, 1);
         fontRenderer.drawInBatch(s, -fontRenderer.width(s) / 2f, -fontRenderer.lineHeight, NativeImage.combine(255, 255, 255, 255), true, matrixStack.last().pose(), buffer, false, 0, combinedLight);
         matrixStack.popPose();
+    }
+
+    private static class RenderTypeExtension extends RenderStateShard {
+
+        public RenderTypeExtension(String p_110161_, Runnable p_110162_, Runnable p_110163_){
+            super(p_110161_, p_110162_, p_110163_);
+        }
+
+        public static TransparencyStateShard getTranslucentTransparency(){
+            return RenderStateShard.TRANSLUCENT_TRANSPARENCY;
+        }
+
+        public static ShaderStateShard getPositionTexShader(){
+            return ShaderStateShard.POSITION_TEX_SHADER;
+        }
     }
 }

@@ -1,15 +1,15 @@
 package com.supermartijn642.movingelevators.model;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
@@ -22,9 +22,9 @@ import java.util.Random;
  */
 public class MEBlockBakedModel implements IDynamicBakedModel {
 
-    private final IBakedModel originalModel;
+    private final BakedModel originalModel;
 
-    public MEBlockBakedModel(IBakedModel originalModel){
+    public MEBlockBakedModel(BakedModel originalModel){
         this.originalModel = originalModel;
     }
 
@@ -35,13 +35,13 @@ public class MEBlockBakedModel implements IDynamicBakedModel {
         if(camouflage == null)
             return this.originalModel.getQuads(state, side, rand, extraData);
 
-        IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(camouflage);
+        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(camouflage);
         return model.getQuads(camouflage, side, rand, EmptyModelData.INSTANCE);
     }
 
     @Override
-    public IModelData getModelData(IBlockDisplayReader world, BlockPos pos, BlockState state, IModelData tileData){
-        TileEntity tile = world.getBlockEntity(pos);
+    public IModelData getModelData(BlockAndTintGetter world, BlockPos pos, BlockState state, IModelData tileData){
+        BlockEntity tile = world.getBlockEntity(pos);
         return tile == null ? EmptyModelData.INSTANCE : tile.getModelData();
     }
 
@@ -71,7 +71,7 @@ public class MEBlockBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public ItemOverrideList getOverrides(){
-        return ItemOverrideList.EMPTY;
+    public ItemOverrides getOverrides(){
+        return ItemOverrides.EMPTY;
     }
 }

@@ -1,22 +1,22 @@
 package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.base.ElevatorInputBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
@@ -25,23 +25,23 @@ import javax.annotation.Nullable;
  */
 public class ElevatorBlock extends ElevatorInputBlock {
 
-    public static final DirectionProperty FACING = HorizontalBlock.FACING;
+    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
     public ElevatorBlock(){
         super("elevator_block", ElevatorBlockTile::new);
     }
 
     @Override
-    protected void onRightClick(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
+    protected void onRightClick(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult rayTraceResult){
         if(player != null && player.getItemInHand(handIn).getItem() instanceof ButtonBlockItem){
             if(!worldIn.isClientSide){
                 ItemStack stack = player.getItemInHand(handIn);
-                CompoundNBT tag = stack.getOrCreateTag();
+                CompoundTag tag = stack.getOrCreateTag();
                 tag.putString("controllerDim", worldIn.dimension().getRegistryName().toString());
                 tag.putInt("controllerX", pos.getX());
                 tag.putInt("controllerY", pos.getY());
                 tag.putInt("controllerZ", pos.getZ());
-                player.sendMessage(new TranslationTextComponent("block.movingelevators.button_block.bind").withStyle(TextFormatting.YELLOW), player.getUUID());
+                player.sendMessage(new TranslatableComponent("block.movingelevators.button_block.bind").withStyle(ChatFormatting.YELLOW), player.getUUID());
             }
         }else if(state.getValue(FACING) != rayTraceResult.getDirection()){
             if(worldIn.isClientSide)
@@ -52,19 +52,19 @@ public class ElevatorBlock extends ElevatorInputBlock {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context){
+    public BlockState getStateForPlacement(BlockPlaceContext context){
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block,BlockState> builder){
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){
         builder.add(FACING);
     }
 
     @Override
-    public void onRemove(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving){
+    public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving){
         if(state.getBlock() != newState.getBlock()){
-            TileEntity tile = worldIn.getBlockEntity(pos);
+            BlockEntity tile = worldIn.getBlockEntity(pos);
             if(tile instanceof ElevatorBlockTile)
                 ((ElevatorBlockTile)tile).onBreak();
         }
@@ -77,7 +77,7 @@ public class ElevatorBlock extends ElevatorInputBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, World worldIn, BlockPos pos){
+    public int getAnalogOutputSignal(BlockState state, Level worldIn, BlockPos pos){
         if(!state.hasProperty(FACING))
             return 0;
         return worldIn.isEmptyBlock(pos.relative(state.getValue(FACING)).below()) ? 0 : 15;

@@ -1,13 +1,13 @@
 package com.supermartijn642.movingelevators;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.Block;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -19,19 +19,19 @@ public class ButtonBlockItem extends BlockItem {
     }
 
     @Override
-    public ActionResultType useOn(ItemUseContext context){
-        CompoundNBT tag = context.getItemInHand().getTag();
+    public InteractionResult useOn(UseOnContext context){
+        CompoundTag tag = context.getItemInHand().getTag();
         if(tag == null || !tag.contains("controllerDim")){
-            PlayerEntity player = context.getPlayer();
+            Player player = context.getPlayer();
             if(player != null && !context.getPlayer().level.isClientSide)
-                context.getPlayer().sendMessage(new TranslationTextComponent("block.movingelevators.button_block.place").withStyle(TextFormatting.RED), player.getUUID());
-            return ActionResultType.FAIL;
+                context.getPlayer().sendMessage(new TranslatableComponent("block.movingelevators.button_block.place").withStyle(ChatFormatting.RED), player.getUUID());
+            return InteractionResult.FAIL;
         }
         if(!tag.getString("controllerDim").equals(context.getLevel().dimension().getRegistryName().toString())){
-            PlayerEntity player = context.getPlayer();
+            Player player = context.getPlayer();
             if(player != null && !context.getPlayer().level.isClientSide)
-                context.getPlayer().sendMessage(new TranslationTextComponent("block.movingelevators.button_block.dimension").withStyle(TextFormatting.RED), player.getUUID());
-            return ActionResultType.FAIL;
+                context.getPlayer().sendMessage(new TranslatableComponent("block.movingelevators.button_block.dimension").withStyle(ChatFormatting.RED), player.getUUID());
+            return InteractionResult.FAIL;
         }
         return super.useOn(context);
     }

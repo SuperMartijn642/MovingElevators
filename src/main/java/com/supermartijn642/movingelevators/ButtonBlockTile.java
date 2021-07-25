@@ -1,11 +1,12 @@
 package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.base.ElevatorInputTile;
-import net.minecraft.item.DyeColor;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -16,8 +17,8 @@ public class ButtonBlockTile extends ElevatorInputTile {
     private Direction lastFacing = facing;
     private BlockPos controllerPos = BlockPos.ZERO;
 
-    public ButtonBlockTile(){
-        super(MovingElevators.button_tile);
+    public ButtonBlockTile(BlockPos pos, BlockState state){
+        super(MovingElevators.button_tile, pos, state);
     }
 
     public void setValues(Direction facing, BlockPos controllerPos){
@@ -27,8 +28,8 @@ public class ButtonBlockTile extends ElevatorInputTile {
     }
 
     @Override
-    protected CompoundNBT getChangedData(){
-        CompoundNBT data = super.getChangedData();
+    protected CompoundTag getChangedData(){
+        CompoundTag data = super.getChangedData();
         if(this.lastFacing != this.facing){
             data.putInt("facing", this.facing.get3DDataValue());
             this.lastFacing = this.facing;
@@ -37,8 +38,8 @@ public class ButtonBlockTile extends ElevatorInputTile {
     }
 
     @Override
-    protected CompoundNBT getAllData(){
-        CompoundNBT data = super.getAllData();
+    protected CompoundTag getAllData(){
+        CompoundTag data = super.getAllData();
         data.putInt("facing", this.facing.get3DDataValue());
         data.putInt("controllerX", this.controllerPos.getX());
         data.putInt("controllerY", this.controllerPos.getY());
@@ -47,7 +48,7 @@ public class ButtonBlockTile extends ElevatorInputTile {
     }
 
     @Override
-    protected void handleData(CompoundNBT data){
+    protected void handleData(CompoundTag data){
         super.handleData(data);
         if(data.contains("facing"))
             this.facing = Direction.from3DDataValue(data.getInt("facing"));
@@ -63,7 +64,7 @@ public class ButtonBlockTile extends ElevatorInputTile {
     public ElevatorBlockTile getController(){
         if(this.level == null || this.controllerPos == null)
             return null;
-        TileEntity tile = this.level.getBlockEntity(this.controllerPos);
+        BlockEntity tile = this.level.getBlockEntity(this.controllerPos);
         return tile instanceof ElevatorBlockTile ? (ElevatorBlockTile)tile : null;
     }
 

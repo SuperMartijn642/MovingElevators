@@ -2,19 +2,20 @@ package com.supermartijn642.movingelevators.base;
 
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.model.MEBlockModelData;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nullable;
@@ -23,10 +24,10 @@ import java.util.List;
 /**
  * Created 4/6/2020 by SuperMartijn642
  */
-public abstract class METile extends TileEntity {
+public abstract class METile extends BlockEntity {
 
-    public METile(TileEntityType<?> tileEntityTypeIn){
-        super(tileEntityTypeIn);
+    public METile(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state){
+        super(tileEntityTypeIn, pos, state);
     }
 
     private BlockState camoState = Blocks.AIR.defaultBlockState();
@@ -35,58 +36,58 @@ public abstract class METile extends TileEntity {
 
     @Nullable
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket(){
+    public ClientboundBlockEntityDataPacket getUpdatePacket(){
         if(!this.dataChanged)
             return null;
         this.dataChanged = false;
-        CompoundNBT compound = this.getChangedData();
-        return compound == null || compound.isEmpty() ? null : new SUpdateTileEntityPacket(this.worldPosition, 0, compound);
+        CompoundTag compound = this.getChangedData();
+        return compound == null || compound.isEmpty() ? null : new ClientboundBlockEntityDataPacket(this.worldPosition, 0, compound);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt){
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt){
         this.handleData(pkt.getTag());
     }
 
     @Override
-    public CompoundNBT getUpdateTag(){
-        CompoundNBT tag = super.getUpdateTag();
+    public CompoundTag getUpdateTag(){
+        CompoundTag tag = super.getUpdateTag();
         tag.put("info", this.getAllData());
         return tag;
     }
 
     @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag){
-        super.handleUpdateTag(state, tag);
+    public void handleUpdateTag(CompoundTag tag){
+        super.handleUpdateTag(tag);
         this.handleData(tag.getCompound("info"));
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound){
+    public CompoundTag save(CompoundTag compound){
         super.save(compound);
         compound.put("info", this.getAllData());
         return compound;
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound){
-        super.load(state, compound);
+    public void load(CompoundTag compound){
+        super.load(compound);
         this.handleData(compound.getCompound("info"));
     }
 
-    protected CompoundNBT getChangedData(){
-        CompoundNBT data = new CompoundNBT();
+    protected CompoundTag getChangedData(){
+        CompoundTag data = new CompoundTag();
         data.putInt("camoState", Block.getId(this.camoState));
         return data;
     }
 
-    protected CompoundNBT getAllData(){
-        CompoundNBT data = new CompoundNBT();
+    protected CompoundTag getAllData(){
+        CompoundTag data = new CompoundTag();
         data.putInt("camoState", Block.getId(this.camoState));
         return data;
     }
 
-    protected void handleData(CompoundNBT data){
+    protected void handleData(CompoundTag data){
         if(data.contains("camoState"))
             this.camoState = Block.stateById(data.getInt("camoState"));
         else if(data.contains("hasCamo")){ // Do this for older versions
@@ -118,8 +119,8 @@ public abstract class METile extends TileEntity {
     }
 
     private boolean isFullCube(BlockState state){
-        List<AxisAlignedBB> shapes = state.getCollisionShape(this.level, this.worldPosition).toAabbs();
-        return shapes.size() == 1 && shapes.get(0).equals(new AxisAlignedBB(0, 0, 0, 1, 1, 1));
+        List<AABB> shapes = state.getCollisionShape(this.level, this.worldPosition).toAabbs();
+        return shapes.size() == 1 && shapes.get(0).equals(new AABB(0, 0, 0, 1, 1, 1));
     }
 
     public BlockState getCamoBlock(){

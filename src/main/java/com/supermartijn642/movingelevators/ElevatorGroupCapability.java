@@ -2,13 +2,13 @@ package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.packets.ElevatorGroupPacket;
 import com.supermartijn642.movingelevators.packets.ElevatorGroupsPacket;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -19,7 +19,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,23 +37,15 @@ public class ElevatorGroupCapability {
     public static Capability<ElevatorGroupCapability> CAPABILITY;
 
     public static void register(){
-        CapabilityManager.INSTANCE.register(ElevatorGroupCapability.class, new Capability.IStorage<ElevatorGroupCapability>() {
-            public CompoundNBT writeNBT(Capability<ElevatorGroupCapability> capability, ElevatorGroupCapability instance, Direction side){
-                return instance.write();
-            }
-
-            public void readNBT(Capability<ElevatorGroupCapability> capability, ElevatorGroupCapability instance, Direction side, INBT nbt){
-                instance.read((CompoundNBT)nbt);
-            }
-        }, ElevatorGroupCapability::new);
+        CapabilityManager.INSTANCE.register(ElevatorGroupCapability.class);
     }
 
     @SubscribeEvent
-    public static void attachCapabilities(AttachCapabilitiesEvent<World> e){
-        World world = e.getObject();
+    public static void attachCapabilities(AttachCapabilitiesEvent<Level> e){
+        Level world = e.getObject();
 
         LazyOptional<ElevatorGroupCapability> capability = LazyOptional.of(() -> new ElevatorGroupCapability(world));
-        e.addCapability(new ResourceLocation("movingelevators", "elevator_groups"), new ICapabilitySerializable<INBT>() {
+        e.addCapability(new ResourceLocation("movingelevators", "elevator_groups"), new ICapabilitySerializable<Tag>() {
             @Nonnull
             @Override
             public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side){
@@ -61,13 +53,13 @@ public class ElevatorGroupCapability {
             }
 
             @Override
-            public INBT serializeNBT(){
-                return CAPABILITY.writeNBT(capability.orElse(null), null);
+            public Tag serializeNBT(){
+                return capability.map(ElevatorGroupCapability::write).orElse(null);
             }
 
             @Override
-            public void deserializeNBT(INBT nbt){
-                CAPABILITY.readNBT(capability.orElse(null), null, nbt);
+            public void deserializeNBT(Tag nbt){
+                capability.ifPresent(elevatorGroupCapability -> elevatorGroupCapability.read(nbt));
             }
         });
         e.addListener(capability::invalidate);
@@ -82,13 +74,13 @@ public class ElevatorGroupCapability {
         tickWorldCapability(e.world);
     }
 
-    public static void tickWorldCapability(World world){
+    public static void tickWorldCapability(Level world){
         world.getCapability(CAPABILITY).ifPresent(ElevatorGroupCapability::tick);
     }
 
     @SubscribeEvent
     public static void onJoinWorld(PlayerEvent.PlayerChangedDimensionEvent e){
-        ServerPlayerEntity player = (ServerPlayerEntity)e.getPlayer();
+        ServerPlayer player = (ServerPlayer)e.getPlayer();
         player.level.getCapability(CAPABILITY).ifPresent(groups ->
             MovingElevators.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ElevatorGroupsPacket(groups.write()))
         );
@@ -96,16 +88,16 @@ public class ElevatorGroupCapability {
 
     @SubscribeEvent
     public static void onJoin(PlayerEvent.PlayerLoggedInEvent e){
-        ServerPlayerEntity player = (ServerPlayerEntity)e.getPlayer();
+        ServerPlayer player = (ServerPlayer)e.getPlayer();
         player.level.getCapability(CAPABILITY).ifPresent(groups ->
             MovingElevators.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ElevatorGroupsPacket(groups.write()))
         );
     }
 
-    private final World world;
+    private final Level world;
     private final Map<ElevatorGroupPosition,ElevatorGroup> groups = new HashMap<>();
 
-    public ElevatorGroupCapability(World world){
+    public ElevatorGroupCapability(Level world){
         this.world = world;
     }
 
@@ -149,10 +141,10 @@ public class ElevatorGroupCapability {
         return this.groups.values();
     }
 
-    public CompoundNBT write(){
-        CompoundNBT compound = new CompoundNBT();
+    public CompoundTag write(){
+        CompoundTag compound = new CompoundTag();
         for(Map.Entry<ElevatorGroupPosition,ElevatorGroup> entry : this.groups.entrySet()){
-            CompoundNBT groupTag = new CompoundNBT();
+            CompoundTag groupTag = new CompoundTag();
             groupTag.put("group", entry.getValue().write());
             groupTag.put("pos", entry.getKey().write());
             compound.put(entry.getKey().x + ";" + entry.getKey().z, groupTag);
@@ -160,27 +152,30 @@ public class ElevatorGroupCapability {
         return compound;
     }
 
-    public void read(CompoundNBT compound){
-        this.groups.clear();
-        for(String key : compound.getAllKeys()){
-            CompoundNBT groupTag = compound.getCompound(key);
-            if(groupTag.contains("group") && groupTag.contains("pos")){
-                ElevatorGroupPosition pos = ElevatorGroupPosition.read(groupTag.getCompound("pos"));
-                ElevatorGroup group = new ElevatorGroup(this.world, pos.x, pos.z, pos.facing);
-                group.read(groupTag.getCompound("group"));
-                this.groups.put(pos, group);
+    public void read(Tag tag){
+        if(tag instanceof CompoundTag){
+            CompoundTag compound = (CompoundTag)tag;
+            this.groups.clear();
+            for(String key : compound.getAllKeys()){
+                CompoundTag groupTag = compound.getCompound(key);
+                if(groupTag.contains("group") && groupTag.contains("pos")){
+                    ElevatorGroupPosition pos = ElevatorGroupPosition.read(groupTag.getCompound("pos"));
+                    ElevatorGroup group = new ElevatorGroup(this.world, pos.x, pos.z, pos.facing);
+                    group.read(groupTag.getCompound("group"));
+                    this.groups.put(pos, group);
+                }
             }
         }
     }
 
-    private CompoundNBT writeGroup(ElevatorGroup group){
-        CompoundNBT tag = new CompoundNBT();
+    private CompoundTag writeGroup(ElevatorGroup group){
+        CompoundTag tag = new CompoundTag();
         tag.put("group", group.write());
         tag.put("pos", new ElevatorGroupPosition(group.x, group.z, group.facing).write());
         return tag;
     }
 
-    public void readGroup(CompoundNBT tag){
+    public void readGroup(CompoundTag tag){
         if(tag.contains("group") && tag.contains("pos")){
             ElevatorGroupPosition pos = ElevatorGroupPosition.read(tag.getCompound("pos"));
             ElevatorGroup group = new ElevatorGroup(this.world, pos.x, pos.z, pos.facing);
@@ -190,6 +185,7 @@ public class ElevatorGroupCapability {
     }
 
     private static class ElevatorGroupPosition {
+
         public final int x, z;
         public final Direction facing;
 
@@ -223,15 +219,15 @@ public class ElevatorGroupCapability {
             return result;
         }
 
-        public CompoundNBT write(){
-            CompoundNBT tag = new CompoundNBT();
+        public CompoundTag write(){
+            CompoundTag tag = new CompoundTag();
             tag.putInt("x", this.x);
             tag.putInt("z", this.z);
             tag.putInt("facing", this.facing.get2DDataValue());
             return tag;
         }
 
-        public static ElevatorGroupPosition read(CompoundNBT tag){
+        public static ElevatorGroupPosition read(CompoundTag tag){
             return new ElevatorGroupPosition(tag.getInt("x"), tag.getInt("z"), Direction.from2DDataValue(tag.getInt("facing")));
         }
     }

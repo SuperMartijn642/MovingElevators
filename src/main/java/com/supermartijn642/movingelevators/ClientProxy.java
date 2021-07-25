@@ -3,22 +3,22 @@ package com.supermartijn642.movingelevators;
 import com.supermartijn642.movingelevators.base.ElevatorInputTileRenderer;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import com.supermartijn642.movingelevators.model.MEBlockBakedModel;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.Property;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -32,12 +32,12 @@ public class ClientProxy {
 
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e){
-        ClientRegistry.bindTileEntityRenderer(MovingElevators.elevator_tile, ElevatorInputTileRenderer::new);
-        ClientRegistry.bindTileEntityRenderer(MovingElevators.button_tile, ElevatorInputTileRenderer::new);
+        BlockEntityRenderers.register(MovingElevators.elevator_tile, context -> new ElevatorInputTileRenderer());
+        BlockEntityRenderers.register(MovingElevators.button_tile, context -> new ElevatorInputTileRenderer());
 
-        RenderTypeLookup.setRenderLayer(MovingElevators.elevator_block, RenderType.cutoutMipped());
-        RenderTypeLookup.setRenderLayer(MovingElevators.display_block, RenderType.cutoutMipped());
-        RenderTypeLookup.setRenderLayer(MovingElevators.button_block, RenderType.cutoutMipped());
+        ItemBlockRenderTypes.setRenderLayer(MovingElevators.elevator_block, RenderType.cutoutMipped()); // TODO change this to translucent
+        ItemBlockRenderTypes.setRenderLayer(MovingElevators.display_block, RenderType.cutoutMipped());
+        ItemBlockRenderTypes.setRenderLayer(MovingElevators.button_block, RenderType.cutoutMipped());
     }
 
     @SubscribeEvent
@@ -54,7 +54,7 @@ public class ClientProxy {
                 builder.append(state.getValues().entrySet().stream().map(entry -> getPropertyName(entry.getKey(), entry.getValue())).collect(Collectors.joining(",")));
 
             ModelResourceLocation modelLocation = new ModelResourceLocation(block.getRegistryName(), builder.toString());
-            IBakedModel model = e.getModelManager().getModel(modelLocation);
+            BakedModel model = e.getModelManager().getModel(modelLocation);
             e.getModelRegistry().put(modelLocation, new MEBlockBakedModel(model));
         }
     }
@@ -76,12 +76,13 @@ public class ClientProxy {
         return name == null ? translate("movingelevators.floorname").replace("$number$", Integer.toString(floor)) : name;
     }
 
-    public static PlayerEntity getPlayer(){
+    public static Player getPlayer(){
         return Minecraft.getInstance().player;
     }
 
     @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ForgeEventListeners {
+
         @SubscribeEvent
         public static void onClientTick(TickEvent.ClientTickEvent e){
             if(e.phase == TickEvent.Phase.END && !Minecraft.getInstance().isPaused() && Minecraft.getInstance().level != null)

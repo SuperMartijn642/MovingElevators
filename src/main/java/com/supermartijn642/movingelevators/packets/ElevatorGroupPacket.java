@@ -2,10 +2,10 @@ package com.supermartijn642.movingelevators.packets;
 
 import com.supermartijn642.movingelevators.ClientProxy;
 import com.supermartijn642.movingelevators.ElevatorGroupCapability;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -14,28 +14,28 @@ import java.util.function.Supplier;
  */
 public class ElevatorGroupPacket {
 
-    private CompoundNBT groupData;
+    private CompoundTag groupData;
 
-    public ElevatorGroupPacket(CompoundNBT groupData){
+    public ElevatorGroupPacket(CompoundTag groupData){
         this.groupData = groupData;
     }
 
-    public ElevatorGroupPacket(PacketBuffer buffer){
+    public ElevatorGroupPacket(FriendlyByteBuf buffer){
         this.decode(buffer);
     }
 
-    public void encode(PacketBuffer buffer){
+    public void encode(FriendlyByteBuf buffer){
         buffer.writeNbt(this.groupData);
     }
 
-    public void decode(PacketBuffer buffer){
+    public void decode(FriendlyByteBuf buffer){
         this.groupData = buffer.readNbt();
     }
 
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
         NetworkEvent.Context context = contextSupplier.get();
         context.setPacketHandled(true);
-        World world = ClientProxy.getPlayer().level;
+        Level world = ClientProxy.getPlayer().level;
         if(world == null)
             return;
         ElevatorGroupCapability groups = world.getCapability(ElevatorGroupCapability.CAPABILITY).orElse(null);

@@ -2,19 +2,19 @@ package com.supermartijn642.movingelevators;
 
 import com.google.common.collect.Sets;
 import com.supermartijn642.movingelevators.packets.*;
-import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.Set;
@@ -32,15 +32,15 @@ public class MovingElevators {
     @ObjectHolder("movingelevators:elevator_block")
     public static ElevatorBlock elevator_block;
     @ObjectHolder("movingelevators:elevator_tile")
-    public static TileEntityType<ElevatorBlockTile> elevator_tile;
+    public static BlockEntityType<ElevatorBlockTile> elevator_tile;
     @ObjectHolder("movingelevators:display_block")
     public static DisplayBlock display_block;
     @ObjectHolder("movingelevators:display_tile")
-    public static TileEntityType<DisplayBlockTile> display_tile;
+    public static BlockEntityType<DisplayBlockTile> display_tile;
     @ObjectHolder("movingelevators:button_block")
     public static ButtonBlock button_block;
     @ObjectHolder("movingelevators:button_tile")
-    public static TileEntityType<ButtonBlockTile> button_tile;
+    public static BlockEntityType<ButtonBlockTile> button_tile;
 
     public MovingElevators(){
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
@@ -61,6 +61,7 @@ public class MovingElevators {
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
+
         @SubscribeEvent
         public static void onBlockRegistry(final RegistryEvent.Register<Block> e){
             e.getRegistry().register(new ElevatorBlock());
@@ -69,17 +70,17 @@ public class MovingElevators {
         }
 
         @SubscribeEvent
-        public static void onTileRegistry(final RegistryEvent.Register<TileEntityType<?>> e){
-            e.getRegistry().register(TileEntityType.Builder.of(ElevatorBlockTile::new, elevator_block).build(null).setRegistryName("elevator_tile"));
-            e.getRegistry().register(TileEntityType.Builder.of(DisplayBlockTile::new, display_block).build(null).setRegistryName("display_tile"));
-            e.getRegistry().register(TileEntityType.Builder.of(ButtonBlockTile::new, button_block).build(null).setRegistryName("button_tile"));
+        public static void onTileRegistry(final RegistryEvent.Register<BlockEntityType<?>> e){
+            e.getRegistry().register(BlockEntityType.Builder.of(ElevatorBlockTile::new, elevator_block).build(null).setRegistryName("elevator_tile"));
+            e.getRegistry().register(BlockEntityType.Builder.of(DisplayBlockTile::new, display_block).build(null).setRegistryName("display_tile"));
+            e.getRegistry().register(BlockEntityType.Builder.of(ButtonBlockTile::new, button_block).build(null).setRegistryName("button_tile"));
         }
 
         @SubscribeEvent
         public static void onItemRegistry(final RegistryEvent.Register<Item> e){
-            e.getRegistry().register(new BlockItem(elevator_block, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("elevator_block"));
-            e.getRegistry().register(new BlockItem(display_block, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("display_block"));
-            e.getRegistry().register(new ButtonBlockItem(button_block, new Item.Properties().tab(ItemGroup.TAB_SEARCH)).setRegistryName("button_block"));
+            e.getRegistry().register(new BlockItem(elevator_block, new Item.Properties().tab(CreativeModeTab.TAB_SEARCH)).setRegistryName("elevator_block"));
+            e.getRegistry().register(new BlockItem(display_block, new Item.Properties().tab(CreativeModeTab.TAB_SEARCH)).setRegistryName("display_block"));
+            e.getRegistry().register(new ButtonBlockItem(button_block, new Item.Properties().tab(CreativeModeTab.TAB_SEARCH)).setRegistryName("button_block"));
         }
     }
 }

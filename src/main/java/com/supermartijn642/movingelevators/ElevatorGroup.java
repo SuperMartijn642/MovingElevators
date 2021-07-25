@@ -2,27 +2,27 @@ package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.packets.ElevatorMovementPacket;
 import com.supermartijn642.movingelevators.packets.PacketOnElevator;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,7 +36,7 @@ public class ElevatorGroup {
 
     private static final int RE_SYNC_INTERVAL = 10;
 
-    public final World world;
+    public final Level world;
     public final int x, z;
     public final Direction facing;
 
@@ -58,7 +58,7 @@ public class ElevatorGroup {
 
     private int syncCounter = 0;
 
-    public ElevatorGroup(World world, int x, int z, Direction facing){
+    public ElevatorGroup(Level world, int x, int z, Direction facing){
         this.world = world;
         this.x = x;
         this.z = z;
@@ -98,20 +98,20 @@ public class ElevatorGroup {
         int x = this.x + this.facing.getStepX() * (int)Math.ceil(size / 2f) - size / 2;
         int z = this.z + this.facing.getStepZ() * (int)Math.ceil(size / 2f) - size / 2;
 
-        AxisAlignedBB box = new AxisAlignedBB(x, Math.min(oldY, newY), z, x + this.size, Math.max(oldY, newY) + 1 + 3 * this.speed, z + this.size);
+        AABB box = new AABB(x, Math.min(oldY, newY), z, x + this.size, Math.max(oldY, newY) + 1 + 3 * this.speed, z + this.size);
 
-        List<? extends Entity> entities = this.world.getEntities((EntityType<?>)null, box, this::canCollideWith);
+        List<? extends Entity> entities = this.world.getEntitiesOfClass(Entity.class, box, this::canCollideWith);
 
         for(Entity entity : entities){
-            if((newY < oldY && entity.isNoGravity()) || (entity instanceof PlayerEntity && entity.getDeltaMovement().y >= 0 && entity.getY() > Math.min(oldY, newY) + 1))
+            if((newY < oldY && entity.isNoGravity()) || (entity instanceof Player && entity.getDeltaMovement().y >= 0 && entity.getY() > Math.min(oldY, newY) + 1))
                 continue;
             entity.setPos(entity.getX(), newY + 1, entity.getZ());
             entity.setOnGround(true);
-            entity.causeFallDamage(entity.fallDistance, 1);
+            entity.causeFallDamage(entity.fallDistance, 1, DamageSource.FALL);
             entity.fallDistance = 0;
             entity.setDeltaMovement(entity.getDeltaMovement().x, 0, entity.getDeltaMovement().z);
-            if(entity instanceof PlayerEntity){
-                FallDamageHandler.resetElevatorTime((PlayerEntity)entity);
+            if(entity instanceof Player){
+                FallDamageHandler.resetElevatorTime((Player)entity);
                 if(this.world.isClientSide)
                     MovingElevators.CHANNEL.sendToServer(new PacketOnElevator());
             }
@@ -136,9 +136,9 @@ public class ElevatorGroup {
             }
         }
 
-        AxisAlignedBB box = new AxisAlignedBB(startX, this.currentY, startZ, startX + this.size, this.currentY + 1, startZ + this.size);
+        AABB box = new AABB(startX, this.currentY, startZ, startX + this.size, this.currentY + 1, startZ + this.size);
 
-        List<? extends Entity> entities = this.world.getEntities((EntityType<?>)null, box, this::canCollideWith);
+        List<? extends Entity> entities = this.world.getEntitiesOfClass(Entity.class, box, this::canCollideWith);
 
         for(Entity entity : entities){
             entity.teleportTo(entity.getX(), this.currentY + 1, entity.getZ());
@@ -152,7 +152,7 @@ public class ElevatorGroup {
             this.updateGroup();
             double x = this.x + this.facing.getStepX() * (int)Math.ceil(size / 2f) + 0.5;
             double z = this.z + this.facing.getStepZ() * (int)Math.ceil(size / 2f) + 0.5;
-            this.world.playSound(null, x, this.targetY + 2.5, z, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
+            this.world.playSound(null, x, this.targetY + 2.5, z, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.BLOCKS, 0.4f, 0.5f);
             this.syncCounter = 0;
         }
     }
@@ -360,8 +360,8 @@ public class ElevatorGroup {
         return this.floorData.get(floor).name;
     }
 
-    public CompoundNBT write(){
-        CompoundNBT tag = new CompoundNBT();
+    public CompoundTag write(){
+        CompoundTag tag = new CompoundTag();
         tag.putBoolean("moving", this.isMoving);
         tag.putInt("size", this.size);
         if(this.isMoving){
@@ -376,14 +376,14 @@ public class ElevatorGroup {
         }
         tag.putDouble("speed", this.speed);
         tag.putIntArray("floors", this.floors);
-        ListNBT floorDataTag = new ListNBT();
+        ListTag floorDataTag = new ListTag();
         for(FloorData floorDatum : this.floorData)
             floorDataTag.add(floorDatum.write());
         tag.put("floorData", floorDataTag);
         return tag;
     }
 
-    public void read(CompoundNBT tag){
+    public void read(CompoundTag tag){
         if(tag.contains("moving"))
             this.isMoving = tag.getBoolean("moving");
         if(tag.contains("targetY"))
@@ -413,9 +413,9 @@ public class ElevatorGroup {
         }
         if(tag.contains("floorData")){
             this.floorData.clear();
-            ListNBT floorDataTag = (ListNBT)tag.get("floorData");
-            for(INBT compound : floorDataTag)
-                this.floorData.add(FloorData.read((CompoundNBT)compound));
+            ListTag floorDataTag = (ListTag)tag.get("floorData");
+            for(Tag compound : floorDataTag)
+                this.floorData.add(FloorData.read((CompoundTag)compound));
         }
     }
 
@@ -426,7 +426,7 @@ public class ElevatorGroup {
     private ElevatorBlockTile getTile(int y){
         if(this.world == null)
             return null;
-        TileEntity tile = this.world.getBlockEntity(this.getPos(y));
+        BlockEntity tile = this.world.getBlockEntity(this.getPos(y));
         return tile instanceof ElevatorBlockTile ? (ElevatorBlockTile)tile : null;
     }
 
@@ -467,15 +467,15 @@ public class ElevatorGroup {
             this.color = color;
         }
 
-        public CompoundNBT write(){
-            CompoundNBT tag = new CompoundNBT();
+        public CompoundTag write(){
+            CompoundTag tag = new CompoundTag();
             if(this.name != null)
                 tag.putString("name", this.name);
             tag.putInt("color", this.color.getId());
             return tag;
         }
 
-        public static FloorData read(CompoundNBT tag){
+        public static FloorData read(CompoundTag tag){
             return new FloorData(tag.contains("name") ? tag.getString("name") : null, DyeColor.byId(tag.getInt("color")));
         }
     }

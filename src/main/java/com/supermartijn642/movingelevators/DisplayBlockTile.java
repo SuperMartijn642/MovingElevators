@@ -2,28 +2,30 @@ package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.base.ElevatorInputTile;
 import com.supermartijn642.movingelevators.base.METile;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
  */
 public class DisplayBlockTile extends METile {
 
-    public DisplayBlockTile(){
-        super(MovingElevators.display_tile);
+    public DisplayBlockTile(BlockPos pos, BlockState state){
+        super(MovingElevators.display_tile, pos, state);
     }
 
     @Override
     public Direction getFacing(){
-        TileEntity tile = this.level.getBlockEntity(this.worldPosition.below());
+        BlockEntity tile = this.level.getBlockEntity(this.worldPosition.below());
         if(tile instanceof METile)
             return ((METile)tile).getFacing();
         return null;
     }
 
     public int getDisplayCategory(){
-        TileEntity tile = this.level.getBlockEntity(this.worldPosition.below());
+        BlockEntity tile = this.level.getBlockEntity(this.worldPosition.below());
         if(tile instanceof ElevatorInputTile){
             tile = this.level.getBlockEntity(this.worldPosition.above());
             if(tile instanceof DisplayBlockTile)

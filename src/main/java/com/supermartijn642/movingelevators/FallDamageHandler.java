@@ -1,13 +1,13 @@
 package com.supermartijn642.movingelevators;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.lang.reflect.Field;
 
@@ -17,11 +17,11 @@ import java.lang.reflect.Field;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class FallDamageHandler {
 
-    public static final Field floatingTickCount = ObfuscationReflectionHelper.findField(ServerPlayNetHandler.class, "aboveGroundTickCount");
+    public static final Field floatingTickCount = ObfuscationReflectionHelper.findField(ServerGamePacketListenerImpl.class, "aboveGroundTickCount");
 
     @SubscribeEvent
     public static void onFallDamage(LivingFallEvent e){
-        CompoundNBT compound = e.getEntityLiving().getPersistentData();
+        CompoundTag compound = e.getEntityLiving().getPersistentData();
         if(compound.contains("elevatorTime")){
             if(e.getEntity().tickCount - compound.getLong("elevatorTime") < 20 * 5)
                 e.setCanceled(true);
@@ -30,13 +30,13 @@ public class FallDamageHandler {
         }
     }
 
-    public static void resetElevatorTime(PlayerEntity player){
+    public static void resetElevatorTime(Player player){
         player.getPersistentData().putLong("elevatorTime", player.tickCount);
-        if(player instanceof ServerPlayerEntity)
-            resetFloatingTicks((ServerPlayerEntity)player);
+        if(player instanceof ServerPlayer)
+            resetFloatingTicks((ServerPlayer)player);
     }
 
-    public static void resetFloatingTicks(ServerPlayerEntity player){
+    public static void resetFloatingTicks(ServerPlayer player){
         try{
             floatingTickCount.setInt(player.connection, 0);
         }catch(IllegalAccessException e){

@@ -2,17 +2,17 @@ package com.supermartijn642.movingelevators;
 
 import com.supermartijn642.movingelevators.base.ElevatorInputTile;
 import com.supermartijn642.movingelevators.base.MEBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Created 4/8/2020 by SuperMartijn642
@@ -28,11 +28,11 @@ public class DisplayBlock extends MEBlock {
     }
 
     @Override
-    protected void onRightClick(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
+    protected void onRightClick(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult rayTraceResult){
         if(worldIn.isClientSide)
             return;
 
-        TileEntity tile = worldIn.getBlockEntity(pos);
+        BlockEntity tile = worldIn.getBlockEntity(pos);
         if(!(tile instanceof DisplayBlockTile))
             return;
         DisplayBlockTile displayTile = (DisplayBlockTile)tile;
@@ -40,7 +40,7 @@ public class DisplayBlock extends MEBlock {
         if(displayTile.getFacing() == rayTraceResult.getDirection()){
             int displayCat = displayTile.getDisplayCategory();
 
-            Vector3d hitVec = rayTraceResult.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
+            Vec3 hitVec = rayTraceResult.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
             double hitHorizontal = rayTraceResult.getDirection().getAxis() == Direction.Axis.Z ? hitVec.x : hitVec.z;
             double hitY = hitVec.y;
 

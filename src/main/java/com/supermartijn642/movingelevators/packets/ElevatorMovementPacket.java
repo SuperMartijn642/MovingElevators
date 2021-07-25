@@ -3,10 +3,10 @@ package com.supermartijn642.movingelevators.packets;
 import com.supermartijn642.movingelevators.ClientProxy;
 import com.supermartijn642.movingelevators.ElevatorGroup;
 import com.supermartijn642.movingelevators.ElevatorGroupCapability;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -26,18 +26,18 @@ public class ElevatorMovementPacket {
         this.currentY = currentY;
     }
 
-    public ElevatorMovementPacket(PacketBuffer buffer){
+    public ElevatorMovementPacket(FriendlyByteBuf buffer){
         this.decode(buffer);
     }
 
-    public void encode(PacketBuffer buffer){
+    public void encode(FriendlyByteBuf buffer){
         buffer.writeInt(this.x);
         buffer.writeInt(this.z);
         buffer.writeInt(this.facing.get2DDataValue());
         buffer.writeDouble(this.currentY);
     }
 
-    public void decode(PacketBuffer buffer){
+    public void decode(FriendlyByteBuf buffer){
         this.x = buffer.readInt();
         this.z = buffer.readInt();
         this.facing = Direction.from2DDataValue(buffer.readInt());
@@ -47,7 +47,7 @@ public class ElevatorMovementPacket {
     public void handle(Supplier<NetworkEvent.Context> contextSupplier){
         NetworkEvent.Context context = contextSupplier.get();
         context.setPacketHandled(true);
-        World world = ClientProxy.getPlayer().level;
+        Level world = ClientProxy.getPlayer().level;
         if(world == null)
             return;
         ElevatorGroupCapability groups = world.getCapability(ElevatorGroupCapability.CAPABILITY).orElse(null);

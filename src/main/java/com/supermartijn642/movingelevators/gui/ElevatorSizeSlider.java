@@ -1,48 +1,48 @@
 package com.supermartijn642.movingelevators.gui;
 
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.client.gui.widget.Slider;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.TextComponent;
+
+import java.util.function.Consumer;
 
 /**
  * Created 4/3/2020 by SuperMartijn642
  */
-public class ElevatorSizeSlider extends Slider {
+public class ElevatorSizeSlider extends AbstractSliderButton {
 
-    public ElevatorSizeSlider(int xPos, int yPos, int width, int height, int currentVal, ISlider slider){
-        super(xPos, yPos, width, height, new StringTextComponent(""), new StringTextComponent(""), 0, 4, (currentVal - 1) / 2, false, true, b -> {
-        }, slider);
-        int val = (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
-        precision = 0;
-        setMessage(new StringTextComponent(I18n.get("movingelevators.platform.size").replace("$number$", val + "x" + val)));
+    private static final int MAX = 4;
+
+    private final Consumer<Integer> onChange;
+
+    public ElevatorSizeSlider(int xPos, int yPos, int width, int height, int currentVal, Consumer<Integer> onChange){
+        super(xPos, yPos, width, height, new TextComponent(""), ((double)(currentVal - 1) / 2) / MAX);
+        this.onChange = onChange;
+
+        int val = this.getValue();
+        this.setMessage(new TextComponent(I18n.get("movingelevators.platform.size").replace("$number$", val + "x" + val)));
+    }
+
+    private int getValue(){
+        return (int)Math.round(this.value * MAX) * 2 + 1;
     }
 
     @Override
-    public void updateSlider(){
-        if(this.sliderValue < 0.0F){
-            this.sliderValue = 0.0F;
-        }
-
-        if(this.sliderValue > 1.0F){
-            this.sliderValue = 1.0F;
-        }
-
-        int val = (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
-
-        setMessage(new StringTextComponent(I18n.get("movingelevators.platform.size").replace("$number$", val + "x" + val)));
-
-        if(parent != null){
-            parent.onChangeSliderValue(this);
-        }
+    protected void updateMessage(){
     }
 
     @Override
-    public double getValue(){
-        return this.getValueInt();
-    }
+    protected void applyValue(){
+        if(this.value < 0.0F){
+            this.value = 0.0F;
+        }
 
-    @Override
-    public int getValueInt(){
-        return (int)Math.round(sliderValue * (maxValue - minValue)) * 2 + 1;
+        if(this.value > 1.0F){
+            this.value = 1.0F;
+        }
+
+        int value = this.getValue();
+        this.setMessage(new TextComponent(I18n.get("movingelevators.platform.size").replace("$number$", value + "x" + value)));
+        this.onChange.accept(value);
     }
 }

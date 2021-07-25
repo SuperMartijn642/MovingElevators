@@ -2,25 +2,25 @@ package com.supermartijn642.movingelevators.base;
 
 import com.supermartijn642.movingelevators.ElevatorGroup;
 import com.supermartijn642.movingelevators.MovingElevators;
-import net.minecraft.item.DyeColor;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
  */
-public abstract class ElevatorInputTile extends METile implements ITickableTileEntity {
+public abstract class ElevatorInputTile extends METile {
 
     public boolean redstone;
     private boolean lastRedstone;
 
-    public ElevatorInputTile(TileEntityType<?> tileEntityTypeIn){
-        super(tileEntityTypeIn);
+    public ElevatorInputTile(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state){
+        super(tileEntityTypeIn, pos, state);
     }
 
-    @Override
     public void tick(){
         if(!this.level.isClientSide && this.lastRedstone != this.redstone){
             if(this.redstone)
@@ -53,19 +53,19 @@ public abstract class ElevatorInputTile extends METile implements ITickableTileE
     public abstract int getFloorLevel();
 
     @Override
-    protected CompoundNBT getChangedData(){
-        CompoundNBT data = super.getChangedData();
+    protected CompoundTag getChangedData(){
+        CompoundTag data = super.getChangedData();
         data.putBoolean("redstone", this.lastRedstone);
         return data;
     }
 
-    protected CompoundNBT getAllData(){
-        CompoundNBT data = super.getAllData();
+    protected CompoundTag getAllData(){
+        CompoundTag data = super.getAllData();
         data.putBoolean("redstone", this.lastRedstone);
         return data;
     }
 
-    protected void handleData(CompoundNBT data){
+    protected void handleData(CompoundTag data){
         super.handleData(data);
         if(data.contains("redstone")){
             this.redstone = data.getBoolean("redstone");
@@ -74,7 +74,7 @@ public abstract class ElevatorInputTile extends METile implements ITickableTileE
     }
 
     @Override
-    public AxisAlignedBB getRenderBoundingBox(){
-        return new AxisAlignedBB(this.worldPosition, this.worldPosition.above().above().east().south());
+    public AABB getRenderBoundingBox(){
+        return new AABB(this.worldPosition, this.worldPosition.above().above().east().south());
     }
 }

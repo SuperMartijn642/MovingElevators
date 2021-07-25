@@ -1,14 +1,16 @@
 package com.supermartijn642.movingelevators;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.block.BlockState;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -29,9 +31,9 @@ public class ElevatorGroupRenderer {
         if(groups == null)
             return;
 
-        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
+        MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         e.getMatrixStack().pushPose();
-        Vector3d matrix = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 matrix = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         e.getMatrixStack().translate(-matrix.x, -matrix.y, -matrix.z);
         for(ElevatorGroup group : groups.getGroups()){
             BlockPos elevatorPos = new BlockPos(group.x, group.getCurrentY(), group.z);
@@ -42,7 +44,7 @@ public class ElevatorGroupRenderer {
         buffer.endBatch();
     }
 
-    public static void renderGroup(MatrixStack matrixStack, ElevatorGroup group, IRenderTypeBuffer.Impl buffer, float partialTicks){
+    public static void renderGroup(PoseStack matrixStack, ElevatorGroup group, MultiBufferSource.BufferSource buffer, float partialTicks){
         if(!group.isMoving() || group.getCurrentY() == group.getLastY())
             return;
         BlockState[][] state = group.getPlatform();
@@ -53,7 +55,7 @@ public class ElevatorGroupRenderer {
         int startZ = group.z + group.facing.getStepZ() * (int)Math.ceil(size / 2f) - size / 2;
 
         BlockPos topPos = new BlockPos(group.x, y, group.z).relative(group.facing, (int)Math.ceil(size / 2f));
-        int currentLight = WorldRenderer.getLightColor(group.world, topPos);
+        int currentLight = LevelRenderer.getLightColor(group.world, topPos);
 
         for(int x = 0; x < size; x++){
             for(int z = 0; z < size; z++){
@@ -61,7 +63,8 @@ public class ElevatorGroupRenderer {
 
                 matrixStack.translate(startX + x, y, startZ + z);
 
-                Minecraft.getInstance().getBlockRenderer().renderBlock(state[x][z], matrixStack, buffer, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state[x][z]);
+                Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(matrixStack.last(), buffer.getBuffer(RenderType.translucent()), state[x][z], model, 1, 1, 1, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
 
                 matrixStack.popPose();
             }
