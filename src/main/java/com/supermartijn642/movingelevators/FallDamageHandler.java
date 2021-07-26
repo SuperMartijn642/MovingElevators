@@ -17,7 +17,7 @@ import java.lang.reflect.Field;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class FallDamageHandler {
 
-    public static final Field floatingTickCount = ObfuscationReflectionHelper.findField(ServerGamePacketListenerImpl.class, "aboveGroundTickCount");
+    public static final Field floatingTickCount = ObfuscationReflectionHelper.findField(ServerGamePacketListenerImpl.class, "f_9737_");
 
     @SubscribeEvent
     public static void onFallDamage(LivingFallEvent e){
