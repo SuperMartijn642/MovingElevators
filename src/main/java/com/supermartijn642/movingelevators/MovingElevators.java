@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators;
 
 import com.google.common.collect.Sets;
+import com.supermartijn642.movingelevators.data.MEBlockTagsProvider;
 import com.supermartijn642.movingelevators.packets.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fmllegacy.network.NetworkRegistry;
 import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.Set;
@@ -81,6 +83,11 @@ public class MovingElevators {
             e.getRegistry().register(new BlockItem(elevator_block, new Item.Properties().tab(CreativeModeTab.TAB_SEARCH)).setRegistryName("elevator_block"));
             e.getRegistry().register(new BlockItem(display_block, new Item.Properties().tab(CreativeModeTab.TAB_SEARCH)).setRegistryName("display_block"));
             e.getRegistry().register(new ButtonBlockItem(button_block, new Item.Properties().tab(CreativeModeTab.TAB_SEARCH)).setRegistryName("button_block"));
+        }
+
+        @SubscribeEvent
+        public static void onGatherData(GatherDataEvent e){
+            e.getGenerator().addProvider(new MEBlockTagsProvider(e));
         }
     }
 }

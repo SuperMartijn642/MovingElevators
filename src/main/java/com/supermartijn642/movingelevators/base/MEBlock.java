@@ -29,7 +29,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nullable;
 import java.util.function.BiFunction;
@@ -42,7 +41,7 @@ public class MEBlock extends Block implements EntityBlock {
     private final BiFunction<BlockPos,BlockState,? extends METile> tileSupplier;
 
     public MEBlock(String registry_name, BiFunction<BlockPos,BlockState,? extends METile> tileSupplier){
-        super(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).harvestTool(ToolType.PICKAXE).strength(1.5F, 6.0F).noOcclusion());
+        super(Block.Properties.of(Material.STONE, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).strength(1.5F, 6.0F).noOcclusion());
         this.tileSupplier = tileSupplier;
         this.setRegistryName(registry_name);
     }

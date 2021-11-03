@@ -80,7 +80,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.17.1-37.0.7'
+    minecraft 'net.minecraftforge:forge:1.17.1-37.0.104'
 
     // Core lib
 //    compileOnly fg.deobf('curse.maven:supermartijn642s-core-lib-454372:3398450')
