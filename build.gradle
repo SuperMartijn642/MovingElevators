@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
-version = '1.2.34b-mc1.17'
+version = '1.2.34c-mc1.17'
 group = 'com.supermartijn642.movingelevators' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'movingelevators'
 
