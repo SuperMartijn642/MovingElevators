@@ -1,13 +1,10 @@
 package com.supermartijn642.movingelevators;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -31,7 +28,7 @@ public class ElevatorGroupRenderer {
         if(groups == null)
             return;
 
-        MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+        MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
         e.getMatrixStack().pushPose();
         Vec3 matrix = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         e.getMatrixStack().translate(-matrix.x, -matrix.y, -matrix.z);
@@ -41,10 +38,9 @@ public class ElevatorGroupRenderer {
                 renderGroup(e.getMatrixStack(), group, buffer, e.getPartialTicks());
         }
         e.getMatrixStack().popPose();
-        buffer.endBatch();
     }
 
-    public static void renderGroup(PoseStack matrixStack, ElevatorGroup group, MultiBufferSource.BufferSource buffer, float partialTicks){
+    public static void renderGroup(PoseStack matrixStack, ElevatorGroup group, MultiBufferSource buffer, float partialTicks){
         if(!group.isMoving() || group.getCurrentY() == group.getLastY())
             return;
         BlockState[][] state = group.getPlatform();
@@ -63,8 +59,7 @@ public class ElevatorGroupRenderer {
 
                 matrixStack.translate(startX + x, y, startZ + z);
 
-                BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state[x][z]);
-                Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(matrixStack.last(), buffer.getBuffer(RenderType.translucent()), state[x][z], model, 1, 1, 1, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                Minecraft.getInstance().getBlockRenderer().renderSingleBlock(state[x][z], matrixStack, buffer, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
 
                 matrixStack.popPose();
             }
