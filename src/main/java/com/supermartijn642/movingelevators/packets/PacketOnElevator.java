@@ -2,7 +2,7 @@ package com.supermartijn642.movingelevators.packets;
 
 import com.supermartijn642.movingelevators.FallDamageHandler;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 

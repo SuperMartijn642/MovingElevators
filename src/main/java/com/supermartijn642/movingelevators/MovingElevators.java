@@ -12,11 +12,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fmllegacy.network.NetworkRegistry;
-import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.ObjectHolder;
 
 import java.util.Set;
@@ -45,8 +43,6 @@ public class MovingElevators {
     public static BlockEntityType<ButtonBlockTile> button_tile;
 
     public MovingElevators(){
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
-
         CHANNEL.registerMessage(0, PacketElevatorSize.class, PacketElevatorSize::encode, PacketElevatorSize::decode, PacketElevatorSize::handle);
         CHANNEL.registerMessage(1, PacketElevatorSpeed.class, PacketElevatorSpeed::encode, PacketElevatorSpeed::decode, PacketElevatorSpeed::handle);
         CHANNEL.registerMessage(2, PacketElevatorName.class, PacketElevatorName::encode, PacketElevatorName::decode, PacketElevatorName::handle);
@@ -55,10 +51,6 @@ public class MovingElevators {
         CHANNEL.registerMessage(4, ElevatorGroupPacket.class, ElevatorGroupPacket::encode, ElevatorGroupPacket::new, ElevatorGroupPacket::handle);
         CHANNEL.registerMessage(5, ElevatorGroupsPacket.class, ElevatorGroupsPacket::encode, ElevatorGroupsPacket::new, ElevatorGroupsPacket::handle);
         CHANNEL.registerMessage(6, ElevatorMovementPacket.class, ElevatorMovementPacket::encode, ElevatorMovementPacket::new, ElevatorMovementPacket::handle);
-    }
-
-    public void init(FMLCommonSetupEvent e){
-        ElevatorGroupCapability.register();
     }
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)

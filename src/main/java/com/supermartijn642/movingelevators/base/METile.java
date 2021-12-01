@@ -41,7 +41,7 @@ public abstract class METile extends BlockEntity {
             return null;
         this.dataChanged = false;
         CompoundTag compound = this.getChangedData();
-        return compound == null || compound.isEmpty() ? null : new ClientboundBlockEntityDataPacket(this.worldPosition, 0, compound);
+        return compound == null || compound.isEmpty() ? null : ClientboundBlockEntityDataPacket.create(this, entity -> compound);
     }
 
     @Override

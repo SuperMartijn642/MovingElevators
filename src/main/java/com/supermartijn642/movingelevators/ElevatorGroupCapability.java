@@ -9,17 +9,14 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fmllegacy.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,11 +30,12 @@ import java.util.Map;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorGroupCapability {
 
-    @CapabilityInject(ElevatorGroupCapability.class)
-    public static Capability<ElevatorGroupCapability> CAPABILITY;
+    public static Capability<ElevatorGroupCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
-    public static void register(){
-        CapabilityManager.INSTANCE.register(ElevatorGroupCapability.class);
+    @SubscribeEvent
+    public static void register(RegisterCapabilitiesEvent e){
+        e.register(ElevatorGroupCapability.class);
     }
 
     @SubscribeEvent
