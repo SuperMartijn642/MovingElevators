@@ -63,10 +63,9 @@ public abstract class METile extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag compound){
-        super.save(compound);
+    public void saveAdditional(CompoundTag compound){
+        super.saveAdditional(compound);
         compound.put("info", this.getAllData());
-        return compound;
     }
 
     @Override
