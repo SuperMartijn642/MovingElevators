@@ -2,10 +2,12 @@
 **Moving Elevators** allows you to build real **moving elevators**! These elevator will move **you** as well as **other entities** on the platform to **multiple floors** at the press of a button!
 The platform can have **different sizes** and can move at **different speeds**! You can even **disguise** the Elevator Controller and Display as **other blocks**!
 
+---
+
 ### CurseForge
 For more info and downloads, check out the project on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/moving-elevators)
 
-### Content:
+---
 
 #### Elevator Controller
 - The Elevator Controller will be your button panel at every floor!
@@ -24,7 +26,7 @@ For more info and downloads, check out the project on [CurseForge](https://www.c
 - Can be bound to an Elevator Controller and can be placed anywhere
 - Elevator Displays can be put on top just like the Elevator Controller
 
-### Step-by-step Guide:
+---
 
 #### Creating an Elevator
 1. Craft at least 2 Elevator Controllers
@@ -62,6 +64,8 @@ For more info and downloads, check out the project on [CurseForge](https://www.c
 1. Hold an Elevator Controller in your hand
 2. Right-Click on an Elevator Controller
 
+---
+
 ### FAQ
 My elevator just went through a block, is this normal?
 Yes, the platform will ignore blocks not at floor level. This is for performance reasons, as checking hundreds of blocks every tick is not a good idea
@@ -71,7 +75,9 @@ Does the Elevator Controller consume energy?
 No, the Elevator Controller does not consume energy
 Can I use your mod in my modpack?
 Yes, feel free to use my mod in your modpack
- 
+
+---
+
 ### Discord
 For future content, upcoming mods, and discussion, feel free to join the SuperMartijn642 discord server!  
-[<img width='200' src='https://snrclan.com/wp-content/uploads/2020/02/join-discord-png-13.png'>](https://discord.gg/QEbGyUYB2e)
+[<img width='400' src='https://discord.com/assets/cb48d2a8d4991281d7a6a95d2f58195e.svg'>](https://discord.gg/QEbGyUYB2e)
