@@ -5,11 +5,13 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
+apply plugin: 'org.spongepowered.mixin'
 
 version = '1.2.34-mc1.16.5'
 group = 'com.supermartijn642.movingelevators' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -53,7 +55,7 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
 
-            args '--mod', 'movingelevators', '--all', '--output', file('src/generated/resources/')
+            args '--mod', 'movingelevators', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
                 movingelevators {
@@ -77,9 +79,9 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.0'
 
     // Core lib
-//    compile fg.deobf('curse.maven:supermartijn642s-core-lib-454372:3351871')
+    compile fg.deobf('curse.maven:supermartijn642s-core-lib-454372:3596490')
     // Config lib
-//    compile fg.deobf('curse.maven:supermartijn642s-config-lib-438332:3357667')
+    compile fg.deobf('curse.maven:supermartijn642s-config-lib-438332:3413938')
 
     // Block Renderer
     runtimeOnly fg.deobf("curse.maven:block-renderer-380456:3294692")
