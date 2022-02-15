@@ -25,6 +25,7 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
 
     @Override
     public void tick(){
+        super.tick();
         this.groupCheckCounter++;
         if(this.groupCheckCounter == 40){
             ElevatorGroup group = this.getGroup();
