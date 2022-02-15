@@ -1,50 +1,45 @@
 package com.supermartijn642.movingelevators.packets;
 
-import com.supermartijn642.movingelevators.ElevatorBlockTile;
+import com.supermartijn642.core.network.PacketContext;
+import com.supermartijn642.core.network.TileEntityBasePacket;
+import com.supermartijn642.movingelevators.blocks.ControllerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
 
 /**
  * Created 4/3/2020 by SuperMartijn642
  */
-public class PacketElevatorSpeed {
+public class PacketElevatorSpeed extends TileEntityBasePacket<ControllerBlockEntity> {
 
-    public BlockPos pos;
     public double speed;
 
     public PacketElevatorSpeed(BlockPos pos, double speed){
-        this.pos = pos;
+        super(pos);
         this.speed = speed;
     }
 
-    public void encode(FriendlyByteBuf buffer){
-        buffer.writeBlockPos(this.pos);
+    public PacketElevatorSpeed(){
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buffer){
+        super.write(buffer);
         buffer.writeDouble(this.speed);
     }
 
-    public static PacketElevatorSpeed decode(FriendlyByteBuf buffer){
-        return new PacketElevatorSpeed(buffer.readBlockPos(), buffer.readDouble());
+    @Override
+    public void read(FriendlyByteBuf buffer){
+        super.read(buffer);
+        this.speed = buffer.readDouble();
     }
 
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier){
-        NetworkEvent.Context context = contextSupplier.get();
-        context.setPacketHandled(true);
-        Player player = context.getSender();
-        if(player == null)
-            return;
-        Level world = player.level;
-        if(world == null)
-            return;
-        BlockEntity tile = world.getBlockEntity(this.pos);
-        if(!(tile instanceof ElevatorBlockTile))
-            return;
-        context.enqueueWork(() -> ((ElevatorBlockTile)tile).getGroup().setSpeed(this.speed));
+    @Override
+    public boolean verify(PacketContext context){
+        return this.speed >= 0.1 && this.speed <= 1;
     }
 
+    @Override
+    protected void handle(ControllerBlockEntity blockEntity, PacketContext context){
+        blockEntity.getGroup().setTargetSpeed(this.speed);
+    }
 }
