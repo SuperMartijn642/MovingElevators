@@ -1,26 +1,32 @@
 package com.supermartijn642.movingelevators.packets;
 
-import com.supermartijn642.movingelevators.FallDamageHandler;
+import com.supermartijn642.core.network.BasePacket;
+import com.supermartijn642.core.network.PacketContext;
+import com.supermartijn642.movingelevators.elevator.ElevatorFallDamageHandler;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
-
-import java.util.function.Supplier;
 
 /**
  * Created 8/13/2020 by SuperMartijn642
  */
-public class PacketOnElevator {
+public class PacketOnElevator implements BasePacket {
 
     public PacketOnElevator(){
     }
 
-    public void handle(Supplier<NetworkEvent.Context> contextSupplier){
-        NetworkEvent.Context context = contextSupplier.get();
-        context.setPacketHandled(true);
-        Player player = context.getSender();
-        if(player == null)
-            return;
-        contextSupplier.get().enqueueWork(() -> FallDamageHandler.resetElevatorTime(player));
+    @Override
+    public void write(FriendlyByteBuf buffer){
     }
 
+    @Override
+    public void read(FriendlyByteBuf buffer){
+    }
+
+    @Override
+    public void handle(PacketContext context){
+        Player player = context.getSendingPlayer();
+        if(player == null)
+            return;
+        ElevatorFallDamageHandler.resetElevatorTime(player);
+    }
 }
