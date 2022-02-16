@@ -1,7 +1,7 @@
 {
   "parent": "movingelevators:block/display_block",
   "textures": {
-    "buttons": "movingelevators:blocks/display_buttons/display_buttons",
+    "buttons": "movingelevators:blocks/display_buttons",
     "overlay": "movingelevators:blocks/display_overlay"
   },
   "elements": [

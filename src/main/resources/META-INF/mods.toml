@@ -48,3 +48,17 @@ description='''Moving Elevators allows you to build real moving elevators! These
     versionRange="[1.14,)"
     ordering="NONE"
     side="BOTH"
+# Add a dependency on SuperMartijn642's Config Lib
+[[dependencies.rechiseled]]
+    modId="supermartijn642corelib"
+    mandatory=true
+    versionRange="[1.0.16,1.1.0)"
+    ordering="NONE"
+    side="BOTH"
+# Add a dependency on SuperMartijn642's Config Lib
+[[dependencies.rechiseled]]
+    modId="supermartijn642configlib"
+    mandatory=true
+    versionRange="[1.0.9,)"
+    ordering="NONE"
+    side="BOTH"
