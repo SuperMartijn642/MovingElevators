@@ -1,25 +1,20 @@
 package com.supermartijn642.movingelevators.packets;
 
-import com.supermartijn642.movingelevators.ElevatorBlockTile;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
+import com.supermartijn642.core.network.PacketContext;
+import com.supermartijn642.core.network.TileEntityBasePacket;
+import com.supermartijn642.movingelevators.blocks.ControllerBlockEntity;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 /**
- * Created 4/5/2020 by SuperMartijn642
+ * Created 4/3/2020 by SuperMartijn642
  */
-public class PacketElevatorSpeed implements IMessage, IMessageHandler<PacketElevatorSpeed,IMessage> {
+public class PacketElevatorSpeed extends TileEntityBasePacket<ControllerBlockEntity> {
 
-    public BlockPos pos;
     public double speed;
 
     public PacketElevatorSpeed(BlockPos pos, double speed){
-        this.pos = pos;
+        super(pos);
         this.speed = speed;
     }
 
@@ -27,32 +22,24 @@ public class PacketElevatorSpeed implements IMessage, IMessageHandler<PacketElev
     }
 
     @Override
-    public void fromBytes(ByteBuf buf){
-        this.pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
-        this.speed = buf.readDouble();
+    public void write(PacketBuffer buffer){
+        super.write(buffer);
+        buffer.writeDouble(this.speed);
     }
 
     @Override
-    public void toBytes(ByteBuf buf){
-        buf.writeInt(this.pos.getX());
-        buf.writeInt(this.pos.getY());
-        buf.writeInt(this.pos.getZ());
-        buf.writeDouble(this.speed);
+    public void read(PacketBuffer buffer){
+        super.read(buffer);
+        this.speed = buffer.readDouble();
     }
 
     @Override
-    public IMessage onMessage(PacketElevatorSpeed message, MessageContext ctx){
-        EntityPlayer player = ctx.getServerHandler().player;
-        if(player == null)
-            return null;
-        World world = player.world;
-        if(world == null)
-            return null;
-        TileEntity tile = world.getTileEntity(message.pos);
-        if(!(tile instanceof ElevatorBlockTile))
-            return null;
-        player.getServer().addScheduledTask(() -> ((ElevatorBlockTile)tile).getGroup().setSpeed(message.speed));
-        return null;
+    public boolean verify(PacketContext context){
+        return this.speed >= 0.1 && this.speed <= 1;
     }
 
+    @Override
+    protected void handle(ControllerBlockEntity blockEntity, PacketContext context){
+        blockEntity.getGroup().setTargetSpeed(this.speed);
+    }
 }

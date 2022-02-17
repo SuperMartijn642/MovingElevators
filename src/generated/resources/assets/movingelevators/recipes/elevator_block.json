@@ -1,0 +1,27 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "ABA",
+    "ACA",
+    "ADA"
+  ],
+  "key": {
+    "A": {
+      "type": "forge:ore_dict",
+      "ore": "ingotIron"
+    },
+    "B": {
+      "type": "forge:ore_dict",
+      "ore": "dustRedstone"
+    },
+    "C": {
+      "item": "minecraft:observer"
+    },
+    "D": {
+      "item": "minecraft:piston"
+    }
+  },
+  "result": {
+    "item": "movingelevators:elevator_block"
+  }
+}

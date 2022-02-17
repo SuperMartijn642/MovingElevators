@@ -1,35 +1,32 @@
 package com.supermartijn642.movingelevators.packets;
 
-import com.supermartijn642.movingelevators.FallDamageHandler;
-import io.netty.buffer.ByteBuf;
+import com.supermartijn642.core.network.BasePacket;
+import com.supermartijn642.core.network.PacketContext;
+import com.supermartijn642.movingelevators.elevator.ElevatorFallDamageHandler;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.network.PacketBuffer;
 
 /**
- * Created 4/5/2020 by SuperMartijn642
+ * Created 8/13/2020 by SuperMartijn642
  */
-public class PacketOnElevator implements IMessage, IMessageHandler<PacketOnElevator,IMessage> {
+public class PacketOnElevator implements BasePacket {
 
     public PacketOnElevator(){
     }
 
     @Override
-    public void fromBytes(ByteBuf buf){
+    public void write(PacketBuffer buffer){
     }
 
     @Override
-    public void toBytes(ByteBuf buf){
+    public void read(PacketBuffer buffer){
     }
 
     @Override
-    public IMessage onMessage(PacketOnElevator message, MessageContext ctx){
-        EntityPlayer player = ctx.getServerHandler().player;
+    public void handle(PacketContext context){
+        EntityPlayer player = context.getSendingPlayer();
         if(player == null)
-            return null;
-        player.getServer().addScheduledTask(() -> FallDamageHandler.resetElevatorTime(player));
-        return null;
+            return;
+        ElevatorFallDamageHandler.resetElevatorTime(player);
     }
-
 }
