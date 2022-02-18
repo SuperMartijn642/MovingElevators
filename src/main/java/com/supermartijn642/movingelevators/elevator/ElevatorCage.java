@@ -4,11 +4,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -185,6 +187,13 @@ public class ElevatorCage {
                         BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
                         Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
                     }
+
+                    // Special case for buttons to prevent them getting stuck
+                    if(!world.isClientSide
+                        && state.getBlock() instanceof ButtonBlock
+                        && state.hasProperty(ButtonBlock.POWERED)
+                        && state.getValue(ButtonBlock.POWERED))
+                        state.tick((ServerLevel)world, pos, world.random);
                 }
             }
         }
