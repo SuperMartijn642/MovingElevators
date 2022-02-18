@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators.elevator;
 import com.google.common.collect.Streams;
 import com.supermartijn642.core.block.BlockShape;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockButton;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryHelper;
@@ -188,6 +189,12 @@ public class ElevatorCage {
                         state.neighborChanged(world, pos, state.getBlock(), neighbor);
                         world.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
                     }
+
+                    // Special case for buttons to prevent them getting stuck
+                    if(!world.isRemote
+                        && state.getBlock() instanceof BlockButton
+                        && state.getValue(BlockButton.POWERED))
+                        state.getBlock().updateTick(world, pos, state, world.rand);
                 }
             }
         }
