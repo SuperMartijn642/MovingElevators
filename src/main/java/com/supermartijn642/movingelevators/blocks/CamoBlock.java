@@ -1,7 +1,6 @@
 package com.supermartijn642.movingelevators.blocks;
 
 import com.supermartijn642.core.block.BaseBlock;
-import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.properties.IProperty;
@@ -29,6 +28,28 @@ import java.util.function.Supplier;
  * Created 4/7/2020 by SuperMartijn642
  */
 public class CamoBlock extends BaseBlock {
+
+    public static final IUnlistedProperty<IBlockState> CAMO_PROPERTY = new IUnlistedProperty<IBlockState>() {
+        @Override
+        public String getName(){
+            return "camo_data";
+        }
+
+        @Override
+        public boolean isValid(IBlockState value){
+            return true;
+        }
+
+        @Override
+        public Class<IBlockState> getType(){
+            return IBlockState.class;
+        }
+
+        @Override
+        public String valueToString(IBlockState value){
+            return value.toString();
+        }
+    };
 
     private final Supplier<? extends CamoBlockEntity> tileSupplier;
 
@@ -124,7 +145,7 @@ public class CamoBlock extends BaseBlock {
 
     @Override
     protected BlockStateContainer createBlockState(){
-        return new ExtendedBlockState(this, this.getProperties(), new IUnlistedProperty[]{CamoBakedModel.CAMO_PROPERTY});
+        return new ExtendedBlockState(this, this.getProperties(), new IUnlistedProperty[]{CAMO_PROPERTY});
     }
 
     protected IProperty<?>[] getProperties(){
@@ -135,7 +156,7 @@ public class CamoBlock extends BaseBlock {
     public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos){
         TileEntity entity = world.getTileEntity(pos);
         if(entity instanceof CamoBlockEntity)
-            return ((IExtendedBlockState)state).withProperty(CamoBakedModel.CAMO_PROPERTY, ((CamoBlockEntity)entity).getCamoState());
+            return ((IExtendedBlockState)state).withProperty(CAMO_PROPERTY, ((CamoBlockEntity)entity).getCamoState());
         return state;
     }
 }

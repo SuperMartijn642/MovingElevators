@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.model;
 
 import com.supermartijn642.core.ClientUtils;
+import com.supermartijn642.movingelevators.blocks.CamoBlock;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -9,7 +10,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.common.property.IUnlistedProperty;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -20,28 +20,6 @@ import java.util.List;
  */
 public class CamoBakedModel implements IBakedModel {
 
-    public static final IUnlistedProperty<IBlockState> CAMO_PROPERTY = new IUnlistedProperty<IBlockState>() {
-        @Override
-        public String getName(){
-            return "camo_data";
-        }
-
-        @Override
-        public boolean isValid(IBlockState value){
-            return true;
-        }
-
-        @Override
-        public Class<IBlockState> getType(){
-            return IBlockState.class;
-        }
-
-        @Override
-        public String valueToString(IBlockState value){
-            return value.toString();
-        }
-    };
-
     private final IBakedModel originalModel;
     private List<BakedQuad> originalModelQuads;
 
@@ -51,7 +29,7 @@ public class CamoBakedModel implements IBakedModel {
 
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long random){
-        IBlockState camouflage = state instanceof IExtendedBlockState ? ((IExtendedBlockState)state).getValue(CAMO_PROPERTY) : null;
+        IBlockState camouflage = state instanceof IExtendedBlockState ? ((IExtendedBlockState)state).getValue(CamoBlock.CAMO_PROPERTY) : null;
 
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR){
             if(this.originalModelQuads == null)
