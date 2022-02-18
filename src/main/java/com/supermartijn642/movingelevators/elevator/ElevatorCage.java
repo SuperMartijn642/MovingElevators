@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import net.minecraft.block.AbstractButtonBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -14,6 +15,7 @@ import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import java.util.Collections;
 import java.util.List;
@@ -184,6 +186,13 @@ public class ElevatorCage {
                         BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
                         Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2);
                     }
+
+                    // Special case for buttons to prevent them getting stuck
+                    if(!world.isClientSide
+                        && state.getBlock() instanceof AbstractButtonBlock
+                        && state.hasProperty(AbstractButtonBlock.POWERED)
+                        && state.getValue(AbstractButtonBlock.POWERED))
+                        state.tick((ServerWorld)world, pos, world.random);
                 }
             }
         }
