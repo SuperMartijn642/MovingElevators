@@ -1,6 +1,8 @@
 package com.supermartijn642.movingelevators;
 
+import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
+import com.supermartijn642.movingelevators.blocks.CamoBlockEntity;
 import com.supermartijn642.movingelevators.blocks.DisplayBlockEntityRenderer;
 import com.supermartijn642.movingelevators.blocks.ElevatorInputBlockEntityRenderer;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
@@ -16,6 +18,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.api.distmarker.Dist;
@@ -50,6 +53,16 @@ public class MovingElevatorsClient {
         ItemBlockRenderTypes.setRenderLayer(MovingElevators.elevator_block, RenderType.translucent());
         ItemBlockRenderTypes.setRenderLayer(MovingElevators.display_block, RenderType.translucent());
         ItemBlockRenderTypes.setRenderLayer(MovingElevators.button_block, RenderType.translucent());
+
+        ClientUtils.getMinecraft().getBlockColors().register(
+            (state, blockAndTintGetter, pos, p_92570_) -> {
+                if(blockAndTintGetter == null || pos == null)
+                    return 0;
+                BlockEntity entity = blockAndTintGetter.getBlockEntity(pos);
+                return entity instanceof CamoBlockEntity && ((CamoBlockEntity)entity).hasCamoState() ? ClientUtils.getMinecraft().getBlockColors().getColor(((CamoBlockEntity)entity).getCamoState(), blockAndTintGetter, pos, p_92570_) : 0;
+            },
+            MovingElevators.elevator_block, MovingElevators.display_block, MovingElevators.button_block
+        );
     }
 
     @SubscribeEvent
