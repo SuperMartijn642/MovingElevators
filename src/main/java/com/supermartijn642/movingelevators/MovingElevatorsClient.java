@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.state.IProperty;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
@@ -41,6 +42,16 @@ public class MovingElevatorsClient {
         ClientRegistry.bindTileEntitySpecialRenderer(ControllerBlockEntity.class, new ElevatorInputBlockEntityRenderer<>());
         ClientRegistry.bindTileEntitySpecialRenderer(DisplayBlockEntity.class, new DisplayBlockEntityRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(RemoteControllerBlockEntity.class, new ElevatorInputBlockEntityRenderer<>());
+
+        ClientUtils.getMinecraft().getBlockColors().register(
+            (state, blockAndTintGetter, pos, p_92570_) -> {
+                if(blockAndTintGetter == null || pos == null)
+                    return 0;
+                TileEntity entity = blockAndTintGetter.getBlockEntity(pos);
+                return entity instanceof CamoBlockEntity && ((CamoBlockEntity)entity).hasCamoState() ? ClientUtils.getMinecraft().getBlockColors().getColor(((CamoBlockEntity)entity).getCamoState(), blockAndTintGetter, pos, p_92570_) : 0;
+            },
+            MovingElevators.elevator_block, MovingElevators.display_block, MovingElevators.button_block
+        );
     }
 
     @SubscribeEvent
