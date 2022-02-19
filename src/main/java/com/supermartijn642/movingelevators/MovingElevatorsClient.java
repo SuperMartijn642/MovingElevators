@@ -18,6 +18,7 @@ import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -45,9 +46,11 @@ public class MovingElevatorsClient {
         ClientRegistry.bindTileEntitySpecialRenderer(ControllerBlockEntity.class, new ElevatorInputBlockEntityRenderer<>());
         ClientRegistry.bindTileEntitySpecialRenderer(DisplayBlockEntity.class, new DisplayBlockEntityRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(RemoteControllerBlockEntity.class, new ElevatorInputBlockEntityRenderer<>());
+    }
 
-        // TODO place this somewhere better
-        ClientUtils.getMinecraft().getBlockColors().registerBlockColorHandler(
+    @SubscribeEvent
+    public static void onColorHandlerEvent(ColorHandlerEvent.Block e){
+        e.getBlockColors().registerBlockColorHandler(
             (state, blockAndTintGetter, pos, p_92570_) -> {
                 if(blockAndTintGetter == null || pos == null)
                     return 0;
