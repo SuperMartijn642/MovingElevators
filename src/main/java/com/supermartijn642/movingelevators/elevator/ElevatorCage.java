@@ -210,7 +210,8 @@ public class ElevatorCage {
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
                     int index = x * this.ySize * this.zSize + y * this.zSize + z;
-                    stateIds[index] = Block.getStateId(this.blockStates[x][y][z]);
+                    IBlockState state = this.blockStates[x][y][z];
+                    stateIds[index] = Block.getStateId(state == null ? Blocks.AIR.getDefaultState() : state);
                 }
             }
         }
