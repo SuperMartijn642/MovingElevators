@@ -32,10 +32,11 @@ public class RemoteControllerBlockItem extends ItemBlock {
             if(player.isSneaking()){
                 if(stack.hasTagCompound() && stack.getTagCompound().hasKey("controllerDim")){
                     if(!world.isRemote){
-                        stack.removeSubCompound("controllerDim");
-                        stack.removeSubCompound("controllerX");
-                        stack.removeSubCompound("controllerY");
-                        stack.removeSubCompound("controllerZ");
+                        NBTTagCompound tag = stack.getTagCompound();
+                        tag.removeTag("controllerDim");
+                        tag.removeTag("controllerX");
+                        tag.removeTag("controllerY");
+                        tag.removeTag("controllerZ");
                         player.sendStatusMessage(TextComponents.translation("movingelevators.remote_controller.clear").get(), true);
                     }
                     return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
