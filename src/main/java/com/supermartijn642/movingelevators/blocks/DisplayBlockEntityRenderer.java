@@ -30,7 +30,7 @@ public class DisplayBlockEntityRenderer implements BlockEntityRenderer<DisplayBl
 
     @Override
     public void render(DisplayBlockEntity entity, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay){
-        if(!entity.isBottomDisplay())
+        if(!entity.isBottomDisplay() || !entity.getInputBlockEntity().hasGroup())
             return;
 
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
