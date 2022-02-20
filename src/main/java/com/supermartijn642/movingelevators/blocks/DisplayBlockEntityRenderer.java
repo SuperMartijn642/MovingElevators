@@ -28,7 +28,7 @@ public class DisplayBlockEntityRenderer extends TileEntityRenderer<DisplayBlockE
 
     @Override
     public void render(DisplayBlockEntity entity, double x, double y, double z, float partialTicks, int combinedOverlay){
-        if(!entity.isBottomDisplay())
+        if(!entity.isBottomDisplay() || !entity.getInputBlockEntity().hasGroup())
             return;
 
         int height = entity.hasDisplayOnTop() ? 2 : 1;
