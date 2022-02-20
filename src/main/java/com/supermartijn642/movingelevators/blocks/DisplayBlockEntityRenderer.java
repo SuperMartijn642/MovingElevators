@@ -29,7 +29,7 @@ public class DisplayBlockEntityRenderer extends TileEntityRenderer<DisplayBlockE
 
     @Override
     public void render(DisplayBlockEntity entity, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer bufferSource, int combinedLight, int combinedOverlay){
-        if(!entity.isBottomDisplay())
+        if(!entity.isBottomDisplay() || !entity.getInputBlockEntity().hasGroup())
             return;
 
         IVertexBuilder buffer = bufferSource.getBuffer(RenderType.cutout());
