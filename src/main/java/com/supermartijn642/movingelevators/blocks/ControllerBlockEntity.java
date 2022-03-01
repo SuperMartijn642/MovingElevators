@@ -119,7 +119,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
 
     @Override
     public boolean hasGroup(){
-        return this.initialized;
+        return this.initialized && this.level.getCapability(ElevatorGroupCapability.CAPABILITY).isPresent();
     }
 
     @Override
