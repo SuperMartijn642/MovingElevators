@@ -93,4 +93,14 @@ public class ControllerBlock extends ElevatorInputBlock {
         super.appendHoverText(stack, reader, tooltips, advanced);
         tooltips.add(TextComponents.translation("movingelevators.elevator_controller.tooltip").color(ChatFormatting.AQUA).get());
     }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean p_60519_){
+        if(state.hasBlockEntity() && (!state.is(newState.getBlock()) || !newState.hasBlockEntity())){
+            BlockEntity entity = level.getBlockEntity(pos);
+            if(entity instanceof ControllerBlockEntity)
+                ((ControllerBlockEntity)entity).onRemove();
+        }
+        super.onRemove(state, level, pos, newState, p_60519_);
+    }
 }
