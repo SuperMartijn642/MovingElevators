@@ -60,14 +60,6 @@ public class ControllerBlock extends ElevatorInputBlock {
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState state){
-        TileEntity tile = worldIn.getTileEntity(pos);
-        if(tile instanceof ControllerBlockEntity)
-            ((ControllerBlockEntity)tile).onBreak();
-        super.breakBlock(worldIn, pos, state);
-    }
-
-    @Override
     public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand){
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
     }
@@ -110,5 +102,15 @@ public class ControllerBlock extends ElevatorInputBlock {
     public void addInformation(ItemStack stack, @Nullable World reader, List<String> tooltips, ITooltipFlag advanced){
         super.addInformation(stack, reader, tooltips, advanced);
         tooltips.add(TextComponents.translation("movingelevators.elevator_controller.tooltip").color(TextFormatting.AQUA).format());
+    }
+
+    @Override
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state){
+        if(this.hasTileEntity(state)){
+            TileEntity tile = worldIn.getTileEntity(pos);
+            if(tile instanceof ControllerBlockEntity)
+                ((ControllerBlockEntity)tile).onRemove();
+        }
+        super.breakBlock(worldIn, pos, state);
     }
 }

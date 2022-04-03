@@ -65,7 +65,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
         this.showButtons = !compound.hasKey("showButtons", Constants.NBT.TAG_BYTE) || compound.getBoolean("showButtons");
     }
 
-    public void onBreak(){
+    public void onRemove(){
         if(!this.world.isRemote){
             ElevatorGroupCapability groups = this.world.getCapability(ElevatorGroupCapability.CAPABILITY, null);
             if(groups != null)
