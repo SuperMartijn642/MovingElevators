@@ -70,11 +70,9 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
         this.showButtons = !compound.contains("showButtons", Constants.NBT.TAG_BYTE) || compound.getBoolean("showButtons");
     }
 
-    @Override
-    public void setRemoved(){
+    public void onRemove(){
         if(!this.level.isClientSide)
             this.level.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.remove(this));
-        super.setRemoved();
     }
 
     @Override
