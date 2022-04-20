@@ -2,7 +2,7 @@
   "block.movingelevators.button_block": "Беспроводной контроллер лифта",
   "block.movingelevators.display_block": "Дисплей лифта",
   "block.movingelevators.elevator_block": "Контроллер лифта",
-  "movingelevators.elevator_controller.tooltip": "Установите контроллеры лифта друг над другом чтобы создать этажи",
+  "movingelevators.elevator_controller.tooltip": "Установите контроллеры лифта друг над другом, чтобы создать этажи",
   "movingelevators.elevator_display.tooltip": "Показывает этажи лифта если поставлен на контроллер лифта",
   "movingelevators.elevator_screen.cabin_depth": "Длина кабины",
   "movingelevators.elevator_screen.cabin_depth.decrease_offset": "Сдвинуть назад",
@@ -32,9 +32,9 @@
   "movingelevators.floor_name": "Этаж %d",
   "movingelevators.remote_controller.bind": "Привязан к контроллеру лифта!",
   "movingelevators.remote_controller.clear": "Котроллер лифта отвязан!",
-  "movingelevators.remote_controller.controller_location": "Беспроводной контроллер лифта был ривязан к (%1$d, %2$d, %3$d)",
+  "movingelevators.remote_controller.controller_location": "Беспроводной контроллер лифта был привязан к (%1$d, %2$d, %3$d)",
   "movingelevators.remote_controller.not_bound": "Блок должен быть связан с контроллером лифта!",
-  "movingelevators.remote_controller.tooltip": "Может быть связан с котроллером лифта при нажатии ПКМ",
+  "movingelevators.remote_controller.tooltip": "Может быть связан с контроллером лифта при нажатии ПКМ",
   "movingelevators.remote_controller.tooltip.bound": "Привязан к (%1$d, %2$d, %3$d) in %4$s",
   "movingelevators.remote_controller.wrong_dimension": "Блок должен быть в том-же измерении что и контроллер!"
 }
