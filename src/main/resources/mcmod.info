@@ -1,15 +1,15 @@
 [
 {
-  "modid": "movingelevators",
-  "name": "Moving Elevators",
-  "description": "Moving Elevators allows you to build real moving elevators! These elevator will move you as well as other entities on the platform to multiple floors at the press of a button! The platform can have different sizes and can move at different speeds!",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
+  "modid": "${mod_id}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "version": "${mod_version}",
+  "mcversion": "${minecraft_version}",
+  "url": "${mod_page}",
   "updateUrl": "",
   "authorList": ["SuperMartijn642"],
   "credits": "",
-  "logoFile": "movingelevators.png",
+  "logoFile": "${mod_id}.png",
   "screenshots": [],
   "dependencies": []
 }
