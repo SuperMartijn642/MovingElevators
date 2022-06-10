@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,7 +19,6 @@ import net.minecraftforge.client.model.data.ModelProperty;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created 1/20/2021 by SuperMartijn642
@@ -35,7 +35,7 @@ public class CamoBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, Random random, IModelData modelData){
+    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource random, IModelData modelData){
         BlockState camouflage = modelData.getData(CAMO_PROPERTY);
 
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR){
@@ -48,7 +48,7 @@ public class CamoBakedModel implements IDynamicBakedModel {
         return getAllQuads(model, camouflage, random);
     }
 
-    private static List<BakedQuad> getAllQuads(BakedModel model, BlockState state, Random random){
+    private static List<BakedQuad> getAllQuads(BakedModel model, BlockState state, RandomSource random){
         List<BakedQuad> quads = new ArrayList<>();
         for(Direction direction : Direction.values())
             quads.addAll(model.getQuads(state, direction, random, EmptyModelData.INSTANCE));

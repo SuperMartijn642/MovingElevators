@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public abstract class CamoBlockEntity extends BaseTileEntity {
         if(stack.isEmpty() || !(stack.getItem() instanceof BlockItem))
             return false;
         Block block = ((BlockItem)stack.getItem()).getBlock();
-        return !MovingElevators.CAMOUFLAGE_MOD_BLACKLIST.contains(block.getRegistryName().getNamespace()) && this.isFullCube(block.defaultBlockState());
+        return !MovingElevators.CAMOUFLAGE_MOD_BLACKLIST.contains(ForgeRegistries.BLOCKS.getKey(block).getNamespace()) && this.isFullCube(block.defaultBlockState());
     }
 
     private boolean isFullCube(BlockState state){

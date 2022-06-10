@@ -29,6 +29,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.stream.Collectors;
 
@@ -90,7 +91,7 @@ public class MovingElevatorsClient {
             if(!state.getValues().isEmpty())
                 builder.append(state.getValues().entrySet().stream().map(entry -> getPropertyName(entry.getKey(), entry.getValue())).collect(Collectors.joining(",")));
 
-            ModelResourceLocation modelLocation = new ModelResourceLocation(block.getRegistryName(), builder.toString());
+            ModelResourceLocation modelLocation = new ModelResourceLocation(ForgeRegistries.BLOCKS.getKey(block), builder.toString());
             BakedModel model = e.getModelManager().getModel(modelLocation);
             e.getModelRegistry().put(modelLocation, new CamoBakedModel(model));
         }

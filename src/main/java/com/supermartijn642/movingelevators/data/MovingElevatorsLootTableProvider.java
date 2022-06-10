@@ -35,15 +35,17 @@ public class MovingElevatorsLootTableProvider extends LootTableProvider {
         BlockLoot lootTables = new BlockLoot() {
             @Override
             protected Iterable<Block> getKnownBlocks(){
-                return ForgeRegistries.BLOCKS.getValues().stream()
-                    .filter(block -> block.getRegistryName().getNamespace().equals("movingelevators"))
+                return ForgeRegistries.BLOCKS.getEntries().stream()
+                    .filter(entry -> entry.getKey().location().getNamespace().equals("movingelevators"))
+                    .map(Map.Entry::getValue)
                     .collect(Collectors.toList());
             }
 
             @Override
             protected void addTables(){
-                ForgeRegistries.BLOCKS.getValues().stream()
-                    .filter(block -> block.getRegistryName().getNamespace().equals("movingelevators"))
+                ForgeRegistries.BLOCKS.getEntries().stream()
+                    .filter(entry -> entry.getKey().location().getNamespace().equals("movingelevators"))
+                    .map(Map.Entry::getValue)
                     .forEach(this::dropSelf);
             }
         };

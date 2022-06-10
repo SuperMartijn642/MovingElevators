@@ -1,10 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "ABA",
-    "ACA",
-    "ADA"
-  ],
   "key": {
     "A": {
       "tag": "forge:ingots/iron"
@@ -19,6 +14,11 @@
       "item": "minecraft:piston"
     }
   },
+  "pattern": [
+    "ABA",
+    "ACA",
+    "ADA"
+  ],
   "result": {
     "item": "movingelevators:elevator_block"
   }
