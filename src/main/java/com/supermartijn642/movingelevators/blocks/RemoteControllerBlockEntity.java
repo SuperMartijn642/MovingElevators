@@ -1,12 +1,14 @@
 package com.supermartijn642.movingelevators.blocks;
 
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
+import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.Constants;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -15,6 +17,7 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
 
     private EnumFacing facing = EnumFacing.NORTH;
     private BlockPos controllerPos = BlockPos.ORIGIN;
+    private EnumFacing controllerFacing = null;
     private int groupCheckCounter = 0;
     private ElevatorGroup lastGroup;
 
@@ -36,9 +39,10 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
         }
     }
 
-    public void setValues(EnumFacing facing, BlockPos controllerPos){
+    public void setValues(EnumFacing facing, BlockPos controllerPos, EnumFacing controllerFacing){
         this.facing = facing;
         this.controllerPos = controllerPos;
+        this.controllerFacing = controllerFacing;
         this.dataChanged();
     }
 
@@ -49,6 +53,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
         compound.setInteger("controllerX", this.controllerPos.getX());
         compound.setInteger("controllerY", this.controllerPos.getY());
         compound.setInteger("controllerZ", this.controllerPos.getZ());
+        if(this.controllerFacing != null)
+            compound.setInteger("controllerPos", this.controllerFacing.getHorizontalIndex());
         return compound;
     }
 
@@ -57,6 +63,7 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
         super.readData(compound);
         this.facing = EnumFacing.getFront(compound.getInteger("facing"));
         this.controllerPos = new BlockPos(compound.getInteger("controllerX"), compound.getInteger("controllerY"), compound.getInteger("controllerZ"));
+        this.controllerFacing = compound.hasKey("controllerFacing", Constants.NBT.TAG_INT) ? EnumFacing.getHorizontal(compound.getInteger("controllerFacing")) : null;
     }
 
     @Override
@@ -73,14 +80,22 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
 
     @Override
     public boolean hasGroup(){
-        ControllerBlockEntity controller = this.getController();
-        return controller != null && controller.hasGroup();
+        return this.getGroup() != null;
     }
 
     @Override
     public ElevatorGroup getGroup(){
-        ControllerBlockEntity controller = this.getController();
-        return controller == null ? null : controller.getGroup();
+        if(this.controllerFacing == null && this.controllerPos != null){
+            ControllerBlockEntity controller = this.getController();
+            if(controller != null){
+                this.controllerFacing = controller.getFacing();
+                return controller.getGroup();
+            }
+        }
+        if(this.world == null || this.controllerPos == null || this.controllerFacing == null)
+            return null;
+        ElevatorGroupCapability capability = this.world.getCapability(ElevatorGroupCapability.CAPABILITY, null);
+        return capability == null ? null : capability.get(this.controllerPos.getX(), this.controllerPos.getZ(), this.controllerFacing);
     }
 
     @Override

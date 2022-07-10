@@ -15,6 +15,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -53,7 +54,11 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
             NBTTagCompound compound = stack.getTagCompound();
             if(compound == null || !compound.hasKey("controllerDim"))
                 return;
-            ((RemoteControllerBlockEntity)tile).setValues(placer.getHorizontalFacing().getOpposite(), new BlockPos(compound.getInteger("controllerX"), compound.getInteger("controllerY"), compound.getInteger("controllerZ")));
+            ((RemoteControllerBlockEntity)tile).setValues(
+                placer.getHorizontalFacing().getOpposite(),
+                new BlockPos(compound.getInteger("controllerX"), compound.getInteger("controllerY"), compound.getInteger("controllerZ")),
+                compound.hasKey("controllerFacing", Constants.NBT.TAG_INT) ? EnumFacing.getHorizontal(compound.getInteger("controllerFacing")) : null
+            );
         }
     }
 
