@@ -37,7 +37,7 @@ public class ControllerBlock extends ElevatorInputBlock {
 
     @Override
     protected boolean onRightClick(BlockState state, World worldIn, CamoBlockEntity blockEntity, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
-        if(player != null && player.getItemInHand(handIn).getItem() instanceof RemoteControllerBlockItem){
+        if(player != null && player.getItemInHand(handIn).getItem() instanceof RemoteControllerBlockItem && blockEntity instanceof ControllerBlockEntity){
             if(!worldIn.isClientSide){
                 ItemStack stack = player.getItemInHand(handIn);
                 CompoundNBT tag = stack.getOrCreateTag();
@@ -45,6 +45,7 @@ public class ControllerBlock extends ElevatorInputBlock {
                 tag.putInt("controllerX", pos.getX());
                 tag.putInt("controllerY", pos.getY());
                 tag.putInt("controllerZ", pos.getZ());
+                tag.putInt("controllerFacing", ((ControllerBlockEntity)blockEntity).getFacing().get2DDataValue());
                 player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.bind").get(), true);
             }
             return true;
