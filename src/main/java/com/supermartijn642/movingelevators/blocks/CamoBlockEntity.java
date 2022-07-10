@@ -14,8 +14,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
@@ -60,8 +59,8 @@ public abstract class CamoBlockEntity extends BaseTileEntity {
     }
 
     @Override
-    public IModelData getModelData(){
-        return new ModelDataMap.Builder().withInitial(CamoBakedModel.CAMO_PROPERTY, this.hasCamoState() ? this.camoState : null).build();
+    public ModelData getModelData(){
+        return ModelData.builder().with(CamoBakedModel.CAMO_PROPERTY, this.hasCamoState() ? this.camoState : null).build();
     }
 
     @Override

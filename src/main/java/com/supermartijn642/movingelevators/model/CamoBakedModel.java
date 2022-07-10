@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.model;
 
 import com.supermartijn642.core.ClientUtils;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -8,16 +9,19 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.client.model.IDynamicBakedModel;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,31 +39,41 @@ public class CamoBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource random, IModelData modelData){
-        BlockState camouflage = modelData.getData(CAMO_PROPERTY);
+    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource random, ModelData modelData, RenderType renderType){
+        BlockState camouflage = modelData.get(CAMO_PROPERTY);
 
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR){
             if(this.originalModelQuads == null)
-                this.originalModelQuads = getAllQuads(this.originalModel, state, random);
+                this.originalModelQuads = getAllQuads(this.originalModel, state, random, renderType);
             return this.originalModelQuads;
         }
 
         BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(camouflage);
-        return getAllQuads(model, camouflage, random);
+        return getAllQuads(model, camouflage, random, renderType);
     }
 
-    private static List<BakedQuad> getAllQuads(BakedModel model, BlockState state, RandomSource random){
+    private static List<BakedQuad> getAllQuads(BakedModel model, BlockState state, RandomSource random, RenderType renderType){
         List<BakedQuad> quads = new ArrayList<>();
         for(Direction direction : Direction.values())
-            quads.addAll(model.getQuads(state, direction, random, EmptyModelData.INSTANCE));
-        quads.addAll(model.getQuads(state, null, random, EmptyModelData.INSTANCE));
+            quads.addAll(model.getQuads(state, direction, random, ModelData.EMPTY, renderType));
+        quads.addAll(model.getQuads(state, null, random, ModelData.EMPTY, renderType));
         return quads;
     }
 
     @Override
-    public IModelData getModelData(BlockAndTintGetter world, BlockPos pos, BlockState state, IModelData tileData){
+    public ModelData getModelData(BlockAndTintGetter world, BlockPos pos, BlockState state, ModelData tileData){
         BlockEntity tile = world.getBlockEntity(pos);
-        return tile == null ? EmptyModelData.INSTANCE : tile.getModelData();
+        return tile == null ? ModelData.EMPTY : tile.getModelData();
+    }
+
+    @Override
+    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data){
+        return ChunkRenderTypeSet.of(RenderType.translucent());
+    }
+
+    @Override
+    public List<RenderType> getRenderTypes(ItemStack itemStack, boolean fabulous){
+        return Collections.singletonList(RenderType.translucent());
     }
 
     @Override

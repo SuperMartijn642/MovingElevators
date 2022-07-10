@@ -12,7 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -68,7 +68,7 @@ public class ElevatorGroupRenderer {
 
                     matrixStack.translate(startPos.x + x, startPos.y + y, startPos.z + z);
 
-                    ClientUtils.getBlockRenderer().renderSingleBlock(cage.blockStates[x][y][z], matrixStack, buffer, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                    ClientUtils.getBlockRenderer().renderSingleBlock(cage.blockStates[x][y][z], matrixStack, buffer, currentLight, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, null);
 
                     matrixStack.popPose();
                 }

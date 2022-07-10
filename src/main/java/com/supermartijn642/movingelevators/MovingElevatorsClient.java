@@ -9,8 +9,6 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -23,12 +21,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.stream.Collectors;
@@ -50,12 +48,8 @@ public class MovingElevatorsClient {
     }
 
     @SubscribeEvent
-    public static void setup(FMLClientSetupEvent e){
-        ItemBlockRenderTypes.setRenderLayer(MovingElevators.elevator_block, RenderType.translucent());
-        ItemBlockRenderTypes.setRenderLayer(MovingElevators.display_block, RenderType.translucent());
-        ItemBlockRenderTypes.setRenderLayer(MovingElevators.button_block, RenderType.translucent());
-
-        ClientUtils.getMinecraft().getBlockColors().register(
+    public static void setup(RegisterColorHandlersEvent.Block e){
+        e.register(
             (state, blockAndTintGetter, pos, p_92570_) -> {
                 if(blockAndTintGetter == null || pos == null)
                     return 0;
@@ -67,7 +61,7 @@ public class MovingElevatorsClient {
     }
 
     @SubscribeEvent
-    public static void onModelBake(ModelBakeEvent e){
+    public static void onModelBake(ModelEvent.BakingCompleted e){
         setCamouflageModel(e, MovingElevators.elevator_block);
         setCamouflageModel(e, MovingElevators.display_block);
         setCamouflageModel(e, MovingElevators.button_block);
@@ -85,7 +79,7 @@ public class MovingElevatorsClient {
             OVERLAY_SPRITE = e.getAtlas().getSprite(OVERLAY_TEXTURE_LOCATION);
     }
 
-    private static void setCamouflageModel(ModelBakeEvent e, Block block){
+    private static void setCamouflageModel(ModelEvent.BakingCompleted e, Block block){
         for(BlockState state : block.getStateDefinition().getPossibleStates()){
             StringBuilder builder = new StringBuilder();
             if(!state.getValues().isEmpty())
@@ -93,7 +87,7 @@ public class MovingElevatorsClient {
 
             ModelResourceLocation modelLocation = new ModelResourceLocation(ForgeRegistries.BLOCKS.getKey(block), builder.toString());
             BakedModel model = e.getModelManager().getModel(modelLocation);
-            e.getModelRegistry().put(modelLocation, new CamoBakedModel(model));
+            e.getModels().put(modelLocation, new CamoBakedModel(model));
         }
     }
 
