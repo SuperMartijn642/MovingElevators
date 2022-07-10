@@ -2,9 +2,11 @@ package com.supermartijn642.movingelevators.blocks;
 
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
+import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,6 +18,7 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
 
     private Direction facing = Direction.NORTH;
     private BlockPos controllerPos = BlockPos.ZERO;
+    private Direction controllerFacing = null;
     private int groupCheckCounter = 0;
     private ElevatorGroup lastGroup;
 
@@ -37,9 +40,10 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
         }
     }
 
-    public void setValues(Direction facing, BlockPos controllerPos){
+    public void setValues(Direction facing, BlockPos controllerPos, Direction controllerFacing){
         this.facing = facing;
         this.controllerPos = controllerPos;
+        this.controllerFacing = controllerFacing;
         this.dataChanged();
     }
 
@@ -50,6 +54,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
         compound.putInt("controllerX", this.controllerPos.getX());
         compound.putInt("controllerY", this.controllerPos.getY());
         compound.putInt("controllerZ", this.controllerPos.getZ());
+        if(this.controllerFacing != null)
+            compound.putInt("controllerPos", this.controllerFacing.get2DDataValue());
         return compound;
     }
 
@@ -58,6 +64,7 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
         super.readData(compound);
         this.facing = Direction.from3DDataValue(compound.getInt("facing"));
         this.controllerPos = new BlockPos(compound.getInt("controllerX"), compound.getInt("controllerY"), compound.getInt("controllerZ"));
+        this.controllerFacing = compound.contains("controllerFacing", Tag.TAG_INT) ? Direction.from2DDataValue(compound.getInt("controllerFacing")) : null;
     }
 
     @Override
@@ -74,14 +81,21 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
 
     @Override
     public boolean hasGroup(){
-        ControllerBlockEntity controller = this.getController();
-        return controller != null && controller.hasGroup();
+        return this.getGroup() != null;
     }
 
     @Override
     public ElevatorGroup getGroup(){
-        ControllerBlockEntity controller = this.getController();
-        return controller == null ? null : controller.getGroup();
+        if(this.controllerFacing == null && this.controllerPos != null){
+            ControllerBlockEntity controller = this.getController();
+            if(controller != null){
+                this.controllerFacing = controller.getFacing();
+                return controller.getGroup();
+            }
+        }
+        if(this.level == null || this.controllerPos == null || this.controllerFacing == null)
+            return null;
+        return this.level.getCapability(ElevatorGroupCapability.CAPABILITY).map(groups -> groups.get(this.controllerPos.getX(), this.controllerPos.getZ(), this.controllerFacing)).orElse(null);
     }
 
     @Override
