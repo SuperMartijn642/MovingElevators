@@ -3,8 +3,10 @@ package com.supermartijn642.movingelevators.blocks;
 import com.supermartijn642.core.TextComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +58,11 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
             CompoundTag compound = stack.getTag();
             if(compound == null || !compound.contains("controllerDim"))
                 return;
-            ((RemoteControllerBlockEntity)tile).setValues(placer.getDirection().getOpposite(), new BlockPos(compound.getInt("controllerX"), compound.getInt("controllerY"), compound.getInt("controllerZ")));
+            ((RemoteControllerBlockEntity)tile).setValues(
+                placer.getDirection().getOpposite(),
+                new BlockPos(compound.getInt("controllerX"), compound.getInt("controllerY"), compound.getInt("controllerZ")),
+                compound.contains("controllerFacing", Tag.TAG_INT) ? Direction.from2DDataValue(compound.getInt("controllerFacing")) : null
+            );
         }
     }
 
