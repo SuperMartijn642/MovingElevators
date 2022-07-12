@@ -21,7 +21,7 @@ public class ElevatorFallDamageHandler {
 
     @SubscribeEvent
     public static void onFallDamage(LivingFallEvent e){
-        CompoundTag compound = e.getEntityLiving().getPersistentData();
+        CompoundTag compound = e.getEntity().getPersistentData();
         if(compound.contains("elevatorTime")){
             if(e.getEntity().tickCount - compound.getLong("elevatorTime") < 20 * 5)
                 e.setCanceled(true);

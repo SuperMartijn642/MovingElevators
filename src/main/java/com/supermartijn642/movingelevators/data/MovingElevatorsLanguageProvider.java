@@ -2,7 +2,7 @@ package com.supermartijn642.movingelevators.data;
 
 import com.supermartijn642.movingelevators.MovingElevators;
 import net.minecraftforge.common.data.LanguageProvider;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.data.event.GatherDataEvent;
 
 /**
  * Created 14/02/2022 by SuperMartijn642

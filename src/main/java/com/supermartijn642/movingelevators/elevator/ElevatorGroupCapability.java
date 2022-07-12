@@ -67,11 +67,11 @@ public class ElevatorGroupCapability {
 
 
     @SubscribeEvent
-    public static void onTick(TickEvent.WorldTickEvent e){
+    public static void onTick(TickEvent.LevelTickEvent e){
         if(e.phase != TickEvent.Phase.END)
             return;
 
-        tickWorldCapability(e.world);
+        tickWorldCapability(e.level);
     }
 
     public static void tickWorldCapability(Level world){
@@ -80,7 +80,7 @@ public class ElevatorGroupCapability {
 
     @SubscribeEvent
     public static void onJoinWorld(PlayerEvent.PlayerChangedDimensionEvent e){
-        ServerPlayer player = (ServerPlayer)e.getPlayer();
+        ServerPlayer player = (ServerPlayer)e.getEntity();
         player.level.getCapability(CAPABILITY).ifPresent(groups ->
             MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(groups.write()))
         );
@@ -88,7 +88,7 @@ public class ElevatorGroupCapability {
 
     @SubscribeEvent
     public static void onJoin(PlayerEvent.PlayerLoggedInEvent e){
-        ServerPlayer player = (ServerPlayer)e.getPlayer();
+        ServerPlayer player = (ServerPlayer)e.getEntity();
         player.level.getCapability(CAPABILITY).ifPresent(groups ->
             MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(groups.write()))
         );
