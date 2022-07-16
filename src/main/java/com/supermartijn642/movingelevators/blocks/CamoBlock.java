@@ -10,6 +10,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -76,10 +77,12 @@ public class CamoBlock extends BaseBlock {
             blockEntity.setCamoState(null);
             return true;
         }else if(!player.isSneaking() && blockEntity.canBeCamoStack(player.getHeldItem(handIn))){
-            Item item = player.getHeldItem(handIn).getItem();
+            ItemStack stack = player.getHeldItem(handIn);
+            Item item = stack.getItem();
             if(item instanceof ItemBlock){
+                int metadata = item.getMetadata(stack.getMetadata());
                 Block block = ((ItemBlock)item).getBlock();
-                IBlockState state1 = block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, 0, player, handIn);
+                IBlockState state1 = block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, metadata, player, handIn);
                 if(state1 == null)
                     state1 = block.getDefaultState();
                 blockEntity.setCamoState(state1);
