@@ -8,10 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ButtonBlock;
-import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -188,11 +185,16 @@ public class ElevatorCage {
                         Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
                     }
 
-                    // Special case for buttons to prevent them getting stuck
+                    // Special case for buttons and pressure plates to prevent them getting stuck
                     if(!world.isClientSide
                         && state.getBlock() instanceof ButtonBlock
                         && state.hasProperty(ButtonBlock.POWERED)
                         && state.getValue(ButtonBlock.POWERED))
+                        state.tick((ServerLevel)world, pos, world.random);
+                    if(!world.isClientSide
+                        && state.getBlock() instanceof PressurePlateBlock
+                        && state.hasProperty(PressurePlateBlock.POWERED)
+                        && state.getValue(PressurePlateBlock.POWERED))
                         state.tick((ServerLevel)world, pos, world.random);
                 }
             }
