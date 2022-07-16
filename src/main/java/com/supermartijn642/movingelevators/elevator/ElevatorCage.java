@@ -1,9 +1,6 @@
 package com.supermartijn642.movingelevators.elevator;
 
-import net.minecraft.block.AbstractButtonBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.*;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -187,11 +184,16 @@ public class ElevatorCage {
                         Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2);
                     }
 
-                    // Special case for buttons to prevent them getting stuck
+                    // Special case for buttons and pressure plates to prevent them getting stuck
                     if(!world.isClientSide
                         && state.getBlock() instanceof AbstractButtonBlock
                         && state.hasProperty(AbstractButtonBlock.POWERED)
                         && state.getValue(AbstractButtonBlock.POWERED))
+                        state.tick((ServerWorld)world, pos, world.random);
+                    if(!world.isClientSide
+                        && state.getBlock() instanceof PressurePlateBlock
+                        && state.hasProperty(PressurePlateBlock.POWERED)
+                        && state.getValue(PressurePlateBlock.POWERED))
                         state.tick((ServerWorld)world, pos, world.random);
                 }
             }
