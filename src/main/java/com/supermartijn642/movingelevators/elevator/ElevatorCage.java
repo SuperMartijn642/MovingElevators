@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.supermartijn642.core.block.BlockShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockButton;
+import net.minecraft.block.BlockPressurePlate;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryHelper;
@@ -190,10 +191,14 @@ public class ElevatorCage {
                         world.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
                     }
 
-                    // Special case for buttons to prevent them getting stuck
+                    // Special case for buttons and pressure plates to prevent them getting stuck
                     if(!world.isRemote
                         && state.getBlock() instanceof BlockButton
                         && state.getValue(BlockButton.POWERED))
+                        state.getBlock().updateTick(world, pos, state, world.rand);
+                    if(!world.isRemote
+                        && state.getBlock() instanceof BlockPressurePlate
+                        && state.getValue(BlockPressurePlate.POWERED))
                         state.getBlock().updateTick(world, pos, state, world.rand);
                 }
             }
