@@ -27,8 +27,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
     }
 
     @Override
-    public void tick(){
-        super.tick();
+    public void update(){
+        super.update();
         this.groupCheckCounter++;
         if(this.groupCheckCounter == 40){
             ElevatorGroup group = this.getGroup();
@@ -75,8 +75,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
     public ControllerBlockEntity getController(){
         if(this.level == null || this.controllerPos == null)
             return null;
-        BlockEntity tile = this.level.getBlockEntity(this.controllerPos);
-        return tile instanceof ControllerBlockEntity ? (ControllerBlockEntity)tile : null;
+        BlockEntity entity = this.level.getBlockEntity(this.controllerPos);
+        return entity instanceof ControllerBlockEntity ? (ControllerBlockEntity)entity : null;
     }
 
     @Override

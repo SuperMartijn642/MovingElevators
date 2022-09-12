@@ -1,9 +1,11 @@
 package com.supermartijn642.movingelevators.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -61,9 +63,9 @@ public class CamoBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public ModelData getModelData(BlockAndTintGetter world, BlockPos pos, BlockState state, ModelData tileData){
-        BlockEntity tile = world.getBlockEntity(pos);
-        return tile == null ? ModelData.EMPTY : tile.getModelData();
+    public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData entityData){
+        BlockEntity entity = level.getBlockEntity(pos);
+        return entity == null ? ModelData.EMPTY : entity.getModelData();
     }
 
     @Override
@@ -104,5 +106,10 @@ public class CamoBakedModel implements IDynamicBakedModel {
     @Override
     public ItemOverrides getOverrides(){
         return ItemOverrides.EMPTY;
+    }
+
+    @Override
+    public BakedModel applyTransform(ItemTransforms.TransformType transformType, PoseStack poseStack, boolean applyLeftHandTransform){
+        return this.originalModel.applyTransform(transformType, poseStack, applyLeftHandTransform);
     }
 }

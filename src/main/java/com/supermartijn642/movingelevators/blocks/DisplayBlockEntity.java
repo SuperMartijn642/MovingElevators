@@ -31,16 +31,16 @@ public class DisplayBlockEntity extends CamoBlockEntity {
     }
 
     public int getDisplayCategory(){
-        BlockEntity tile = this.level.getBlockEntity(this.worldPosition.below());
-        if(tile instanceof ElevatorInputBlockEntity){
-            tile = this.level.getBlockEntity(this.worldPosition.above());
-            if(tile instanceof DisplayBlockEntity)
+        BlockEntity entity = this.level.getBlockEntity(this.worldPosition.below());
+        if(entity instanceof ElevatorInputBlockEntity){
+            entity = this.level.getBlockEntity(this.worldPosition.above());
+            if(entity instanceof DisplayBlockEntity)
                 return 2;
             return 1;
         }
-        if(tile instanceof DisplayBlockEntity){
-            tile = this.level.getBlockEntity(this.worldPosition.below(2));
-            if(tile instanceof ElevatorInputBlockEntity)
+        if(entity instanceof DisplayBlockEntity){
+            entity = this.level.getBlockEntity(this.worldPosition.below(2));
+            if(entity instanceof ElevatorInputBlockEntity)
                 return 3;
             return 0;
         }

@@ -1,7 +1,8 @@
 {
+  "replace": false,
   "values": [
-    "movingelevators:elevator_block",
     "movingelevators:display_block",
+    "movingelevators:elevator_block",
     "movingelevators:button_block"
   ]
 }

@@ -1,7 +1,11 @@
 package com.supermartijn642.movingelevators;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
+import com.supermartijn642.core.gui.WidgetScreen;
+import com.supermartijn642.core.registry.ClientRegistrationHandler;
+import com.supermartijn642.core.render.TextureAtlases;
 import com.supermartijn642.movingelevators.blocks.CamoBlockEntity;
 import com.supermartijn642.movingelevators.blocks.DisplayBlockEntityRenderer;
 import com.supermartijn642.movingelevators.blocks.ElevatorInputBlockEntityRenderer;
@@ -11,25 +15,15 @@ import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.stream.Collectors;
 
 /**
  * Created 3/28/2020 by SuperMartijn642
@@ -40,11 +34,18 @@ public class MovingElevatorsClient {
     public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = new ResourceLocation("movingelevators", "blocks/block_overlays");
     public static TextureAtlasSprite OVERLAY_SPRITE;
 
-    @SubscribeEvent
-    public static void setup(EntityRenderersEvent.RegisterRenderers e){
-        e.registerBlockEntityRenderer(MovingElevators.elevator_tile, context -> new ElevatorInputBlockEntityRenderer<>());
-        e.registerBlockEntityRenderer(MovingElevators.display_tile, context -> new DisplayBlockEntityRenderer());
-        e.registerBlockEntityRenderer(MovingElevators.button_tile, context -> new ElevatorInputBlockEntityRenderer<>());
+    public static void register(){
+        ClientRegistrationHandler handler = ClientRegistrationHandler.get("movingelevators");
+        // Renderers
+        handler.registerCustomBlockEntityRenderer(() -> MovingElevators.elevator_tile, ElevatorInputBlockEntityRenderer::new);
+        handler.registerCustomBlockEntityRenderer(() -> MovingElevators.display_tile, DisplayBlockEntityRenderer::new);
+        handler.registerCustomBlockEntityRenderer(() -> MovingElevators.button_tile, ElevatorInputBlockEntityRenderer::new);
+        // Register texture
+        handler.registerAtlasSprite(TextureAtlases.getBlocks(), OVERLAY_TEXTURE_LOCATION.getPath());
+        // Baked models
+        handler.registerBlockModelOverwrite(() -> MovingElevators.elevator_block, CamoBakedModel::new);
+        handler.registerBlockModelOverwrite(() -> MovingElevators.display_block, CamoBakedModel::new);
+        handler.registerBlockModelOverwrite(() -> MovingElevators.button_block, CamoBakedModel::new);
     }
 
     @SubscribeEvent
@@ -61,43 +62,20 @@ public class MovingElevatorsClient {
     }
 
     @SubscribeEvent
-    public static void onModelBake(ModelEvent.BakingCompleted e){
-        setCamouflageModel(e, MovingElevators.elevator_block);
-        setCamouflageModel(e, MovingElevators.display_block);
-        setCamouflageModel(e, MovingElevators.button_block);
-    }
-
-    @SubscribeEvent
-    public static void onTextureStitchPre(TextureStitchEvent.Pre e){
-        if(e.getAtlas().location().equals(TextureAtlas.LOCATION_BLOCKS))
-            e.addSprite(OVERLAY_TEXTURE_LOCATION);
-    }
-
-    @SubscribeEvent
     public static void onTextureStitchPost(TextureStitchEvent.Post e){
         if(e.getAtlas().location().equals(TextureAtlas.LOCATION_BLOCKS))
             OVERLAY_SPRITE = e.getAtlas().getSprite(OVERLAY_TEXTURE_LOCATION);
     }
 
-    private static void setCamouflageModel(ModelEvent.BakingCompleted e, Block block){
-        for(BlockState state : block.getStateDefinition().getPossibleStates()){
-            StringBuilder builder = new StringBuilder();
-            if(!state.getValues().isEmpty())
-                builder.append(state.getValues().entrySet().stream().map(entry -> getPropertyName(entry.getKey(), entry.getValue())).collect(Collectors.joining(",")));
-
-            ModelResourceLocation modelLocation = new ModelResourceLocation(ForgeRegistries.BLOCKS.getKey(block), builder.toString());
-            BakedModel model = e.getModelManager().getModel(modelLocation);
-            e.getModels().put(modelLocation, new CamoBakedModel(model));
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Comparable<T>> String getPropertyName(Property<T> property, Comparable<?> value){
-        return property.getName() + "=" + property.getName((T)value);
-    }
-
     public static void openElevatorScreen(BlockPos pos){
-        Minecraft.getInstance().setScreen(new ElevatorScreen(pos));
+        Minecraft.getInstance().setScreen(new WidgetScreen<>(new ElevatorScreen(pos)) {
+            @Override
+            public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks){
+                this.widget.offsetLeft = (this.width - this.widget.width()) / 2f;
+                this.widget.offsetTop = (this.height - this.widget.height()) / 2f;
+                super.render(poseStack, mouseX, mouseY, partialTicks);
+            }
+        });
     }
 
     public static String formatFloorDisplayName(String name, int floor){

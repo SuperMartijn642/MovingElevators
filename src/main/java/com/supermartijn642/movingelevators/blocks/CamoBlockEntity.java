@@ -1,6 +1,8 @@
 package com.supermartijn642.movingelevators.blocks;
 
-import com.supermartijn642.core.block.BaseTileEntity;
+import com.supermartijn642.core.block.BaseBlockEntity;
+import com.supermartijn642.core.block.BaseBlockEntityType;
+import com.supermartijn642.core.registry.Registries;
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.core.BlockPos;
@@ -11,22 +13,20 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
 /**
  * Created 4/6/2020 by SuperMartijn642
  */
-public abstract class CamoBlockEntity extends BaseTileEntity {
+public abstract class CamoBlockEntity extends BaseBlockEntity {
 
     private BlockState camoState = Blocks.AIR.defaultBlockState();
 
-    public CamoBlockEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state){
+    public CamoBlockEntity(BaseBlockEntityType<?> blockEntityType, BlockPos pos, BlockState state){
         super(blockEntityType, pos, state);
     }
 
@@ -50,7 +50,7 @@ public abstract class CamoBlockEntity extends BaseTileEntity {
         if(stack.isEmpty() || !(stack.getItem() instanceof BlockItem))
             return false;
         Block block = ((BlockItem)stack.getItem()).getBlock();
-        return !MovingElevators.CAMOUFLAGE_MOD_BLACKLIST.contains(ForgeRegistries.BLOCKS.getKey(block).getNamespace()) && this.isFullCube(block.defaultBlockState());
+        return !MovingElevators.CAMOUFLAGE_MOD_BLACKLIST.contains(Registries.BLOCKS.getIdentifier(block).getNamespace()) && this.isFullCube(block.defaultBlockState());
     }
 
     private boolean isFullCube(BlockState state){

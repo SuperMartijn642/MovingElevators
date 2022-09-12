@@ -1,26 +1,28 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.supermartijn642.core.block.BaseBlockEntityType;
+import com.supermartijn642.core.block.TickableBlockEntity;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
  */
-public abstract class ElevatorInputBlockEntity extends CamoBlockEntity {
+public abstract class ElevatorInputBlockEntity extends CamoBlockEntity implements TickableBlockEntity {
 
     public boolean redstone;
     private boolean lastRedstone;
 
-    public ElevatorInputBlockEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state){
-        super(tileEntityTypeIn, pos, state);
+    public ElevatorInputBlockEntity(BaseBlockEntityType<?> blockEntityType, BlockPos pos, BlockState state){
+        super(blockEntityType, pos, state);
     }
 
-    public void tick(){
+    @Override
+    public void update(){
         if(!this.level.isClientSide && this.lastRedstone != this.redstone){
             if(this.redstone)
                 this.getGroup().onButtonPress(false, false, this.getFloorLevel());
