@@ -35,7 +35,7 @@ public class ElevatorGroup {
     private static final int RE_SYNC_INTERVAL = 10;
     private static final double ACCELERATION = 0.05;
 
-    public final World world;
+    public final World level;
     public final int x, z;
     public final Direction facing;
 
@@ -59,15 +59,15 @@ public class ElevatorGroup {
 
     private int syncCounter = 0;
 
-    public ElevatorGroup(World world, int x, int z, Direction facing){
-        this.world = world;
+    public ElevatorGroup(World level, int x, int z, Direction facing){
+        this.level = level;
         this.x = x;
         this.z = z;
         this.facing = facing;
     }
 
     public void update(){
-        if(!this.world.isClientSide && this.shouldBeSynced){
+        if(!this.level.isClientSide && this.shouldBeSynced){
             this.shouldBeSynced = false;
             this.updateGroup();
         }
@@ -100,33 +100,33 @@ public class ElevatorGroup {
     }
 
     private void moveElevator(double oldY, double newY){
-        ElevatorCollisionHandler.handleEntityCollisions(this.world, this.cage.bounds, this.cage.collisionBoxes, this.getCageAnchorPos(oldY), new Vector3d(this.x, newY - oldY, 0));
+        ElevatorCollisionHandler.handleEntityCollisions(this.level, this.cage.bounds, this.cage.collisionBoxes, this.getCageAnchorPos(oldY), new Vector3d(this.x, newY - oldY, 0));
     }
 
     private void stopElevator(){
         this.isMoving = false;
 
-        this.cage.place(this.world, this.getCageAnchorBlockPos(this.targetY));
+        this.cage.place(this.level, this.getCageAnchorBlockPos(this.targetY));
 
         this.moveElevator(this.lastY, this.currentY);
 
-        if(!this.world.isClientSide){
-            this.world.updateNeighbourForOutputSignal(this.getPos(this.targetY), MovingElevators.elevator_block);
+        if(!this.level.isClientSide){
+            this.level.updateNeighbourForOutputSignal(this.getPos(this.targetY), MovingElevators.elevator_block);
             for(BlockPos pos : this.comparatorListeners.getOrDefault(this.targetY, Collections.emptySet()))
-                if(this.world.isLoaded(pos))
-                    this.world.updateNeighbourForOutputSignal(pos, this.world.getBlockState(pos).getBlock());
+                if(this.level.isLoaded(pos))
+                    this.level.updateNeighbourForOutputSignal(pos, this.level.getBlockState(pos).getBlock());
             this.shouldBeSynced = true;
             Vector3d soundPos = this.getCageAnchorPos(this.targetY).add(this.cageSizeX / 2d, this.cageSizeY / 2d, this.cageSizeZ / 2d);
-            this.world.playSound(null, soundPos.x, soundPos.y, soundPos.z, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
+            this.level.playSound(null, soundPos.x, soundPos.y, soundPos.z, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
             this.syncCounter = 0;
         }
     }
 
     private void startElevator(int currentY, int targetY){
-        if(this.world == null || this.isMoving)
+        if(this.level == null || this.isMoving)
             return;
 
-        ElevatorCage cage = ElevatorCage.createCageAndClear(this.world, this.getCageAnchorBlockPos(currentY), this.cageSizeX, this.cageSizeY, this.cageSizeZ);
+        ElevatorCage cage = ElevatorCage.createCageAndClear(this.level, this.getCageAnchorBlockPos(currentY), this.cageSizeX, this.cageSizeY, this.cageSizeZ);
         if(cage == null)
             return;
 
@@ -137,11 +137,11 @@ public class ElevatorGroup {
         this.lastY = this.currentY;
         this.speed = 0;
 
-        if(!this.world.isClientSide){
-            this.world.updateNeighbourForOutputSignal(this.getPos(currentY), MovingElevators.elevator_block);
+        if(!this.level.isClientSide){
+            this.level.updateNeighbourForOutputSignal(this.getPos(currentY), MovingElevators.elevator_block);
             for(BlockPos pos : this.comparatorListeners.getOrDefault(currentY, Collections.emptySet()))
-                if(this.world.isLoaded(pos))
-                    this.world.updateNeighbourForOutputSignal(pos, this.world.getBlockState(pos).getBlock());
+                if(this.level.isLoaded(pos))
+                    this.level.updateNeighbourForOutputSignal(pos, this.level.getBlockState(pos).getBlock());
             this.updateGroup();
         }
     }
@@ -150,39 +150,39 @@ public class ElevatorGroup {
         if(this.isMoving || !this.floors.contains(yLevel))
             return;
 
-        ControllerBlockEntity tile = this.getTile(yLevel);
-        if(tile == null)
+        ControllerBlockEntity entity = this.getEntity(yLevel);
+        if(entity == null)
             return;
 
         if(isUp){
-            if(this.isCageAvailableAt(tile)){
+            if(this.isCageAvailableAt(entity)){
                 for(int floor = this.floors.indexOf(yLevel) + 1; floor < this.floors.size(); floor++){
-                    ControllerBlockEntity tile2 = this.getTile(this.floors.get(floor));
-                    if(tile2 != null){
-                        if(this.canCageBePlacedAt(tile2))
+                    ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
+                    if(entity2 != null){
+                        if(this.canCageBePlacedAt(entity2))
                             this.startElevator(yLevel, this.floors.get(floor));
                         return;
                     }
                 }
             }
         }else if(isDown){
-            if(this.isCageAvailableAt(tile)){
+            if(this.isCageAvailableAt(entity)){
                 for(int floor = this.floors.indexOf(yLevel) - 1; floor >= 0; floor--){
-                    ControllerBlockEntity tile2 = this.getTile(this.floors.get(floor));
-                    if(tile2 != null){
-                        if(this.canCageBePlacedAt(tile2))
+                    ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
+                    if(entity2 != null){
+                        if(this.canCageBePlacedAt(entity2))
                             this.startElevator(yLevel, this.floors.get(floor));
                         return;
                     }
                 }
             }
         }else{
-            if(this.canCageBePlacedAt(tile)){
+            if(this.canCageBePlacedAt(entity)){
                 this.floors.sort(Comparator.comparingInt(a -> Math.abs(a - yLevel)));
                 for(int y : this.floors){
                     if(y != yLevel){
-                        ControllerBlockEntity tile2 = this.getTile(y);
-                        if(tile2 != null && this.isCageAvailableAt(tile2)){
+                        ControllerBlockEntity entity2 = this.getEntity(y);
+                        if(entity2 != null && this.isCageAvailableAt(entity2)){
                             this.floors.sort(Integer::compare);
                             this.startElevator(y, yLevel);
                             return;
@@ -208,15 +208,15 @@ public class ElevatorGroup {
         if(toFloor < 0 || toFloor >= this.floors.size())
             return;
 
-        ControllerBlockEntity tile = this.getTile(yLevel);
+        ControllerBlockEntity entity = this.getEntity(yLevel);
         int toY = this.floors.get(toFloor);
-        ControllerBlockEntity toTile = this.getTile(toY);
-        if(tile != null && toTile != null && this.isCageAvailableAt(tile) && this.canCageBePlacedAt(toTile))
+        ControllerBlockEntity toEntity = this.getEntity(toY);
+        if(entity != null && toEntity != null && this.isCageAvailableAt(entity) && this.canCageBePlacedAt(toEntity))
             this.startElevator(yLevel, toY);
     }
 
-    public void remove(ControllerBlockEntity tile){
-        int floor = this.getFloorNumber(tile.getBlockPos().getY());
+    public void remove(ControllerBlockEntity entity){
+        int floor = this.getFloorNumber(entity.getBlockPos().getY());
         this.floors.remove(floor);
         this.floorData.remove(floor);
         if(this.floors.isEmpty()){
@@ -225,8 +225,8 @@ public class ElevatorGroup {
                 for(BlockState[][] arr : this.cage.blockStates){
                     for(BlockState[] arr2 : arr){
                         for(BlockState state : arr2){
-                            ItemEntity entity = new ItemEntity(this.world, spawnPos.x, spawnPos.y, spawnPos.z, new ItemStack(state.getBlock()));
-                            this.world.addFreshEntity(entity);
+                            ItemEntity itemEntity = new ItemEntity(this.level, spawnPos.x, spawnPos.y, spawnPos.z, new ItemStack(state.getBlock()));
+                            this.level.addFreshEntity(itemEntity);
                         }
                     }
                 }
@@ -235,13 +235,13 @@ public class ElevatorGroup {
             this.shouldBeSynced = true;
     }
 
-    public void add(ControllerBlockEntity tile){
-        if(tile == null)
+    public void add(ControllerBlockEntity entity){
+        if(entity == null)
             return;
-        int y = tile.getBlockPos().getY();
+        int y = entity.getBlockPos().getY();
         if(this.floors.contains(y))
             return;
-        FloorData floorData = new FloorData(tile.getFloorName(), tile.getDisplayLabelColor());
+        FloorData floorData = new FloorData(entity.getFloorName(), entity.getDisplayLabelColor());
         for(int i = 0; i < this.floors.size(); i++){
             if(y < this.floors.get(i)){
                 this.floors.add(i, y);
@@ -256,8 +256,8 @@ public class ElevatorGroup {
         this.shouldBeSynced = true;
     }
 
-    public void updateFloorData(ControllerBlockEntity tile, String name, DyeColor color){
-        int floor = this.getFloorNumber(tile.getBlockPos().getY());
+    public void updateFloorData(ControllerBlockEntity entity, String name, DyeColor color){
+        int floor = this.getFloorNumber(entity.getBlockPos().getY());
         if(floor == -1)
             return;
         FloorData data = this.floorData.get(floor);
@@ -522,23 +522,23 @@ public class ElevatorGroup {
     }
 
     /**
-     * @return whether the blocks in front of the given {@code tile} are suitable
+     * @return whether the blocks in front of the given {@code entity} are suitable
      * for a cage
      */
-    public boolean isCageAvailableAt(ControllerBlockEntity tile){
-        return ElevatorCage.canCreateCage(this.world, this.getCageAnchorBlockPos(tile.getBlockPos().getY()), this.cageSizeX, this.cageSizeY, this.cageSizeZ);
+    public boolean isCageAvailableAt(ControllerBlockEntity entity){
+        return ElevatorCage.canCreateCage(this.level, this.getCageAnchorBlockPos(entity.getBlockPos().getY()), this.cageSizeX, this.cageSizeY, this.cageSizeZ);
     }
 
     /**
      * @return whether there is enough space for the cage to be placed in front
-     * of the given {@code tile}
+     * of the given {@code entity}
      */
-    public boolean canCageBePlacedAt(ControllerBlockEntity tile){
-        BlockPos startPos = this.getCageAnchorBlockPos(tile.getBlockPos().getY());
+    public boolean canCageBePlacedAt(ControllerBlockEntity entity){
+        BlockPos startPos = this.getCageAnchorBlockPos(entity.getBlockPos().getY());
         for(int x = 0; x < this.cageSizeX; x++){
             for(int y = 0; y < this.cageSizeY; y++){
                 for(int z = 0; z < this.cageSizeZ; z++){
-                    if(!this.world.isEmptyBlock(startPos.offset(x, y, z)))
+                    if(!this.level.isEmptyBlock(startPos.offset(x, y, z)))
                         return false;
                 }
             }
@@ -605,7 +605,7 @@ public class ElevatorGroup {
                         BlockState state = Block.stateById(compound.getInt("platform" + x + "," + z));
                         if(state.getBlock() != Blocks.AIR){
                             blockStates[x][0][z] = state;
-                            shape = VoxelShapes.joinUnoptimized(shape, state.getCollisionShape(this.world, this.getPos((int)this.currentY)), IBooleanFunction.OR);
+                            shape = VoxelShapes.joinUnoptimized(shape, state.getCollisionShape(this.level, this.getPos((int)this.currentY)), IBooleanFunction.OR);
                         }
                     }
                 }
@@ -646,11 +646,11 @@ public class ElevatorGroup {
         return new BlockPos(this.x, y, this.z);
     }
 
-    private ControllerBlockEntity getTile(int y){
-        if(this.world == null)
+    private ControllerBlockEntity getEntity(int y){
+        if(this.level == null)
             return null;
-        TileEntity tile = this.world.getBlockEntity(this.getPos(y));
-        return tile instanceof ControllerBlockEntity ? (ControllerBlockEntity)tile : null;
+        TileEntity entity = this.level.getBlockEntity(this.getPos(y));
+        return entity instanceof ControllerBlockEntity ? (ControllerBlockEntity)entity : null;
     }
 
     public int getFloorCount(){
@@ -665,19 +665,19 @@ public class ElevatorGroup {
         return this.floors.get(floor);
     }
 
-    public ControllerBlockEntity getTileForFloor(int floor){
+    public ControllerBlockEntity getEntityForFloor(int floor){
         if(floor < 0 || floor >= this.floors.size())
             return null;
-        return this.getTile(this.floors.get(floor));
+        return this.getEntity(this.floors.get(floor));
     }
 
     private void updateGroup(){
-        this.world.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.updateGroup(this));
+        this.level.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.updateGroup(this));
     }
 
     private void syncMovement(){
-        if(!this.world.isClientSide)
-            MovingElevators.CHANNEL.sendToDimension(this.world.dimension(), new PacketSyncElevatorMovement(this.x, this.z, this.facing, this.currentY, this.speed));
+        if(!this.level.isClientSide)
+            MovingElevators.CHANNEL.sendToDimension(this.level.dimension(), new PacketSyncElevatorMovement(this.x, this.z, this.facing, this.currentY, this.speed));
     }
 
     private static class FloorData {

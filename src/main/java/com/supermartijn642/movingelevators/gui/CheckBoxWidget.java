@@ -1,10 +1,9 @@
 package com.supermartijn642.movingelevators.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.supermartijn642.core.gui.ScreenUtils;
-import com.supermartijn642.core.gui.widget.AbstractButtonWidget;
-import com.supermartijn642.core.gui.widget.IHoverTextWidget;
+import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
+import com.supermartijn642.core.util.Holder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
@@ -15,12 +14,14 @@ import java.util.function.Supplier;
 /**
  * Created 10/02/2022 by SuperMartijn642
  */
-public class CheckBoxWidget extends AbstractButtonWidget implements IHoverTextWidget {
+public class CheckBoxWidget extends AbstractButtonWidget {
 
     private static final ResourceLocation CHECKMARK_BOX_TEXTURE = new ResourceLocation("movingelevators", "textures/gui/checkmark_box.png");
 
     private final Function<Boolean,ITextComponent> hoverText;
     private final Supplier<Boolean> isChecked;
+
+    public boolean active = true;
 
     public CheckBoxWidget(int x, int y, Function<Boolean,ITextComponent> hoverText, Supplier<Boolean> isChecked, Consumer<Boolean> onPress){
         super(x, y, 11, 11, () -> onPress.accept(isChecked.get()));
@@ -29,19 +30,20 @@ public class CheckBoxWidget extends AbstractButtonWidget implements IHoverTextWi
     }
 
     @Override
-    protected ITextComponent getNarrationMessage(){
-        return this.getHoverText();
+    public ITextComponent getNarrationMessage(){
+        Holder<ITextComponent> message = new Holder<>();
+        this.getTooltips(message::set);
+        return message.get();
     }
 
     @Override
-    public ITextComponent getHoverText(){
-        return this.hoverText.apply(this.isChecked.get());
+    protected void getTooltips(Consumer<ITextComponent> tooltips){
+        tooltips.accept(this.hoverText.apply(this.isChecked.get()));
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks){
-        GlStateManager._enableAlphaTest();
+    public void render(MatrixStack poseStack, int mouseX, int mouseY){
         ScreenUtils.bindTexture(CHECKMARK_BOX_TEXTURE);
-        ScreenUtils.drawTexture(matrixStack, this.x, this.y, this.width + 1, this.height, this.isChecked.get() ? 0 : 1 / 2f, this.active ? this.hovered ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
+        ScreenUtils.drawTexture(poseStack, this.x, this.y, this.width + 1, this.height, this.isChecked.get() ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
     }
 }

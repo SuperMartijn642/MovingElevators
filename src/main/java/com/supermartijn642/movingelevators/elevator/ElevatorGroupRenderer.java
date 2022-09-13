@@ -43,9 +43,9 @@ public class ElevatorGroupRenderer {
         e.getPoseStack().popPose();
     }
 
-    public static void renderGroup(MatrixStack matrixStack, ElevatorGroup group, IRenderTypeBuffer buffer, float partialTicks){
+    public static void renderGroup(MatrixStack poseStack, ElevatorGroup group, IRenderTypeBuffer buffer, float partialTicks){
         if(ClientUtils.getMinecraft().getEntityRenderDispatcher().shouldRenderHitBoxes())
-            renderGroupCageOutlines(matrixStack, group);
+            renderGroupCageOutlines(poseStack, group);
 
         if(!group.isMoving())
             return;
@@ -56,7 +56,7 @@ public class ElevatorGroupRenderer {
         Vector3d startPos = group.getCageAnchorPos(renderY);
 
         BlockPos topPos = new BlockPos(group.x, renderY, group.z).relative(group.facing, (int)Math.ceil(group.getCageDepth() / 2f));
-        int currentLight = WorldRenderer.getLightColor(group.world, topPos);
+        int currentLight = WorldRenderer.getLightColor(group.level, topPos);
 
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
@@ -64,32 +64,29 @@ public class ElevatorGroupRenderer {
                     if(cage.blockStates[x][y][z] == null)
                         continue;
 
-                    matrixStack.pushPose();
+                    poseStack.pushPose();
 
-                    matrixStack.translate(startPos.x + x, startPos.y + y, startPos.z + z);
+                    poseStack.translate(startPos.x + x, startPos.y + y, startPos.z + z);
 
-                    ClientUtils.getBlockRenderer().renderBlock(cage.blockStates[x][y][z], matrixStack, buffer, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                    ClientUtils.getBlockRenderer().renderBlock(cage.blockStates[x][y][z], poseStack, buffer, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
 
-                    matrixStack.popPose();
+                    poseStack.popPose();
                 }
             }
         }
 
         if(ClientUtils.getMinecraft().getEntityRenderDispatcher().shouldRenderHitBoxes()){
-            RenderUtils.renderBox(matrixStack, new AxisAlignedBB(startPos, startPos.add(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ())), 1, 0, 0);
-            RenderUtils.renderShape(matrixStack, cage.shape.move(startPos.x, startPos.y, startPos.z), 49 / 255f, 224 / 255f, 219 / 255f);
-            RenderUtils.resetState();
+            RenderUtils.renderBox(poseStack, new AxisAlignedBB(startPos, startPos.add(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ())), 1, 0, 0, true);
+            RenderUtils.renderShape(poseStack, cage.shape.move(startPos.x, startPos.y, startPos.z), 49 / 255f, 224 / 255f, 219 / 255f, true);
         }
     }
 
-    public static void renderGroupCageOutlines(MatrixStack matrixStack, ElevatorGroup group){
+    public static void renderGroupCageOutlines(MatrixStack poseStack, ElevatorGroup group){
         for(int floor = 0; floor < group.getFloorCount(); floor++){
             BlockPos anchorPos = group.getCageAnchorBlockPos(group.getFloorYLevel(floor));
             AxisAlignedBB cageArea = new AxisAlignedBB(anchorPos, anchorPos.offset(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ()));
             cageArea.inflate(0.01);
-            RenderUtils.enableDepthTest();
-            RenderUtils.renderBox(matrixStack, cageArea, 1, 1, 1);
-            RenderUtils.resetState();
+            RenderUtils.renderBox(poseStack, cageArea, 1, 1, 1, true);
         }
     }
 }

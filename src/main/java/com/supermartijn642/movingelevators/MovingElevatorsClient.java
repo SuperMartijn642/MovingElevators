@@ -1,36 +1,28 @@
 package com.supermartijn642.movingelevators;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
+import com.supermartijn642.core.gui.WidgetScreen;
+import com.supermartijn642.core.registry.ClientRegistrationHandler;
+import com.supermartijn642.core.render.TextureAtlases;
 import com.supermartijn642.movingelevators.blocks.CamoBlockEntity;
 import com.supermartijn642.movingelevators.blocks.DisplayBlockEntityRenderer;
 import com.supermartijn642.movingelevators.blocks.ElevatorInputBlockEntityRenderer;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.state.Property;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-
-import java.util.stream.Collectors;
 
 /**
  * Created 3/28/2020 by SuperMartijn642
@@ -41,16 +33,26 @@ public class MovingElevatorsClient {
     public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = new ResourceLocation("movingelevators", "blocks/block_overlays");
     public static TextureAtlasSprite OVERLAY_SPRITE;
 
+    public static void register(){
+        ClientRegistrationHandler handler = ClientRegistrationHandler.get("movingelevators");
+        // Renderers
+        handler.registerCustomBlockEntityRenderer(() -> MovingElevators.elevator_tile, ElevatorInputBlockEntityRenderer::new);
+        handler.registerCustomBlockEntityRenderer(() -> MovingElevators.display_tile, DisplayBlockEntityRenderer::new);
+        handler.registerCustomBlockEntityRenderer(() -> MovingElevators.button_tile, ElevatorInputBlockEntityRenderer::new);
+        // Register texture
+        handler.registerAtlasSprite(TextureAtlases.getBlocks(), OVERLAY_TEXTURE_LOCATION.getPath());
+        // Baked models
+        handler.registerBlockModelOverwrite(() -> MovingElevators.elevator_block, CamoBakedModel::new);
+        handler.registerBlockModelOverwrite(() -> MovingElevators.display_block, CamoBakedModel::new);
+        handler.registerBlockModelOverwrite(() -> MovingElevators.button_block, CamoBakedModel::new);
+        // Block render types
+        handler.registerBlockModelTranslucentRenderType(() -> MovingElevators.elevator_block);
+        handler.registerBlockModelTranslucentRenderType(() -> MovingElevators.display_block);
+        handler.registerBlockModelTranslucentRenderType(() -> MovingElevators.button_block);
+    }
+
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e){
-        ClientRegistry.bindTileEntityRenderer(MovingElevators.elevator_tile, ElevatorInputBlockEntityRenderer::new);
-        ClientRegistry.bindTileEntityRenderer(MovingElevators.display_tile, DisplayBlockEntityRenderer::new);
-        ClientRegistry.bindTileEntityRenderer(MovingElevators.button_tile, ElevatorInputBlockEntityRenderer::new);
-
-        RenderTypeLookup.setRenderLayer(MovingElevators.elevator_block, RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(MovingElevators.display_block, RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(MovingElevators.button_block, RenderType.translucent());
-
         ClientUtils.getMinecraft().getBlockColors().register(
             (state, blockAndTintGetter, pos, p_92570_) -> {
                 if(blockAndTintGetter == null || pos == null)
@@ -63,43 +65,20 @@ public class MovingElevatorsClient {
     }
 
     @SubscribeEvent
-    public static void onModelBake(ModelBakeEvent e){
-        setCamouflageModel(e, MovingElevators.elevator_block);
-        setCamouflageModel(e, MovingElevators.display_block);
-        setCamouflageModel(e, MovingElevators.button_block);
-    }
-
-    @SubscribeEvent
-    public static void onTextureStitchPre(TextureStitchEvent.Pre e){
-        if(e.getMap().location().equals(AtlasTexture.LOCATION_BLOCKS))
-            e.addSprite(OVERLAY_TEXTURE_LOCATION);
-    }
-
-    @SubscribeEvent
     public static void onTextureStitchPost(TextureStitchEvent.Post e){
-        if(e.getMap().location().equals(AtlasTexture.LOCATION_BLOCKS))
+        if(e.getMap().location().equals(TextureAtlases.getBlocks()))
             OVERLAY_SPRITE = e.getMap().getSprite(OVERLAY_TEXTURE_LOCATION);
     }
 
-    private static void setCamouflageModel(ModelBakeEvent e, Block block){
-        for(BlockState state : block.getStateDefinition().getPossibleStates()){
-            StringBuilder builder = new StringBuilder();
-            if(!state.getValues().isEmpty())
-                builder.append(state.getValues().entrySet().stream().map(entry -> getPropertyName(entry.getKey(), entry.getValue())).collect(Collectors.joining(",")));
-
-            ModelResourceLocation modelLocation = new ModelResourceLocation(block.getRegistryName(), builder.toString());
-            IBakedModel model = e.getModelManager().getModel(modelLocation);
-            e.getModelRegistry().put(modelLocation, new CamoBakedModel(model));
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T extends Comparable<T>> String getPropertyName(Property<T> property, Comparable<?> value){
-        return property.getName() + "=" + property.getName((T)value);
-    }
-
     public static void openElevatorScreen(BlockPos pos){
-        Minecraft.getInstance().setScreen(new ElevatorScreen(pos));
+        Minecraft.getInstance().setScreen(new WidgetScreen<ElevatorScreen>(new ElevatorScreen(pos)) {
+            @Override
+            public void render(MatrixStack poseStack, int mouseX, int mouseY, float partialTicks){
+                this.widget.offsetLeft = (this.width - this.widget.width()) / 2f;
+                this.widget.offsetTop = (this.height - this.widget.height()) / 2f;
+                super.render(poseStack, mouseX, mouseY, partialTicks);
+            }
+        });
     }
 
     public static String formatFloorDisplayName(String name, int floor){

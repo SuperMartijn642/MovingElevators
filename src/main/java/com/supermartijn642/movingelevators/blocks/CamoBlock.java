@@ -1,7 +1,9 @@
 package com.supermartijn642.movingelevators.blocks;
 
 import com.supermartijn642.core.block.BaseBlock;
+import com.supermartijn642.core.block.BlockProperties;
 import com.supermartijn642.core.block.BlockShape;
+import com.supermartijn642.core.block.EntityHoldingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.PushReaction;
@@ -13,12 +15,13 @@ import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
@@ -28,37 +31,37 @@ import java.util.function.Supplier;
 /**
  * Created 4/7/2020 by SuperMartijn642
  */
-public class CamoBlock extends BaseBlock {
+public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
 
-    private final Supplier<? extends CamoBlockEntity> tileSupplier;
+    private final Supplier<? extends CamoBlockEntity> entitySupplier;
 
-    public CamoBlock(String registryName, Properties properties, Supplier<? extends CamoBlockEntity> tileSupplier){
-        super(registryName, false, properties.dynamicShape());
-        this.tileSupplier = tileSupplier;
+    public CamoBlock(BlockProperties properties, Supplier<? extends CamoBlockEntity> entitySupplier){
+        super(false, properties.dynamicShape());
+        this.entitySupplier = entitySupplier;
     }
 
     @Override
-    public ActionResultType use(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
-        TileEntity blockEntity = worldIn.getBlockEntity(pos);
+    protected InteractionFeedback interact(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, Direction hitSide, Vector3d hitLocation){
+        TileEntity blockEntity = level.getBlockEntity(pos);
         if(blockEntity instanceof CamoBlockEntity)
-            this.onRightClick(state, worldIn, (CamoBlockEntity)blockEntity, pos, player, handIn, rayTraceResult);
+            this.onRightClick(state, level, (CamoBlockEntity)blockEntity, pos, player, hand, hitSide, hitLocation);
 
         // Always return success to prevent accidentally placing blocks
-        return ActionResultType.sidedSuccess(worldIn.isClientSide);
+        return InteractionFeedback.SUCCESS;
     }
 
     /**
      * @return whether the interaction has been handled
      */
-    protected boolean onRightClick(BlockState state, World worldIn, CamoBlockEntity blockEntity, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult rayTraceResult){
-        if(player.isShiftKeyDown() && player.getItemInHand(handIn).isEmpty()){
+    protected boolean onRightClick(BlockState state, World level, CamoBlockEntity blockEntity, BlockPos pos, PlayerEntity player, Hand hand, Direction hitSide, Vector3d hitLocation){
+        if(player.isShiftKeyDown() && player.getItemInHand(hand).isEmpty()){
             blockEntity.setCamoState(null);
             return true;
-        }else if(!player.isShiftKeyDown() && blockEntity.canBeCamoStack(player.getItemInHand(handIn))){
-            Item item = player.getItemInHand(handIn).getItem();
+        }else if(!player.isShiftKeyDown() && blockEntity.canBeCamoStack(player.getItemInHand(hand))){
+            Item item = player.getItemInHand(hand).getItem();
             if(item instanceof BlockItem){
                 Block block = ((BlockItem)item).getBlock();
-                BlockState state1 = block.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(player, handIn, rayTraceResult)));
+                BlockState state1 = block.getStateForPlacement(new BlockItemUseContext(new ItemUseContext(player, hand, new BlockRayTraceResult(hitLocation, hitSide, pos, false))));
                 if(state1 == null)
                     state1 = block.defaultBlockState();
                 blockEntity.setCamoState(state1);
@@ -69,14 +72,8 @@ public class CamoBlock extends BaseBlock {
     }
 
     @Override
-    public boolean hasTileEntity(BlockState state){
-        return true;
-    }
-
-    @Nullable
-    @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world){
-        return this.tileSupplier.get();
+    public TileEntity createNewBlockEntity(){
+        return this.entitySupplier.get();
     }
 
     @Override
@@ -85,7 +82,7 @@ public class CamoBlock extends BaseBlock {
     }
 
     @Override
-    public boolean canCreatureSpawn(BlockState state, IBlockReader world, BlockPos pos, EntitySpawnPlacementRegistry.PlacementType type, @Nullable EntityType<?> entityType){
+    public boolean canCreatureSpawn(BlockState state, IBlockReader level, BlockPos pos, EntitySpawnPlacementRegistry.PlacementType type, @Nullable EntityType<?> entityType){
         return false;
     }
 
