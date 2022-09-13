@@ -1,21 +1,22 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.supermartijn642.core.block.BaseBlockEntityType;
+import com.supermartijn642.core.block.TickableBlockEntity;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
  */
-public abstract class ElevatorInputBlockEntity extends CamoBlockEntity implements ITickable {
+public abstract class ElevatorInputBlockEntity extends CamoBlockEntity implements TickableBlockEntity {
 
     public boolean redstone;
     private boolean lastRedstone;
 
-    public ElevatorInputBlockEntity(){
-        super();
+    public ElevatorInputBlockEntity(BaseBlockEntityType<?> blockEntityType){
+        super(blockEntityType);
     }
 
     @Override

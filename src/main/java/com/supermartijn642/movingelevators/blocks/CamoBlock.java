@@ -1,6 +1,8 @@
 package com.supermartijn642.movingelevators.blocks;
 
 import com.supermartijn642.core.block.BaseBlock;
+import com.supermartijn642.core.block.BlockProperties;
+import com.supermartijn642.core.block.EntityHoldingBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.properties.IProperty;
@@ -12,23 +14,22 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 /**
  * Created 4/7/2020 by SuperMartijn642
  */
-public class CamoBlock extends BaseBlock {
+public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
 
     public static final IUnlistedProperty<IBlockState> CAMO_PROPERTY = new IUnlistedProperty<IBlockState>() {
         @Override
@@ -52,37 +53,37 @@ public class CamoBlock extends BaseBlock {
         }
     };
 
-    private final Supplier<? extends CamoBlockEntity> tileSupplier;
+    private final Supplier<? extends CamoBlockEntity> entitySupplier;
 
-    public CamoBlock(String registryName, Properties properties, Supplier<? extends CamoBlockEntity> tileSupplier){
-        super(registryName, false, properties);
-        this.tileSupplier = tileSupplier;
+    public CamoBlock(BlockProperties properties, Supplier<? extends CamoBlockEntity> entitySupplier){
+        super(false, properties);
+        this.entitySupplier = entitySupplier;
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand handIn, EnumFacing facing, float hitX, float hitY, float hitZ){
-        TileEntity blockEntity = worldIn.getTileEntity(pos);
+    protected InteractionFeedback interact(IBlockState state, World level, BlockPos pos, EntityPlayer player, EnumHand hand, EnumFacing hitSide, Vec3d hitLocation){
+        TileEntity blockEntity = level.getTileEntity(pos);
         if(blockEntity instanceof CamoBlockEntity)
-            this.onRightClick(state, worldIn, (CamoBlockEntity)blockEntity, pos, player, handIn, facing, hitX, hitY, hitZ);
+            this.onRightClick(state, level, (CamoBlockEntity)blockEntity, pos, player, hand, hitSide, hitLocation);
 
         // Always return success to prevent accidentally placing blocks
-        return true;
+        return InteractionFeedback.SUCCESS;
     }
 
     /**
      * @return whether the interaction has been handled
      */
-    protected boolean onRightClick(IBlockState state, World worldIn, CamoBlockEntity blockEntity, BlockPos pos, EntityPlayer player, EnumHand handIn, EnumFacing facing, float hitX, float hitY, float hitZ){
-        if(player.isSneaking() && player.getHeldItem(handIn).isEmpty()){
+    protected boolean onRightClick(IBlockState state, World level, CamoBlockEntity blockEntity, BlockPos pos, EntityPlayer player, EnumHand hand, EnumFacing hitSide, Vec3d hitLocation){
+        if(player.isSneaking() && player.getHeldItem(hand).isEmpty()){
             blockEntity.setCamoState(null);
             return true;
-        }else if(!player.isSneaking() && blockEntity.canBeCamoStack(player.getHeldItem(handIn))){
-            ItemStack stack = player.getHeldItem(handIn);
+        }else if(!player.isSneaking() && blockEntity.canBeCamoStack(player.getHeldItem(hand))){
+            ItemStack stack = player.getHeldItem(hand);
             Item item = stack.getItem();
             if(item instanceof ItemBlock){
                 int metadata = item.getMetadata(stack.getMetadata());
                 Block block = ((ItemBlock)item).getBlock();
-                IBlockState state1 = block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, metadata, player, handIn);
+                IBlockState state1 = block.getStateForPlacement(level, pos, hitSide, (float)hitLocation.x, (float)hitLocation.y, (float)hitLocation.z, metadata, player, hand);
                 if(state1 == null)
                     state1 = block.getDefaultState();
                 blockEntity.setCamoState(state1);
@@ -93,14 +94,8 @@ public class CamoBlock extends BaseBlock {
     }
 
     @Override
-    public boolean hasTileEntity(IBlockState state){
-        return true;
-    }
-
-    @Nullable
-    @Override
-    public TileEntity createTileEntity(World world, IBlockState state){
-        return this.tileSupplier.get();
+    public TileEntity createNewBlockEntity(){
+        return this.entitySupplier.get();
     }
 
     @Override
@@ -109,7 +104,7 @@ public class CamoBlock extends BaseBlock {
     }
 
     @Override
-    public boolean canCreatureSpawn(IBlockState state, IBlockAccess world, BlockPos pos, EntityLiving.SpawnPlacementType type){
+    public boolean canCreatureSpawn(IBlockState state, IBlockAccess level, BlockPos pos, EntityLiving.SpawnPlacementType type){
         return false;
     }
 
@@ -142,11 +137,6 @@ public class CamoBlock extends BaseBlock {
     }
 
     @Override
-    public BlockRenderLayer getBlockLayer(){
-        return BlockRenderLayer.TRANSLUCENT;
-    }
-
-    @Override
     protected BlockStateContainer createBlockState(){
         return new ExtendedBlockState(this, this.getProperties(), new IUnlistedProperty[]{CAMO_PROPERTY});
     }
@@ -156,8 +146,8 @@ public class CamoBlock extends BaseBlock {
     }
 
     @Override
-    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos){
-        TileEntity entity = world.getTileEntity(pos);
+    public IBlockState getExtendedState(IBlockState state, IBlockAccess level, BlockPos pos){
+        TileEntity entity = level.getTileEntity(pos);
         if(entity instanceof CamoBlockEntity)
             return ((IExtendedBlockState)state).withProperty(CAMO_PROPERTY, ((CamoBlockEntity)entity).getCamoState());
         return state;

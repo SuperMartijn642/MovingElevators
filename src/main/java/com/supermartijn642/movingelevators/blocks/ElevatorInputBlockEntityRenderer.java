@@ -1,13 +1,13 @@
 package com.supermartijn642.movingelevators.blocks;
 
 import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.render.CustomBlockEntityRenderer;
+import com.supermartijn642.core.render.TextureAtlases;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import org.lwjgl.opengl.GL11;
@@ -15,10 +15,10 @@ import org.lwjgl.opengl.GL11;
 /**
  * Created 5/5/2020 by SuperMartijn642
  */
-public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity> extends TileEntitySpecialRenderer<T> {
+public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity> implements CustomBlockEntityRenderer<T> {
 
     @Override
-    public void render(T entity, double x, double y, double z, float partialTicks, int combinedOverlay, float alpha){
+    public void render(T entity, float partialTicks, int combinedOverlay, float alpha){
         if(!entity.hasGroup() || entity.getFacing() == null || (entity instanceof ControllerBlockEntity && !((ControllerBlockEntity)entity).shouldShowButtons()))
             return;
 
@@ -26,11 +26,9 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
         EnumFacing facing = entity.getFacing();
         int combinedLight = entity.getWorld().getCombinedLight(entity.getPos().offset(facing), entity.getWorld().getBlockState(entity.getPos().offset(facing)).getLightValue(entity.getWorld(), entity.getPos().offset(facing)));
 
-        ScreenUtils.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        ScreenUtils.bindTexture(TextureAtlases.getBlocks());
 
         GlStateManager.pushMatrix();
-
-        GlStateManager.translate(x, y, z);
 
         GlStateManager.translate(0.5, 0.5, 0.5);
         GlStateManager.rotate(180 - facing.getHorizontalAngle(), 0, 1, 0);

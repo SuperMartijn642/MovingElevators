@@ -8,8 +8,11 @@ buildscript {
         classpath "org.spongepowered:mixingradle:0.7.+"
     }
 }
+plugins {
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "com.modrinth.minotaur" version "2.+"
+}
 apply plugin: "net.minecraftforge.gradle"
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: "eclipse"
 apply plugin: "org.spongepowered.mixin"
 
@@ -22,8 +25,14 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(project.java_target)
 println("Java: " + System.getProperty("java.version") + " JVM: " + System.getProperty("java.vm.version") + "(" + System.getProperty("java.vendor") + ") Arch: " + System.getProperty("os.arch"))
 
 repositories {
+    flatDir {
+        dirs "libs"
+    }
     maven {
         url "https://www.cursemaven.com"
+    }
+    maven {
+        url = "https://repo.spongepowered.org/maven"
     }
 }
 
@@ -32,7 +41,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
     // Core library
-    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}")
+//    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}")
+    implementation fg.deobf("com.supermartijn642:supermartijn642corelib:1.1.0-forge-mc1.12")
     // Config library
     implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file}")
 }
@@ -60,11 +70,15 @@ minecraft {
 
     // accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
 
+    // Make sure the core lib's mixins get applied
+    String core_lib_core_mod = "com.supermartijn642.core.coremod.CoreModPlugin"
+
     runs {
         client {
             workingDirectory project.file("run")
 
             property "forge.logging.markers", "REGISTRIES"
+            property "fml.coreMods.load", core_lib_core_mod
 
             mods {
                 source sourceSets.main
@@ -75,10 +89,127 @@ minecraft {
             workingDirectory project.file("run")
 
             property "forge.logging.markers", "REGISTRIES"
+            property "fml.coreMods.load", core_lib_core_mod
 
             mods {
                 source sourceSets.main
             }
         }
+
+        data {
+            parent runs.client
+            property "--generatorModid", project.mod_id
+            property "--output", file("src/generated/resources/")
+            property "--existing", file("$buildDir/data_resources")
+        }
     }
+}
+
+task processSources(type: Sync) {
+    from sourceSets.main.java
+    into "$buildDir/sources"
+    inputs.property 'version', version
+
+    // Replace mod properties in main mod class
+    Hashtable<String, String> properties = new Hashtable<>()
+    project.properties.entrySet().stream()
+            .filter(entry -> entry.key instanceof String && entry.value instanceof String)
+            .forEach(entry -> properties.put(entry.key, entry.value))
+    filesMatching(project.mod_package.replace('.', '/') + "/" + project.mod_main_class + ".java") {
+        //noinspection UnnecessaryQualifiedReference
+        filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: properties)
+    }
+}
+
+compileJava {
+    source = processSources.outputs
+}
+
+task prepareDataResources(type: Sync) {
+    from file("src/main/resources")
+    into "$buildDir/data_resources"
+    inputs.property "version", version
+
+    filesMatching(["mcmod.info", "modid.mixins.json", "pack.mcmeta"]) {
+        expand project.properties
+    }
+
+    exclude "**/*.pdn"
+
+    rename "^modid.mixins.json\$", "${project.mod_id}.mixins.json"
+    rename "^icon.png\$", "${project.mod_id}.png"
+}
+
+// Run prepareDataResources before prepareRunData
+tasks.whenTaskAdded {
+    if (it.name == "prepareRunData")
+        it.dependsOn "prepareDataResources"
+}
+
+// CurseGradle settings for uploading to CurseForge
+curseforge {
+    project {
+        // Get the CurseForge token from the environment variables
+        apiKey = System.getenv("CURSEFORGE_TOKEN")
+        // Copy settings from gradle.properties
+        id = project.curseforge_project_id
+        releaseType = project.curseforge_release_type
+        project.curseforge_game_versions.split(" ").each it::addGameVersion
+        // Point to 'changelog' setting to a the changelog file
+        changelog = file("changelog.md")
+        changelogType = "markdown"
+        relations {
+            // Required dependencies
+            if (!project.curseforge_required_dependency_ids.isEmpty())
+                project.curseforge_required_dependency_ids.split(" ").each it::requiredDependency
+            // Optional dependencies
+            if (!project.curseforge_optional_dependency_ids.isEmpty())
+                project.curseforge_optional_dependency_ids.split(" ").each it::optionalDependency
+        }
+
+        mainArtifact(jar) {
+            displayName = "${project.mod_name} ${project.mod_version} for Forge ${project.minecraft_suffix.substring(2)}"
+        }
+    }
+    options {
+        // Don't add project Java version
+        javaVersionAutoDetect = false
+    }
+}
+
+// Move CurseGradle's tasks from 'upload' to 'publishing'
+project.gradle.taskGraph.whenReady {
+    tasks.stream().filter(task -> task.group.equals "upload").each { task -> task.group = "publishing" }
+}
+
+// Minotaur settings for uploading to Modrinth
+modrinth {
+    // Get the Modrinth token from the environment variables
+    token = System.getenv("MODRINTH_TOKEN")
+    // Copy settings from gradle.properties
+    projectId = project.modrinth_project_id
+    versionNumber = version
+    versionType = project.modrinth_release_type // Can be either 'release', 'alpha', or 'beta'
+    versionName = "${project.mod_name} ${project.mod_version}"
+    gameVersions = project.modrinth_game_versions.split(" ") as List
+    // Convert the changelog file to text
+    changelog = file("changelog.md").text
+    uploadFile = jar // With Loom, this MUST be set to `remapJar` instead of `jar`!
+    loaders = ["forge"]
+    dependencies {
+        // Required dependencies
+        if (!project.modrinth_required_dependency_ids.isEmpty())
+            project.modrinth_required_dependency_ids.split(" ").each required::project
+        // Optional dependencies
+        if (!project.modrinth_optional_dependency_ids.isEmpty())
+            project.modrinth_optional_dependency_ids.split(" ").each optional::project
+    }
+}
+
+// Create a task to upload to both CurseForge and Modrinth
+task publishAll {
+    group "publishing"
+    dependsOn("curseforge", "modrinth")
+    // Also build the file so I have a copy locally
+    dependsOn "build"
 }

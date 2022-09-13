@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.item.EnumDyeColor;
@@ -19,7 +20,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     private boolean showButtons = true;
 
     public ControllerBlockEntity(){
-        super();
+        super(MovingElevators.elevator_tile);
     }
 
     @Override

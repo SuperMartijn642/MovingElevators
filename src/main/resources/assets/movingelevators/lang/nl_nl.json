@@ -1,0 +1,14 @@
+{
+  "block.movingelevators.elevator_block": "Lift Bediening",
+  "block.movingelevators.display_block": "Lift Scherm",
+  "block.movingelevators.button_block": "Extern Lift Bedieningspaneel",
+  "movingelevators.remote_controller.tooltip": "Lift Bediening op $x$, $y$, $z$",
+  "movingelevators.remote_controller.bind": "Gebonden aan de Lift Bediening!",
+  "movingelevators.remote_controller.not_bound": "Het blok moet gebonden zijn aan Lift Bediening!",
+  "movingelevators.remote_controller.wrong_dimension": "Het blok moet in dezelfde dimensie zijn als de Lift Bediening!",
+  "movingelevators.elevator_screen.elevator": "Lift",
+  "gui.movingelevators.floorname.label": "Verdieping naam:",
+  "movingelevators.platform.size": "Platform grootte: $number$ blokken",
+  "movingelevators.platform.speed": "Platform snelheid: $number$ blokken/t",
+  "movingelevators.floorname": "Verdieping $number$"
+}

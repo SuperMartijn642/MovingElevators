@@ -3,12 +3,9 @@ package com.supermartijn642.movingelevators.elevator;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
 import com.supermartijn642.core.render.RenderUtils;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
+import com.supermartijn642.core.render.TextureAtlases;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -57,10 +54,15 @@ public class ElevatorGroupRenderer {
         Vec3d startPos = group.getCageAnchorPos(renderY);
 
         BlockPos topPos = new BlockPos(group.x, renderY, group.z).offset(group.facing, (int)Math.ceil(group.getCageDepth() / 2f));
-        int currentLight = group.world.getCombinedLight(topPos, group.world.getBlockState(topPos).getLightValue(group.world, topPos));
+        int currentLight = group.level.getCombinedLight(topPos, group.level.getBlockState(topPos).getLightValue(group.level, topPos));
+        int j = currentLight >> 16 & 65535;
+        int k = currentLight & 65536;
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j, k);
         GlStateManager.enableLighting();
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.shadeModel(7425);
 
-        ScreenUtils.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        ScreenUtils.bindTexture(TextureAtlases.getBlocks());
 
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
@@ -78,7 +80,7 @@ public class ElevatorGroupRenderer {
                         BlockRendererDispatcher rendererDispatcher = ClientUtils.getBlockRenderer();
                         IBakedModel model = rendererDispatcher.getModelForState(cage.blockStates[x][y][z]);
                         pos.setPos(startPos.x + x, (int)startPos.y + y, startPos.z + z);
-                        rendererDispatcher.getBlockModelRenderer().renderModel(group.world, model, cage.blockStates[x][y][z], pos, buffer, false, 0);
+                        rendererDispatcher.getBlockModelRenderer().renderModel(group.level, model, cage.blockStates[x][y][z], pos, buffer, false, 0);
                     }catch(Exception e){
                         e.printStackTrace();
                     }
@@ -91,9 +93,8 @@ public class ElevatorGroupRenderer {
         Tessellator.getInstance().draw();
 
         if(ClientUtils.getMinecraft().getRenderManager().isDebugBoundingBox()){
-            RenderUtils.renderBox(new AxisAlignedBB(startPos, startPos.addVector(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ())), 1, 0, 0);
-            RenderUtils.renderShape(cage.shape.offset(startPos.x, startPos.y, startPos.z), 49 / 255f, 224 / 255f, 219 / 255f);
-            RenderUtils.resetState();
+            RenderUtils.renderBox(new AxisAlignedBB(startPos, startPos.addVector(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ())), 1, 0, 0, true);
+            RenderUtils.renderShape(cage.shape.offset(startPos.x, startPos.y, startPos.z), 49 / 255f, 224 / 255f, 219 / 255f, true);
         }
     }
 
@@ -102,9 +103,7 @@ public class ElevatorGroupRenderer {
             BlockPos anchorPos = group.getCageAnchorBlockPos(group.getFloorYLevel(floor));
             AxisAlignedBB cageArea = new AxisAlignedBB(anchorPos, anchorPos.add(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ()));
             cageArea.grow(0.01);
-            RenderUtils.enableDepthTest();
-            RenderUtils.renderBox(cageArea, 1, 1, 1);
-            RenderUtils.resetState();
+            RenderUtils.renderBox(cageArea, 1, 1, 1, true);
         }
     }
 }

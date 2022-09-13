@@ -1,0 +1,14 @@
+{
+  "block.movingelevators.elevator_block": "Aufzugssteuerung",
+  "block.movingelevators.display_block": "Aufzugsanzeige",
+  "block.movingelevators.button_block": "externes Aufzugssteuerung",
+  "movingelevators.remote_controller.tooltip": "Aufzugssteuerung am $x$, $y$, $z$",
+  "movingelevators.remote_controller.bind": "Verbunden mit der Aufzugssteuerung!",
+  "movingelevators.remote_controller.not_bound": "Der block muss verbunden sein mit einer Aufzugssteuerung!",
+  "movingelevators.remote_controller.wrong_dimension": "Der block muss in der gleichen Dimension sein wie die Aufzugssteuerung!",
+  "movingelevators.elevator_screen.elevator": "Aufzug",
+  "gui.movingelevators.floorname.label": "Stockname:",
+  "movingelevators.platform.size": "Plattform Größe: $number$ Blöcke",
+  "movingelevators.platform.speed": "Plattform Snelheid: $number$ Blöcke/t",
+  "movingelevators.floorname": "$number$ Stock"
+}

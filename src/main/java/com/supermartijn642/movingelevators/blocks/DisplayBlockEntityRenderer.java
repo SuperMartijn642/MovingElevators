@@ -1,15 +1,16 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import com.supermartijn642.core.render.RenderUtils;
+import com.supermartijn642.core.render.TextureAtlases;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.EnumFacing;
@@ -22,12 +23,12 @@ import org.lwjgl.opengl.GL11;
 /**
  * Created 13/02/2022 by SuperMartijn642
  */
-public class DisplayBlockEntityRenderer extends TileEntitySpecialRenderer<DisplayBlockEntity> {
+public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<DisplayBlockEntity> {
 
     private static final double TEXT_RENDER_DISTANCE = 15 * 15;
 
     @Override
-    public void render(DisplayBlockEntity entity, double x, double y, double z, float partialTicks, int combinedOverlay, float alpha){
+    public void render(DisplayBlockEntity entity, float partialTicks, int combinedOverlay, float alpha){
         if(!entity.isBottomDisplay() || !entity.getInputBlockEntity().hasGroup())
             return;
 
@@ -47,16 +48,13 @@ public class DisplayBlockEntityRenderer extends TileEntitySpecialRenderer<Displa
             combinedLight = skyLight << 20 | blockLight << 4;
         }
 
-        ScreenUtils.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        ScreenUtils.bindTexture(TextureAtlases.getBlocks());
 
         GlStateManager.pushMatrix();
-
-        GlStateManager.translate(x, y, z);
 
         GlStateManager.translate(0.5, 0.5, 0.5);
         GlStateManager.rotate(180 - facing.getHorizontalAngle(), 0, 1, 0);
         GlStateManager.translate(-0.5, -0.5, -0.51);
-        GlStateManager.glNormal3f(0, 1, 0);
 
         // render background
         if(height == 1)
@@ -95,7 +93,7 @@ public class DisplayBlockEntityRenderer extends TileEntitySpecialRenderer<Displa
                 GlStateManager.translate(18.5 / 32d, 0, 0);
                 this.drawString(combinedLight, MovingElevatorsClient.formatFloorDisplayName(group.getFloorDisplayName(startIndex + i), startIndex + i));
                 GlStateManager.popMatrix();
-                ScreenUtils.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+                ScreenUtils.bindTexture(TextureAtlases.getBlocks());
             }
             GlStateManager.translate(0, 1, 0);
             buttonPos = buttonPos.addVector(0, DisplayBlock.BUTTON_HEIGHT, 0);
@@ -140,7 +138,7 @@ public class DisplayBlockEntityRenderer extends TileEntitySpecialRenderer<Displa
     private void drawString(int combinedLight, String s){
         if(s == null)
             return;
-        FontRenderer fontRenderer = this.getFontRenderer();
+        FontRenderer fontRenderer = ClientUtils.getFontRenderer();
         GlStateManager.pushMatrix();
         GlStateManager.translate(0, 0.07, -0.005);
         GlStateManager.scale(-0.01f, -0.08f, 1);

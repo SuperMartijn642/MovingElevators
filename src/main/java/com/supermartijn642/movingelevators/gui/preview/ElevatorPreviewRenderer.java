@@ -3,12 +3,12 @@ package com.supermartijn642.movingelevators.gui.preview;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
 import com.supermartijn642.core.render.RenderUtils;
+import com.supermartijn642.core.render.TextureAtlases;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -36,8 +36,8 @@ public class ElevatorPreviewRenderer {
         double span = Math.sqrt((bounds.maxX - bounds.minX) * (bounds.maxX - bounds.minX) + (bounds.maxY - bounds.minY) * (bounds.maxY - bounds.minY) + (bounds.maxZ - bounds.minZ) * (bounds.maxZ - bounds.minZ));
         scale /= span;
 
-        ScreenUtils.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        ClientUtils.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+        ScreenUtils.bindTexture(TextureAtlases.getBlocks());
+        ClientUtils.getTextureManager().getTexture(TextureAtlases.getBlocks()).setBlurMipmap(false, false);
         GlStateManager.enableRescaleNormal();
         GlStateManager.enableAlpha();
         GlStateManager.alphaFunc(516, 0.1F);
@@ -65,13 +65,13 @@ public class ElevatorPreviewRenderer {
         if(doShading)
             GlStateManager.disableLighting();
 
-        RenderUtils.renderBox(cabinBox, 1, 1, 1, 0.8f);
+        RenderUtils.renderBox(cabinBox, 1, 1, 1, 0.8f, true);
         if(previewBox != null)
-            RenderUtils.renderBox(previewBox, 0, 0.7f, 0, 0.8f);
+            RenderUtils.renderBox(previewBox, 0, 0.7f, 0, 0.8f, true);
 
         GlStateManager.popMatrix();
 
-        ClientUtils.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+        ClientUtils.getTextureManager().getTexture(TextureAtlases.getBlocks()).restoreLastBlurMipmap();
         GlStateManager.disableAlpha();
         GlStateManager.disableRescaleNormal();
     }

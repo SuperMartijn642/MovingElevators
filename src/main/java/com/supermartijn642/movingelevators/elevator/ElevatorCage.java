@@ -76,14 +76,14 @@ public class ElevatorCage {
         return new ElevatorCage(xSize, ySize, zSize, states, shape.toBoxes());
     }
 
-    public static boolean canCreateCage(World world, BlockPos startPos, int xSize, int ySize, int zSize){
+    public static boolean canCreateCage(World level, BlockPos startPos, int xSize, int ySize, int zSize){
         boolean hasBlocks = false;
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
-                    if(world.isAirBlock(startPos.add(x, y, z)))
+                    if(level.isAirBlock(startPos.add(x, y, z)))
                         continue;
-                    if(!canBlockBeInCage(world, startPos.add(x, y, z)))
+                    if(!canBlockBeInCage(level, startPos.add(x, y, z)))
                         return false;
                     hasBlocks = true;
                 }
@@ -92,9 +92,9 @@ public class ElevatorCage {
         return hasBlocks;
     }
 
-    public static boolean canBlockBeInCage(World world, BlockPos pos){
-        IBlockState state = world.getBlockState(pos);
-        return !(state.getBlock() instanceof IFluidBlock) && state.getBlockHardness(world, pos) >= 0 && !state.getBlock().hasTileEntity(state); // TODO allow block entities
+    public static boolean canBlockBeInCage(World level, BlockPos pos){
+        IBlockState state = level.getBlockState(pos);
+        return !(state.getBlock() instanceof IFluidBlock) && state.getBlockHardness(level, pos) >= 0 && !state.getBlock().hasTileEntity(state); // TODO allow block entities
     }
 
     public final int xSize, ySize, zSize;
@@ -128,7 +128,7 @@ public class ElevatorCage {
         this.bounds = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public void place(World world, BlockPos startPos){
+    public void place(World level, BlockPos startPos){
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
@@ -136,14 +136,14 @@ public class ElevatorCage {
                     if(state == null)
                         continue;
                     BlockPos pos = startPos.add(x, y, z);
-                    if(world.isAirBlock(pos))
-                        world.setBlockState(pos, state);
-                    else if(world.getBlockState(pos).getBlockHardness(world, pos) >= 0){
-                        world.destroyBlock(pos, true);
-                        world.setBlockState(pos, state);
+                    if(level.isAirBlock(pos))
+                        level.setBlockState(pos, state);
+                    else if(level.getBlockState(pos).getBlockHardness(level, pos) >= 0){
+                        level.destroyBlock(pos, true);
+                        level.setBlockState(pos, state);
                     }else{
                         // TODO account for tile entities vvv
-                        InventoryHelper.spawnItemStack(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, new ItemStack(state.getBlock()));
+                        InventoryHelper.spawnItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, new ItemStack(state.getBlock()));
                     }
                 }
             }
@@ -153,53 +153,53 @@ public class ElevatorCage {
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
                     BlockPos pos = startPos.add(x, y, z);
-                    IBlockState state = world.getBlockState(pos);
+                    IBlockState state = level.getBlockState(pos);
                     if(x == 0){
                         EnumFacing direction = EnumFacing.WEST;
                         BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(world, pos, state.getBlock(), neighbor);
-                        world.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
+                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
+                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
                     }
                     if(x == this.xSize - 1){
                         EnumFacing direction = EnumFacing.EAST;
                         BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(world, pos, state.getBlock(), neighbor);
-                        world.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
+                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
+                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
                     }
                     if(y == 0){
                         EnumFacing direction = EnumFacing.DOWN;
                         BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(world, pos, state.getBlock(), neighbor);
-                        world.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
+                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
+                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
                     }
                     if(y == this.ySize - 1){
                         EnumFacing direction = EnumFacing.UP;
                         BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(world, pos, state.getBlock(), neighbor);
-                        world.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
+                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
+                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
                     }
                     if(z == 0){
                         EnumFacing direction = EnumFacing.NORTH;
                         BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(world, pos, state.getBlock(), neighbor);
-                        world.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
+                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
+                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
                     }
                     if(z == this.zSize - 1){
                         EnumFacing direction = EnumFacing.SOUTH;
                         BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(world, pos, state.getBlock(), neighbor);
-                        world.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
+                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
+                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
                     }
 
                     // Special case for buttons and pressure plates to prevent them getting stuck
-                    if(!world.isRemote
+                    if(!level.isRemote
                         && state.getBlock() instanceof BlockButton
                         && state.getValue(BlockButton.POWERED))
-                        state.getBlock().updateTick(world, pos, state, world.rand);
-                    if(!world.isRemote
+                        state.getBlock().updateTick(level, pos, state, level.rand);
+                    if(!level.isRemote
                         && state.getBlock() instanceof BlockPressurePlate
                         && state.getValue(BlockPressurePlate.POWERED))
-                        state.getBlock().updateTick(world, pos, state, world.rand);
+                        state.getBlock().updateTick(level, pos, state, level.rand);
                 }
             }
         }

@@ -51,9 +51,9 @@ public class ElevatorGroupCapability {
 
     @SubscribeEvent
     public static void attachCapabilities(AttachCapabilitiesEvent<World> e){
-        World world = e.getObject();
+        World level = e.getObject();
 
-        ElevatorGroupCapability capability = new ElevatorGroupCapability(world);
+        ElevatorGroupCapability capability = new ElevatorGroupCapability(level);
         e.addCapability(new ResourceLocation("movingelevators", "elevator_groups"), new ICapabilitySerializable<NBTBase>() {
             @Override
             public <T> T getCapability(@Nonnull Capability<T> cap, @Nullable EnumFacing side){
@@ -86,8 +86,8 @@ public class ElevatorGroupCapability {
         tickWorldCapability(e.world);
     }
 
-    public static void tickWorldCapability(World world){
-        ElevatorGroupCapability capability = world.getCapability(CAPABILITY, null);
+    public static void tickWorldCapability(World level){
+        ElevatorGroupCapability capability = level.getCapability(CAPABILITY, null);
         if(capability != null)
             capability.tick();
     }
@@ -108,15 +108,15 @@ public class ElevatorGroupCapability {
             MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(groups.write()));
     }
 
-    private final World world;
+    private final World level;
     private final Map<ElevatorGroupPosition,ElevatorGroup> groups = new HashMap<>();
 
-    public ElevatorGroupCapability(World world){
-        this.world = world;
+    public ElevatorGroupCapability(World level){
+        this.level = level;
     }
 
     public ElevatorGroupCapability(){
-        this.world = null;
+        this.level = null;
     }
 
     public ElevatorGroup get(int x, int z, EnumFacing facing){
@@ -125,7 +125,7 @@ public class ElevatorGroupCapability {
 
     public void add(ControllerBlockEntity controller){
         ElevatorGroupPosition pos = new ElevatorGroupPosition(controller.getPos(), controller.getFacing());
-        this.groups.putIfAbsent(pos, new ElevatorGroup(this.world, pos.x, pos.z, pos.facing));
+        this.groups.putIfAbsent(pos, new ElevatorGroup(this.level, pos.x, pos.z, pos.facing));
         this.groups.get(pos).add(controller);
     }
 
@@ -135,7 +135,7 @@ public class ElevatorGroupCapability {
         group.remove(controller);
         if(group.getFloorCount() == 0){
             this.groups.remove(pos);
-            MovingElevators.CHANNEL.sendToDimension(this.world, new PacketRemoveElevatorGroup(group));
+            MovingElevators.CHANNEL.sendToDimension(this.level, new PacketRemoveElevatorGroup(group));
         }
     }
 
@@ -145,20 +145,20 @@ public class ElevatorGroupCapability {
     }
 
     public void updateGroup(ElevatorGroup group){
-        if(!this.world.isRemote && group != null)
-            MovingElevators.CHANNEL.sendToDimension(this.world, new PacketAddElevatorGroup(this.writeGroup(group)));
+        if(!this.level.isRemote && group != null)
+            MovingElevators.CHANNEL.sendToDimension(this.level, new PacketAddElevatorGroup(this.writeGroup(group)));
     }
 
     /**
      * This should only be called client-side from the {@link PacketRemoveElevatorGroup}
      */
     public void removeGroup(int x, int z, EnumFacing facing){
-        if(this.world.isRemote)
+        if(this.level.isRemote)
             this.groups.remove(new ElevatorGroupPosition(x, z, facing));
     }
 
-    public ElevatorGroup getGroup(ControllerBlockEntity tile){
-        return this.groups.get(new ElevatorGroupPosition(tile.getPos().getX(), tile.getPos().getZ(), tile.getFacing()));
+    public ElevatorGroup getGroup(ControllerBlockEntity entity){
+        return this.groups.get(new ElevatorGroupPosition(entity.getPos().getX(), entity.getPos().getZ(), entity.getFacing()));
     }
 
     public Collection<ElevatorGroup> getGroups(){
@@ -182,7 +182,7 @@ public class ElevatorGroupCapability {
             NBTTagCompound groupTag = compound.getCompoundTag(key);
             if(groupTag.hasKey("group") && groupTag.hasKey("pos")){
                 ElevatorGroupPosition pos = ElevatorGroupPosition.read(groupTag.getCompoundTag("pos"));
-                ElevatorGroup group = new ElevatorGroup(this.world, pos.x, pos.z, pos.facing);
+                ElevatorGroup group = new ElevatorGroup(this.level, pos.x, pos.z, pos.facing);
                 group.read(groupTag.getCompoundTag("group"));
                 this.groups.put(pos, group);
             }
@@ -199,7 +199,7 @@ public class ElevatorGroupCapability {
     public void readGroup(NBTTagCompound tag){
         if(tag.hasKey("group") && tag.hasKey("pos")){
             ElevatorGroupPosition pos = ElevatorGroupPosition.read(tag.getCompoundTag("pos"));
-            ElevatorGroup group = new ElevatorGroup(this.world, pos.x, pos.z, pos.facing);
+            ElevatorGroup group = new ElevatorGroup(this.level, pos.x, pos.z, pos.facing);
             group.read(tag.getCompoundTag("group"));
             this.groups.put(pos, group);
         }

@@ -16,12 +16,12 @@ import java.util.List;
  */
 public class ElevatorCollisionHandler {
 
-    public static void handleEntityCollisions(World world, AxisAlignedBB bounds, List<AxisAlignedBB> boundingBoxes, Vec3d position, Vec3d motion){
+    public static void handleEntityCollisions(World level, AxisAlignedBB bounds, List<AxisAlignedBB> boundingBoxes, Vec3d position, Vec3d motion){
         bounds = bounds.offset(position);
         bounds = new AxisAlignedBB(bounds.minX, bounds.minY + Math.min(0, motion.y), bounds.minZ, bounds.maxX, bounds.maxY + Math.max(0, motion.y), bounds.maxZ);
         bounds = bounds.grow(2);
 
-        List<? extends Entity> entities = world.getEntitiesInAABBexcluding(null, bounds, ElevatorCollisionHandler::canCollideWith);
+        List<? extends Entity> entities = level.getEntitiesInAABBexcluding(null, bounds, ElevatorCollisionHandler::canCollideWith);
 
         for(Entity entity : entities){
             // horizontal collisions

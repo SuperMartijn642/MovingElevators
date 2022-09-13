@@ -1,0 +1,15 @@
+
+{
+  "block.movingelevators.elevator_block": "Kontroler windy",
+  "block.movingelevators.display_block": "Wyświetlacz windy",
+  "block.movingelevators.button_block": "Panel zdalny windy",
+  "movingelevators.remote_controller.tooltip": "Kontroler na $x$, $y$, $z$",
+  "movingelevators.remote_controller.bind": "Powiązano z kontrolerem windy!",
+  "movingelevators.remote_controller.not_bound": "Ten blok musi zostać powiązany z kontrolerem windy!",
+  "movingelevators.remote_controller.wrong_dimension": "Ten blok musi być w tym samym świecie co kontroler windy!",
+  "movingelevators.elevator_screen.elevator": "Winda",
+  "gui.movingelevators.floorname.label": "Nazwa piętra:",
+  "movingelevators.platform.size": "Rozmiar platformy: $number$ blok(ów)",
+  "movingelevators.platform.speed": "Prędkość platformy: $number$ blok(ów)/t",
+  "movingelevators.floorname": "$number$ piętro"
+}

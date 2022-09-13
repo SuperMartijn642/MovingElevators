@@ -14,12 +14,18 @@
       "type": "forge:ore_dict",
       "ore": "dustRedstone"
     },
-    "C": {
-      "item": "minecraft:observer"
-    },
-    "D": {
-      "item": "minecraft:piston"
-    }
+    "C": [
+      {
+        "type": "minecraft:item",
+        "item": "minecraft:observer"
+      }
+    ],
+    "D": [
+      {
+        "type": "minecraft:item",
+        "item": "minecraft:piston"
+      }
+    ]
   },
   "result": {
     "item": "movingelevators:elevator_block"

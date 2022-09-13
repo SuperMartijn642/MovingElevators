@@ -1,19 +1,19 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
  */
-public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implements ITickable {
+public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
 
     private EnumFacing facing = EnumFacing.NORTH;
     private BlockPos controllerPos = BlockPos.ORIGIN;
@@ -22,7 +22,7 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
     private ElevatorGroup lastGroup;
 
     public RemoteControllerBlockEntity(){
-        super();
+        super(MovingElevators.button_tile);
     }
 
     @Override
@@ -74,8 +74,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
     public ControllerBlockEntity getController(){
         if(this.world == null || this.controllerPos == null)
             return null;
-        TileEntity tile = this.world.getTileEntity(this.controllerPos);
-        return tile instanceof ControllerBlockEntity ? (ControllerBlockEntity)tile : null;
+        TileEntity entity = this.world.getTileEntity(this.controllerPos);
+        return entity instanceof ControllerBlockEntity ? (ControllerBlockEntity)entity : null;
     }
 
     @Override

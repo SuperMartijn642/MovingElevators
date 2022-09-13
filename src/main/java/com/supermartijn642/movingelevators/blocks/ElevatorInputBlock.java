@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.supermartijn642.core.block.BlockProperties;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -7,6 +8,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -18,32 +20,34 @@ import java.util.function.Supplier;
  */
 public class ElevatorInputBlock extends CamoBlock {
 
-    public ElevatorInputBlock(String registry_name, Properties properties, Supplier<? extends ElevatorInputBlockEntity> tileSupplier){
-        super(registry_name, properties, tileSupplier);
+    public ElevatorInputBlock(BlockProperties properties, Supplier<? extends ElevatorInputBlockEntity> entitySupplier){
+        super(properties, entitySupplier);
     }
 
     @Override
-    protected boolean onRightClick(IBlockState state, World worldIn, CamoBlockEntity blockEntity, BlockPos pos, EntityPlayer player, EnumHand handIn, EnumFacing facing, float hitX, float hitY, float hitZ){
+    protected boolean onRightClick(IBlockState state, World level, CamoBlockEntity blockEntity, BlockPos pos, EntityPlayer player, EnumHand hand, EnumFacing hitSide, Vec3d hitLocation){
         if(blockEntity instanceof ElevatorInputBlockEntity){
-            ElevatorInputBlockEntity inputTile = (ElevatorInputBlockEntity)blockEntity;
-            if(inputTile.getFacing() == facing && inputTile.hasGroup()){
-                if(!worldIn.isRemote)
-                    inputTile.getGroup().onButtonPress((double)hitY > 2 / 3D, (double)hitY < 1 / 3D, inputTile.getFloorLevel());
+            ElevatorInputBlockEntity inputEntity = (ElevatorInputBlockEntity)blockEntity;
+            if(inputEntity.getFacing() == hitSide && inputEntity.hasGroup()){
+                if(!level.isRemote){
+                    double y = hitLocation.y - pos.getY();
+                    inputEntity.getGroup().onButtonPress(y > 2 / 3D, y < 1 / 3D, inputEntity.getFloorLevel());
+                }
                 return true;
             }
         }
-        return super.onRightClick(state, worldIn, blockEntity, pos, player, handIn, facing, hitX, hitY, hitZ);
+        return super.onRightClick(state, level, blockEntity, pos, player, hand, hitSide, hitLocation);
     }
 
     @Override
-    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos){
-        TileEntity tile = world.getTileEntity(pos);
-        if(tile instanceof ElevatorInputBlockEntity)
-            ((ElevatorInputBlockEntity)tile).redstone = world.isBlockPowered(pos) || world.isBlockPowered(pos.up());
+    public void neighborChanged(IBlockState state, World level, BlockPos pos, Block block, BlockPos fromPos){
+        TileEntity entity = level.getTileEntity(pos);
+        if(entity instanceof ElevatorInputBlockEntity)
+            ((ElevatorInputBlockEntity)entity).redstone = level.isBlockPowered(pos) || level.isBlockPowered(pos.up());
     }
 
     @Override
-    public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EnumFacing side){
+    public boolean canConnectRedstone(IBlockState state, IBlockAccess level, BlockPos pos, @Nullable EnumFacing side){
         return true;
     }
 }

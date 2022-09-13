@@ -5,13 +5,16 @@ import com.supermartijn642.movingelevators.blocks.CamoBlock;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Matrix4f;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +74,11 @@ public class CamoBakedModel implements IBakedModel {
 
     @Override
     public ItemOverrideList getOverrides(){
-        return this.originalModel.getOverrides();
+        return ItemOverrideList.NONE;
+    }
+
+    @Override
+    public Pair<? extends IBakedModel,Matrix4f> handlePerspective(ItemCameraTransforms.TransformType transformType){
+        return this.originalModel.handlePerspective(transformType);
     }
 }

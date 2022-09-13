@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -11,7 +12,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 public class DisplayBlockEntity extends CamoBlockEntity {
 
     public DisplayBlockEntity(){
-        super();
+        super(MovingElevators.display_tile);
     }
 
     public EnumFacing getFacing(){
@@ -28,16 +29,16 @@ public class DisplayBlockEntity extends CamoBlockEntity {
     }
 
     public int getDisplayCategory(){
-        TileEntity tile = this.world.getTileEntity(this.pos.down());
-        if(tile instanceof ElevatorInputBlockEntity){
-            tile = this.world.getTileEntity(this.pos.up());
-            if(tile instanceof DisplayBlockEntity)
+        TileEntity entity = this.world.getTileEntity(this.pos.down());
+        if(entity instanceof ElevatorInputBlockEntity){
+            entity = this.world.getTileEntity(this.pos.up());
+            if(entity instanceof DisplayBlockEntity)
                 return 2;
             return 1;
         }
-        if(tile instanceof DisplayBlockEntity){
-            tile = this.world.getTileEntity(this.pos.down(2));
-            if(tile instanceof ElevatorInputBlockEntity)
+        if(entity instanceof DisplayBlockEntity){
+            entity = this.world.getTileEntity(this.pos.down(2));
+            if(entity instanceof ElevatorInputBlockEntity)
                 return 3;
             return 0;
         }

@@ -1,58 +1,53 @@
 package com.supermartijn642.movingelevators;
 
 import com.google.common.collect.Sets;
-import com.supermartijn642.core.ToolType;
-import com.supermartijn642.core.block.BaseBlock;
+import com.supermartijn642.core.CommonUtils;
+import com.supermartijn642.core.block.BaseBlockEntityType;
+import com.supermartijn642.core.block.BlockProperties;
+import com.supermartijn642.core.item.BaseBlockItem;
+import com.supermartijn642.core.item.CreativeItemGroup;
+import com.supermartijn642.core.item.ItemProperties;
 import com.supermartijn642.core.network.PacketChannel;
+import com.supermartijn642.core.registry.GeneratorRegistrationHandler;
+import com.supermartijn642.core.registry.RegistrationHandler;
+import com.supermartijn642.core.registry.RegistryEntryAcceptor;
 import com.supermartijn642.movingelevators.blocks.*;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
+import com.supermartijn642.movingelevators.generators.*;
 import com.supermartijn642.movingelevators.packets.*;
-import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Created 4/5/2020 by SuperMartijn642
  */
-@Mod(modid = MovingElevators.MODID, name = MovingElevators.NAME, version = MovingElevators.VERSION, dependencies = MovingElevators.DEPENDENCIES)
+@Mod(modid = "@mod_id@", name = "@mod_name@", version = "@mod_version@", dependencies = "required-after:forge@@forge_dependency@;required-after:supermartijn642corelib@@core_library_dependency@;required-after:supermartijn642configlib@@config_library_dependency@")
 public class MovingElevators {
 
-    public static final String MODID = "movingelevators";
-    public static final String NAME = "Moving Elevators";
-    public static final String VERSION = "1.3.9";
-    public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2779,);required-after:supermartijn642corelib@[1.0.16,);required-after:supermartijn642configlib@[1.0.9,)";
-
     public static final Set<String> CAMOUFLAGE_MOD_BLACKLIST = Sets.newHashSet("secretroomsmod", "movingelevators");
-
     public static final PacketChannel CHANNEL = PacketChannel.create("movingelevators");
 
-    public static final CreativeTabs GROUP = new CreativeTabs("movingelevators") {
-        @Override
-        public ItemStack getTabIconItem(){
-            return new ItemStack(elevator_block);
-        }
-    };
-
-    @GameRegistry.ObjectHolder("movingelevators:elevator_block")
+    @RegistryEntryAcceptor(namespace = "movingelevators", identifier = "elevator_block", registry = RegistryEntryAcceptor.Registry.BLOCKS)
     public static ControllerBlock elevator_block;
-    @GameRegistry.ObjectHolder("movingelevators:display_block")
+    @RegistryEntryAcceptor(namespace = "movingelevators", identifier = "elevatorblocktile", registry = RegistryEntryAcceptor.Registry.BLOCK_ENTITY_TYPES)
+    public static BaseBlockEntityType<ControllerBlockEntity> elevator_tile;
+    @RegistryEntryAcceptor(namespace = "movingelevators", identifier = "display_block", registry = RegistryEntryAcceptor.Registry.BLOCKS)
     public static DisplayBlock display_block;
-    @GameRegistry.ObjectHolder("movingelevators:button_block")
+    @RegistryEntryAcceptor(namespace = "movingelevators", identifier = "displayblocktile", registry = RegistryEntryAcceptor.Registry.BLOCK_ENTITY_TYPES)
+    public static BaseBlockEntityType<DisplayBlockEntity> display_tile;
+    @RegistryEntryAcceptor(namespace = "movingelevators", identifier = "button_block", registry = RegistryEntryAcceptor.Registry.BLOCKS)
     public static RemoteControllerBlock button_block;
+    @RegistryEntryAcceptor(namespace = "movingelevators", identifier = "buttonblocktile", registry = RegistryEntryAcceptor.Registry.BLOCK_ENTITY_TYPES)
+    public static BaseBlockEntityType<RemoteControllerBlockEntity> button_tile;
+
+    public static final CreativeItemGroup GROUP = CreativeItemGroup.create("movingelevators", () -> elevator_block.asItem());
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e){
@@ -78,6 +73,11 @@ public class MovingElevators {
         CHANNEL.registerMessage(PacketUpdateElevatorGroups.class, PacketUpdateElevatorGroups::new, true);
 
         MovingElevatorsConfig.init();
+
+        register();
+        if(CommonUtils.getEnvironmentSide().isClient())
+            MovingElevatorsClient.register();
+        registerGenerators();
     }
 
     @Mod.EventHandler
@@ -85,25 +85,30 @@ public class MovingElevators {
         ElevatorGroupCapability.register();
     }
 
-    @Mod.EventBusSubscriber
-    public static class RegistryEvents {
+    private static void register(){
+        RegistrationHandler handler = RegistrationHandler.get("movingelevators");
+        // Blocks
+        Supplier<BlockProperties> properties = () -> BlockProperties.create(Material.ROCK, MapColor.GRAY).sound(SoundType.METAL).destroyTime(1.5f).explosionResistance(6);
+        handler.registerBlock("elevator_block", () -> new ControllerBlock(properties.get()));
+        handler.registerBlock("display_block", () -> new DisplayBlock(properties.get()));
+        handler.registerBlock("button_block", () -> new RemoteControllerBlock(properties.get()));
+        // Block entities
+        handler.registerBlockEntityType("elevatorblocktile", () -> BaseBlockEntityType.create(ControllerBlockEntity::new, elevator_block));
+        handler.registerBlockEntityType("displayblocktile", () -> BaseBlockEntityType.create(DisplayBlockEntity::new, display_block));
+        handler.registerBlockEntityType("buttonblocktile", () -> BaseBlockEntityType.create(RemoteControllerBlockEntity::new, button_block));
+        // Items
+        handler.registerItem("elevator_block", () -> new BaseBlockItem(elevator_block, ItemProperties.create().group(GROUP)));
+        handler.registerItem("display_block", () -> new BaseBlockItem(display_block, ItemProperties.create().group(GROUP)));
+        handler.registerItem("button_block", () -> new RemoteControllerBlockItem(button_block, ItemProperties.create().group(GROUP)));
+    }
 
-        @SubscribeEvent
-        public static void onBlockRegistry(final RegistryEvent.Register<Block> e){
-            BaseBlock.Properties properties = BaseBlock.Properties.create(Material.ROCK, MapColor.GRAY).sound(SoundType.METAL).harvestTool(ToolType.PICKAXE).hardnessAndResistance(1.5F, 6.0F);
-            e.getRegistry().register(new ControllerBlock("elevator_block", properties).setCreativeTab(GROUP));
-            e.getRegistry().register(new DisplayBlock("display_block", properties).setCreativeTab(GROUP));
-            e.getRegistry().register(new RemoteControllerBlock("button_block", properties).setCreativeTab(GROUP));
-            GameRegistry.registerTileEntity(ControllerBlockEntity.class, new ResourceLocation(MovingElevators.MODID, "elevatorblocktile"));
-            GameRegistry.registerTileEntity(DisplayBlockEntity.class, new ResourceLocation(MovingElevators.MODID, "displayblocktile"));
-            GameRegistry.registerTileEntity(RemoteControllerBlockEntity.class, new ResourceLocation(MovingElevators.MODID, "buttonblocktile"));
-        }
-
-        @SubscribeEvent
-        public static void onItemRegistry(final RegistryEvent.Register<Item> e){
-            e.getRegistry().register(new ItemBlock(elevator_block).setRegistryName("elevator_block"));
-            e.getRegistry().register(new ItemBlock(display_block).setRegistryName("display_block"));
-            e.getRegistry().register(new RemoteControllerBlockItem(button_block).setRegistryName("button_block"));
-        }
+    private static void registerGenerators(){
+        GeneratorRegistrationHandler handler = GeneratorRegistrationHandler.get("movingelevators");
+        handler.addGenerator(MovingElevatorsModelGenerator::new);
+        handler.addGenerator(MovingElevatorsBlockStateGenerator::new);
+        handler.addGenerator(MovingElevatorsLanguageGenerator::new);
+        handler.addGenerator(MovingElevatorsLootTableGenerator::new);
+        handler.addGenerator(MovingElevatorsRecipeGenerator::new);
+        handler.addGenerator(MovingElevatorsTagGenerator::new);
     }
 }
