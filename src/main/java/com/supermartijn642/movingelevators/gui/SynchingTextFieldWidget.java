@@ -1,6 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
-import com.supermartijn642.core.gui.widget.TextFieldWidget;
+import com.supermartijn642.core.gui.widget.premade.TextFieldWidget;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -24,8 +24,9 @@ public class SynchingTextFieldWidget extends TextFieldWidget {
         this.lastText = this.getText();
     }
 
-    public void tick(){
-        super.tick();
+    @Override
+    public void update(){
+        super.update();
 
         String floorName = this.actualText.get();
         if(!floorName.equals(this.lastText)){
