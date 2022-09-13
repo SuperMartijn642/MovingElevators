@@ -5,7 +5,6 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -14,7 +13,7 @@ import net.minecraftforge.common.util.Constants;
 /**
  * Created 5/5/2020 by SuperMartijn642
  */
-public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implements ITickableTileEntity {
+public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
 
     private Direction facing = Direction.NORTH;
     private BlockPos controllerPos = BlockPos.ZERO;
@@ -27,8 +26,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
     }
 
     @Override
-    public void tick(){
-        super.tick();
+    public void update(){
+        super.update();
         this.groupCheckCounter++;
         if(this.groupCheckCounter == 40){
             ElevatorGroup group = this.getGroup();
@@ -75,8 +74,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity implem
     public ControllerBlockEntity getController(){
         if(this.level == null || this.controllerPos == null)
             return null;
-        TileEntity tile = this.level.getBlockEntity(this.controllerPos);
-        return tile instanceof ControllerBlockEntity ? (ControllerBlockEntity)tile : null;
+        TileEntity entity = this.level.getBlockEntity(this.controllerPos);
+        return entity instanceof ControllerBlockEntity ? (ControllerBlockEntity)entity : null;
     }
 
     @Override

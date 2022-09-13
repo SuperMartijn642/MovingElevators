@@ -1,14 +1,16 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.mojang.blaze3d.platform.GLX;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
 import com.supermartijn642.core.render.RenderUtils;
+import com.supermartijn642.core.render.TextureAtlases;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -62,10 +64,15 @@ public class ElevatorGroupRenderer {
         Vec3d startPos = group.getCageAnchorPos(renderY);
 
         BlockPos topPos = new BlockPos(group.x, renderY, group.z).relative(group.facing, (int)Math.ceil(group.getCageDepth() / 2f));
-        int currentLight = group.world.getLightColor(topPos, group.world.getBlockState(topPos).getLightValue(group.world, topPos));
+        int currentLight = group.level.getLightColor(topPos, group.level.getBlockState(topPos).getLightValue(group.level, topPos));
+        int j = currentLight % 65536;
+        int k = currentLight / 65536;
+        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, (float)j, (float)k);
         GlStateManager.enableLighting();
+        RenderHelper.turnOff();
+        GlStateManager.shadeModel(7425);
 
-        ScreenUtils.bindTexture(AtlasTexture.LOCATION_BLOCKS);
+        ScreenUtils.bindTexture(TextureAtlases.getBlocks());
 
         BufferBuilder buffer = Tessellator.getInstance().getBuilder();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
@@ -83,8 +90,7 @@ public class ElevatorGroupRenderer {
                         BlockRendererDispatcher rendererDispatcher = ClientUtils.getBlockRenderer();
                         IBakedModel model = rendererDispatcher.getBlockModel(cage.blockStates[x][y][z]);
                         pos.set(startPos.x + x, (int)startPos.y + y, startPos.z + z);
-//                        rendererDispatcher.renderBlock(cage.blockStates[x][y][z], pos, group.world, buffer, new Random(), EmptyModelData.INSTANCE);
-                        rendererDispatcher.getModelRenderer().renderModel(group.world, model, cage.blockStates[x][y][z], pos, buffer, false, new Random(), 0, EmptyModelData.INSTANCE);
+                        rendererDispatcher.getModelRenderer().renderModel(group.level, model, cage.blockStates[x][y][z], pos, buffer, false, new Random(), 0, EmptyModelData.INSTANCE);
                     }catch(Exception e){
                         e.printStackTrace();
                     }
@@ -97,9 +103,8 @@ public class ElevatorGroupRenderer {
         Tessellator.getInstance().end();
 
         if(ClientUtils.getMinecraft().getEntityRenderDispatcher().shouldRenderHitBoxes()){
-            RenderUtils.renderBox(new AxisAlignedBB(startPos, startPos.add(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ())), 1, 0, 0);
-            RenderUtils.renderShape(cage.shape.move(startPos.x, startPos.y, startPos.z), 49 / 255f, 224 / 255f, 219 / 255f);
-            RenderUtils.resetState();
+            RenderUtils.renderBox(new AxisAlignedBB(startPos, startPos.add(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ())), 1, 0, 0, true);
+            RenderUtils.renderShape(cage.shape.move(startPos.x, startPos.y, startPos.z), 49 / 255f, 224 / 255f, 219 / 255f, true);
         }
     }
 
@@ -108,9 +113,7 @@ public class ElevatorGroupRenderer {
             BlockPos anchorPos = group.getCageAnchorBlockPos(group.getFloorYLevel(floor));
             AxisAlignedBB cageArea = new AxisAlignedBB(anchorPos, anchorPos.offset(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ()));
             cageArea.inflate(0.01);
-            RenderUtils.enableDepthTest();
-            RenderUtils.renderBox(cageArea, 1, 1, 1);
-            RenderUtils.resetState();
+            RenderUtils.renderBox(cageArea, 1, 1, 1, true);
         }
     }
 }

@@ -71,14 +71,14 @@ public class ElevatorCage {
         return new ElevatorCage(xSize, ySize, zSize, states, shape.toAabbs());
     }
 
-    public static boolean canCreateCage(World world, BlockPos startPos, int xSize, int ySize, int zSize){
+    public static boolean canCreateCage(World level, BlockPos startPos, int xSize, int ySize, int zSize){
         boolean hasBlocks = false;
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
-                    if(world.isEmptyBlock(startPos.offset(x, y, z)))
+                    if(level.isEmptyBlock(startPos.offset(x, y, z)))
                         continue;
-                    if(!canBlockBeInCage(world, startPos.offset(x, y, z)))
+                    if(!canBlockBeInCage(level, startPos.offset(x, y, z)))
                         return false;
                     hasBlocks = true;
                 }
@@ -87,9 +87,9 @@ public class ElevatorCage {
         return hasBlocks;
     }
 
-    public static boolean canBlockBeInCage(World world, BlockPos pos){
-        BlockState state = world.getBlockState(pos);
-        return state.getFluidState().isEmpty() && state.getDestroySpeed(world, pos) >= 0 && !state.hasTileEntity(); // TODO allow block entities
+    public static boolean canBlockBeInCage(World level, BlockPos pos){
+        BlockState state = level.getBlockState(pos);
+        return state.getFluidState().isEmpty() && state.getDestroySpeed(level, pos) >= 0 && !state.hasTileEntity(); // TODO allow block entities
     }
 
     public final int xSize, ySize, zSize;
@@ -121,7 +121,7 @@ public class ElevatorCage {
         this.bounds = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public void place(World world, BlockPos startPos){
+    public void place(World level, BlockPos startPos){
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
@@ -129,14 +129,14 @@ public class ElevatorCage {
                     if(state == null)
                         continue;
                     BlockPos pos = startPos.offset(x, y, z);
-                    if(world.isEmptyBlock(pos))
-                        world.setBlockAndUpdate(pos, state);
-                    else if(world.getBlockState(pos).getDestroySpeed(world, pos) >= 0){
-                        world.destroyBlock(pos, true);
-                        world.setBlockAndUpdate(pos, state);
+                    if(level.isEmptyBlock(pos))
+                        level.setBlockAndUpdate(pos, state);
+                    else if(level.getBlockState(pos).getDestroySpeed(level, pos) >= 0){
+                        level.destroyBlock(pos, true);
+                        level.setBlockAndUpdate(pos, state);
                     }else{
                         // TODO account for tile entities vvv
-                        InventoryHelper.dropItemStack(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, new ItemStack(state.getBlock()));
+                        InventoryHelper.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, new ItemStack(state.getBlock()));
                     }
                 }
             }
@@ -146,55 +146,55 @@ public class ElevatorCage {
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
-                    BlockState state = world.getBlockState(pos);
+                    BlockState state = level.getBlockState(pos);
                     if(x == 0){
                         Direction direction = Direction.WEST;
                         BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2);
+                        BlockState updatedState = state.updateShape(direction, level.getBlockState(neighbor), level, pos, neighbor);
+                        Block.updateOrDestroy(state, updatedState, level, pos, 1 | 2);
                     }
                     if(x == this.xSize - 1){
                         Direction direction = Direction.EAST;
                         BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2);
+                        BlockState updatedState = state.updateShape(direction, level.getBlockState(neighbor), level, pos, neighbor);
+                        Block.updateOrDestroy(state, updatedState, level, pos, 1 | 2);
                     }
                     if(y == 0){
                         Direction direction = Direction.DOWN;
                         BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2);
+                        BlockState updatedState = state.updateShape(direction, level.getBlockState(neighbor), level, pos, neighbor);
+                        Block.updateOrDestroy(state, updatedState, level, pos, 1 | 2);
                     }
                     if(y == this.ySize - 1){
                         Direction direction = Direction.UP;
                         BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2);
+                        BlockState updatedState = state.updateShape(direction, level.getBlockState(neighbor), level, pos, neighbor);
+                        Block.updateOrDestroy(state, updatedState, level, pos, 1 | 2);
                     }
                     if(z == 0){
                         Direction direction = Direction.NORTH;
                         BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2);
+                        BlockState updatedState = state.updateShape(direction, level.getBlockState(neighbor), level, pos, neighbor);
+                        Block.updateOrDestroy(state, updatedState, level, pos, 1 | 2);
                     }
                     if(z == this.zSize - 1){
                         Direction direction = Direction.SOUTH;
                         BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2);
+                        BlockState updatedState = state.updateShape(direction, level.getBlockState(neighbor), level, pos, neighbor);
+                        Block.updateOrDestroy(state, updatedState, level, pos, 1 | 2);
                     }
 
                     // Special case for buttons and pressure plates to prevent them getting stuck
-                    if(!world.isClientSide
+                    if(!level.isClientSide
                         && state.getBlock() instanceof AbstractButtonBlock
                         && state.hasProperty(AbstractButtonBlock.POWERED)
                         && state.getValue(AbstractButtonBlock.POWERED))
-                        state.tick((ServerWorld)world, pos, world.random);
-                    if(!world.isClientSide
+                        state.tick((ServerWorld)level, pos, level.random);
+                    if(!level.isClientSide
                         && state.getBlock() instanceof PressurePlateBlock
                         && state.hasProperty(PressurePlateBlock.POWERED)
                         && state.getValue(PressurePlateBlock.POWERED))
-                        state.tick((ServerWorld)world, pos, world.random);
+                        state.tick((ServerWorld)level, pos, level.random);
                 }
             }
         }

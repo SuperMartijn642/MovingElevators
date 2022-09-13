@@ -2,12 +2,12 @@ package com.supermartijn642.movingelevators.blocks;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.Direction;
 import org.lwjgl.opengl.GL11;
@@ -15,10 +15,10 @@ import org.lwjgl.opengl.GL11;
 /**
  * Created 5/5/2020 by SuperMartijn642
  */
-public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity> extends TileEntityRenderer<T> {
+public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity> implements CustomBlockEntityRenderer<T> {
 
     @Override
-    public void render(T entity, double x, double y, double z, float partialTicks, int combinedOverlay){
+    public void render(T entity, float partialTicks, int combinedOverlay){
         if(!entity.hasGroup() || entity.getFacing() == null || (entity instanceof ControllerBlockEntity && !((ControllerBlockEntity)entity).shouldShowButtons()))
             return;
 
@@ -29,8 +29,6 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
         ScreenUtils.bindTexture(AtlasTexture.LOCATION_BLOCKS);
 
         GlStateManager.pushMatrix();
-
-        GlStateManager.translated(x, y, z);
 
         GlStateManager.translated(0.5, 0.5, 0.5);
         GlStateManager.rotated(180 - facing.toYRot(), 0, 1, 0);

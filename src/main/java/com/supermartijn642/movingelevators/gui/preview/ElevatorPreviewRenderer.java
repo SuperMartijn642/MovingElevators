@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.gui.ScreenUtils;
 import com.supermartijn642.core.render.RenderUtils;
+import com.supermartijn642.core.render.TextureAtlases;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -44,7 +45,7 @@ public class ElevatorPreviewRenderer {
         double span = Math.sqrt(bounds.getXsize() * bounds.getXsize() + bounds.getYsize() * bounds.getYsize() + bounds.getZsize() * bounds.getZsize());
         scale /= span;
 
-        ScreenUtils.bindTexture(AtlasTexture.LOCATION_BLOCKS);
+        ScreenUtils.bindTexture(TextureAtlases.getBlocks());
         ClientUtils.getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS).pushFilter(false, false);
         GlStateManager.enableRescaleNormal();
         GlStateManager.enableAlphaTest();
@@ -73,13 +74,13 @@ public class ElevatorPreviewRenderer {
         if(doShading)
             GlStateManager.disableLighting();
 
-        RenderUtils.renderBox(cabinBox, 1, 1, 1, 0.8f);
+        RenderUtils.renderBox(cabinBox, 1, 1, 1, 0.8f, true);
         if(previewBox != null)
-            RenderUtils.renderBox(previewBox, 0, 0.7f, 0, 0.8f);
+            RenderUtils.renderBox(previewBox, 0, 0.7f, 0, 0.8f, true);
 
         GlStateManager.popMatrix();
 
-        ClientUtils.getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS).popFilter();
+        ClientUtils.getTextureManager().getTexture(TextureAtlases.getBlocks()).popFilter();
         GlStateManager.disableAlphaTest();
         GlStateManager.disableRescaleNormal();
     }

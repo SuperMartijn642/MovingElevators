@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.tileentity.TileEntity;
@@ -15,7 +16,9 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
+import org.apache.commons.lang3.tuple.Pair;
 
+import javax.vecmath.Matrix4f;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -57,9 +60,9 @@ public class CamoBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public IModelData getModelData(IEnviromentBlockReader world, BlockPos pos, BlockState state, IModelData tileData){
-        TileEntity tile = world.getBlockEntity(pos);
-        return tile == null ? EmptyModelData.INSTANCE : tile.getModelData();
+    public IModelData getModelData(IEnviromentBlockReader level, BlockPos pos, BlockState state, IModelData entityData){
+        TileEntity entity = level.getBlockEntity(pos);
+        return entity == null ? EmptyModelData.INSTANCE : entity.getModelData();
     }
 
     @Override
@@ -85,5 +88,10 @@ public class CamoBakedModel implements IDynamicBakedModel {
     @Override
     public ItemOverrideList getOverrides(){
         return ItemOverrideList.EMPTY;
+    }
+
+    @Override
+    public Pair<? extends IBakedModel,Matrix4f> handlePerspective(ItemCameraTransforms.TransformType transformType){
+        return this.originalModel.handlePerspective(transformType);
     }
 }

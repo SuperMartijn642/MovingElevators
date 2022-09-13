@@ -1,6 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
-import com.supermartijn642.core.gui.widget.Widget;
+import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.movingelevators.blocks.ControllerBlockEntity;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.gui.preview.ElevatorPreviewRenderer;
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 /**
  * Created 10/02/2022 by SuperMartijn642
  */
-public class ElevatorPreviewWidget extends Widget {
+public class ElevatorPreviewWidget extends BaseWidget {
 
     private final Supplier<ControllerBlockEntity> elevatorEntity;
     private final Supplier<BlockPos> previewSizeIncrease;
@@ -36,12 +36,12 @@ public class ElevatorPreviewWidget extends Widget {
     }
 
     @Override
-    protected ITextComponent getNarrationMessage(){
+    public ITextComponent getNarrationMessage(){
         return null;
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks){
+    public void render(int mouseX, int mouseY){
         // Update the rotation
         if(this.dragging){
             this.yaw += (mouseX - this.mouseStartX) / 100d * 360;
@@ -55,7 +55,7 @@ public class ElevatorPreviewWidget extends Widget {
         ElevatorGroup group = elevatorEntity.getGroup();
         BlockPos anchorPos = group.getCageAnchorBlockPos(elevatorEntity.getBlockPos().getY());
 
-        WorldBlockCapture capture = new WorldBlockCapture(group.world);
+        WorldBlockCapture capture = new WorldBlockCapture(group.level);
 
         capture.putBlock(elevatorEntity.getBlockPos(), elevatorEntity.getBlockPos());
         for(int x = 0; x < group.getCageSizeX(); x++){
@@ -104,16 +104,22 @@ public class ElevatorPreviewWidget extends Widget {
     }
 
     @Override
-    public void mouseClicked(int mouseX, int mouseY, int button){
-        if(mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height){
+    public boolean mousePressed(int mouseX, int mouseY, int button, boolean hasBeenHandled){
+        if(!hasBeenHandled && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height){
             this.dragging = true;
             this.mouseStartX = mouseX;
             this.mouseStartY = mouseY;
+            return true;
         }
+        return super.mousePressed(mouseX, mouseY, button, hasBeenHandled);
     }
 
     @Override
-    public void mouseReleased(int mouseX, int mouseY, int button){
-        this.dragging = false;
+    public boolean mouseReleased(int mouseX, int mouseY, int button, boolean hasBeenHandled){
+        if(this.dragging){
+            this.dragging = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button, hasBeenHandled);
     }
 }

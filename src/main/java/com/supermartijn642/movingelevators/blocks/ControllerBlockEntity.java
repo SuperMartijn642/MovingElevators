@@ -26,8 +26,8 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     }
 
     @Override
-    public void tick(){
-        super.tick();
+    public void update(){
+        super.update();
         if(!this.initialized){
             this.level.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(cap -> cap.add(this));
             this.getGroup().updateFloorData(this, this.name, this.color);
@@ -38,7 +38,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     @Override
     public Direction getFacing(){
         if(this.facing == null)
-            this.facing = this.level.getBlockState(worldPosition).getValue(ControllerBlock.FACING);
+            this.facing = this.level.getBlockState(this.worldPosition).getValue(ControllerBlock.FACING);
         return this.facing;
     }
 
