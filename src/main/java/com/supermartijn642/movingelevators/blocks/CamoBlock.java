@@ -1,11 +1,13 @@
 package com.supermartijn642.movingelevators.blocks;
 
 import com.supermartijn642.core.block.BaseBlock;
+import com.supermartijn642.core.block.BlockProperties;
 import com.supermartijn642.core.block.BlockShape;
+import com.supermartijn642.core.block.EntityHoldingBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
@@ -16,11 +18,11 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -30,37 +32,37 @@ import java.util.function.BiFunction;
 /**
  * Created 4/7/2020 by SuperMartijn642
  */
-public class CamoBlock extends BaseBlock implements EntityBlock {
+public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
 
-    private final BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> tileSupplier;
+    private final BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier;
 
-    public CamoBlock(String registryName, Properties properties, BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> tileSupplier){
-        super(registryName, false, properties.dynamicShape());
-        this.tileSupplier = tileSupplier;
+    public CamoBlock(BlockProperties properties, BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier){
+        super(false, properties.dynamicShape());
+        this.entitySupplier = entitySupplier;
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult rayTraceResult){
-        BlockEntity blockEntity = worldIn.getBlockEntity(pos);
+    protected InteractionFeedback interact(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, Direction hitSide, Vec3 hitLocation){
+        BlockEntity blockEntity = level.getBlockEntity(pos);
         if(blockEntity instanceof CamoBlockEntity)
-            this.onRightClick(state, worldIn, (CamoBlockEntity)blockEntity, pos, player, handIn, rayTraceResult);
+            this.onRightClick(state, level, (CamoBlockEntity)blockEntity, pos, player, hand, hitSide, hitLocation);
 
         // Always return success to prevent accidentally placing blocks
-        return InteractionResult.sidedSuccess(worldIn.isClientSide);
+        return InteractionFeedback.SUCCESS;
     }
 
     /**
      * @return whether the interaction has been handled
      */
-    protected boolean onRightClick(BlockState state, Level worldIn, CamoBlockEntity blockEntity, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult rayTraceResult){
-        if(player.isShiftKeyDown() && player.getItemInHand(handIn).isEmpty()){
+    protected boolean onRightClick(BlockState state, Level level, CamoBlockEntity blockEntity, BlockPos pos, Player player, InteractionHand hand, Direction hitSide, Vec3 hitLocation){
+        if(player.isShiftKeyDown() && player.getItemInHand(hand).isEmpty()){
             blockEntity.setCamoState(null);
             return true;
-        }else if(!player.isShiftKeyDown() && blockEntity.canBeCamoStack(player.getItemInHand(handIn))){
-            Item item = player.getItemInHand(handIn).getItem();
+        }else if(!player.isShiftKeyDown() && blockEntity.canBeCamoStack(player.getItemInHand(hand))){
+            Item item = player.getItemInHand(hand).getItem();
             if(item instanceof BlockItem){
                 Block block = ((BlockItem)item).getBlock();
-                BlockState state1 = block.getStateForPlacement(new BlockPlaceContext(new UseOnContext(player, handIn, rayTraceResult)));
+                BlockState state1 = block.getStateForPlacement(new BlockPlaceContext(new UseOnContext(player, hand, new BlockHitResult(hitLocation, hitSide, pos, false))));
                 if(state1 == null)
                     state1 = block.defaultBlockState();
                 blockEntity.setCamoState(state1);
@@ -70,10 +72,9 @@ public class CamoBlock extends BaseBlock implements EntityBlock {
         return false;
     }
 
-    @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state){
-        return this.tileSupplier.apply(pos, state);
+    public BlockEntity createNewBlockEntity(BlockPos pos, BlockState state){
+        return this.entitySupplier.apply(pos, state);
     }
 
     @Override

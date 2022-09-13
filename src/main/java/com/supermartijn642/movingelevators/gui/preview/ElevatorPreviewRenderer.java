@@ -41,35 +41,35 @@ public class ElevatorPreviewRenderer {
         RenderSystem.getModelViewStack().scale(1, -1, 1);
         RenderSystem.applyModelViewMatrix();
 
-        PoseStack matrixStack = new PoseStack();
-        matrixStack.translate(x, -y, 350);
-        matrixStack.scale((float)scale, (float)scale, (float)scale);
-        matrixStack.mulPose(new Quaternion(pitch, yaw, 0, true));
-        matrixStack.translate(-center.x, -center.y, -center.z);
+        PoseStack poseStack = new PoseStack();
+        poseStack.translate(x, -y, 350);
+        poseStack.scale((float)scale, (float)scale, (float)scale);
+        poseStack.mulPose(new Quaternion(pitch, yaw, 0, true));
+        poseStack.translate(-center.x, -center.y, -center.z);
 
         if(doShading)
             Lighting.setupFor3DItems();
 
         MultiBufferSource.BufferSource renderTypeBuffer = RenderUtils.getMainBufferSource();
         for(BlockPos pos : capture.getBlockLocations())
-            renderBlock(capture, pos, matrixStack, renderTypeBuffer);
+            renderBlock(capture, pos, poseStack, renderTypeBuffer);
         renderTypeBuffer.endBatch();
 
         RenderSystem.enableDepthTest();
         if(doShading)
             Lighting.setupForFlatItems();
 
-        RenderUtils.renderBox(matrixStack, cabinBox, 1, 1, 1, 0.8f);
+        RenderUtils.renderBox(poseStack, cabinBox, 1, 1, 1, 0.8f, true);
         if(previewBox != null)
-            RenderUtils.renderBox(matrixStack, previewBox, 0, 0.7f, 0, 0.8f);
+            RenderUtils.renderBox(poseStack, previewBox, 0, 0.7f, 0, 0.8f, true);
 
         RenderSystem.getModelViewStack().popPose();
         RenderSystem.applyModelViewMatrix();
     }
 
-    private static void renderBlock(WorldBlockCapture capture, BlockPos pos, PoseStack matrixStack, MultiBufferSource renderTypeBuffer){
-        matrixStack.pushPose();
-        matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
+    private static void renderBlock(WorldBlockCapture capture, BlockPos pos, PoseStack poseStack, MultiBufferSource renderTypeBuffer){
+        poseStack.pushPose();
+        poseStack.translate(pos.getX(), pos.getY(), pos.getZ());
 
         BlockState state = capture.getBlockState(pos);
         if(state.getBlock() != Blocks.AIR){
@@ -83,32 +83,32 @@ public class ElevatorPreviewRenderer {
 //            }
 
             RenderType renderType = ItemBlockRenderTypes.getRenderType(state, true);
-            renderModel(model, capture, state, pos, matrixStack, renderTypeBuffer.getBuffer(renderType), modelData);
+            renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType), modelData);
         }
 
         BlockEntity blockEntity = capture.getBlockEntity(pos);
         if(blockEntity != null)
-            ClientUtils.getMinecraft().getBlockEntityRenderDispatcher().render(blockEntity, ClientUtils.getPartialTicks(), matrixStack, renderTypeBuffer);
+            ClientUtils.getMinecraft().getBlockEntityRenderDispatcher().render(blockEntity, ClientUtils.getPartialTicks(), poseStack, renderTypeBuffer);
 
-        matrixStack.popPose();
+        poseStack.popPose();
     }
 
-    private static void renderModel(BakedModel modelIn, WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack matrixStackIn, VertexConsumer bufferIn, IModelData modelData){
+    private static void renderModel(BakedModel model, WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer, IModelData modelData){
         Random random = new Random();
 
         for(Direction direction : Direction.values()){
             random.setSeed(42L);
-            renderQuads(capture, state, pos, matrixStackIn, bufferIn, modelIn.getQuads(state, direction, random, modelData));
+            renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, direction, random, modelData));
         }
 
         random.setSeed(42L);
-        renderQuads(capture, state, pos, matrixStackIn, bufferIn, modelIn.getQuads(state, null, random, modelData));
+        renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, null, random, modelData));
     }
 
-    private static void renderQuads(WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack matrixStackIn, VertexConsumer bufferIn, List<BakedQuad> quadsIn){
-        PoseStack.Pose matrix = matrixStackIn.last();
+    private static void renderQuads(WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer, List<BakedQuad> quads){
+        PoseStack.Pose matrix = poseStack.last();
 
-        for(BakedQuad bakedquad : quadsIn){
+        for(BakedQuad bakedquad : quads){
             float red = 1, blue = 1, green = 1, alpha = 1;
             if(bakedquad.isTinted()){
                 int color = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getWorld(), pos, bakedquad.getTintIndex());
@@ -116,7 +116,7 @@ public class ElevatorPreviewRenderer {
                 green = (color >> 8 & 255) / 255f;
                 blue = (color & 255) / 255f;
             }
-            bufferIn.putBulkData(matrix, bakedquad, red, green, blue, alpha, 15728880, OverlayTexture.NO_OVERLAY, false);
+            buffer.putBulkData(matrix, bakedquad, red, green, blue, alpha, 15728880, OverlayTexture.NO_OVERLAY, false);
         }
     }
 }
