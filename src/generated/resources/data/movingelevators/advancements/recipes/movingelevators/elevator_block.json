@@ -1,12 +1,22 @@
 {
   "parent": "minecraft:recipes/root",
-  "rewards": {
-    "recipes": [
-      "movingelevators:elevator_block"
-    ]
+  "display": {
+    "icon": {
+      "item": "movingelevators:elevator_block"
+    },
+    "title": {
+      "translate": "movingelevators.advancement.recipes/movingelevators/elevator_block.title"
+    },
+    "description": {
+      "translate": "movingelevators.advancement.recipes/movingelevators/elevator_block.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
   },
   "criteria": {
-    "has_iron": {
+    "can_unlock_recipe": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
@@ -25,8 +35,13 @@
   },
   "requirements": [
     [
-      "has_iron",
-      "has_the_recipe"
+      "has_the_recipe",
+      "can_unlock_recipe"
     ]
-  ]
+  ],
+  "rewards": {
+    "recipes": [
+      "movingelevators:elevator_block"
+    ]
+  }
 }

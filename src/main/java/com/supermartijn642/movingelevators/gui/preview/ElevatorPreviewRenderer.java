@@ -49,25 +49,25 @@ public class ElevatorPreviewRenderer {
         RenderSystem.scalef(1, -1, 1);
         RenderSystem.scaled(scale, scale, scale);
 
-        MatrixStack matrixstack = new MatrixStack();
-        matrixstack.mulPose(new Quaternion(pitch, yaw, 0, true));
-        matrixstack.translate(-center.x, -center.y, -center.z);
+        MatrixStack poseStack = new MatrixStack();
+        poseStack.mulPose(new Quaternion(pitch, yaw, 0, true));
+        poseStack.translate(-center.x, -center.y, -center.z);
 
         if(doShading)
             RenderSystem.enableLighting();
 
         IRenderTypeBuffer.Impl renderTypeBuffer = RenderUtils.getMainBufferSource();
         for(BlockPos pos : capture.getBlockLocations())
-            renderBlock(capture, pos, matrixstack, renderTypeBuffer);
+            renderBlock(capture, pos, poseStack, renderTypeBuffer);
         renderTypeBuffer.endBatch();
 
         RenderSystem.enableDepthTest();
         if(doShading)
             RenderSystem.disableLighting();
 
-        RenderUtils.renderBox(matrixstack, cabinBox, 1, 1, 1, 0.8f);
+        RenderUtils.renderBox(poseStack, cabinBox, 1, 1, 1, 0.8f, true);
         if(previewBox != null)
-            RenderUtils.renderBox(matrixstack, previewBox, 0, 0.7f, 0, 0.8f);
+            RenderUtils.renderBox(poseStack, previewBox, 0, 0.7f, 0, 0.8f, true);
 
         RenderSystem.popMatrix();
 
@@ -75,9 +75,9 @@ public class ElevatorPreviewRenderer {
         RenderSystem.disableRescaleNormal();
     }
 
-    private static void renderBlock(WorldBlockCapture capture, BlockPos pos, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer){
-        matrixStack.pushPose();
-        matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
+    private static void renderBlock(WorldBlockCapture capture, BlockPos pos, MatrixStack poseStack, IRenderTypeBuffer renderTypeBuffer){
+        poseStack.pushPose();
+        poseStack.translate(pos.getX(), pos.getY(), pos.getZ());
 
         BlockState state = capture.getBlockState(pos);
         if(state.getBlock() != Blocks.AIR){
@@ -91,40 +91,40 @@ public class ElevatorPreviewRenderer {
 //            }
 
             RenderType renderType = RenderTypeLookup.getRenderType(state);
-            renderModel(model, capture, state, pos, matrixStack, renderTypeBuffer.getBuffer(renderType), modelData);
+            renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType), modelData);
         }
 
         TileEntity blockEntity = capture.getBlockEntity(pos);
         if(blockEntity != null)
-            TileEntityRendererDispatcher.instance.render(blockEntity, ClientUtils.getPartialTicks(), matrixStack, renderTypeBuffer);
+            TileEntityRendererDispatcher.instance.render(blockEntity, ClientUtils.getPartialTicks(), poseStack, renderTypeBuffer);
 
-        matrixStack.popPose();
+        poseStack.popPose();
     }
 
-    private static void renderModel(IBakedModel modelIn, WorldBlockCapture capture, BlockState state, BlockPos pos, MatrixStack matrixStackIn, IVertexBuilder bufferIn, IModelData modelData){
+    private static void renderModel(IBakedModel model, WorldBlockCapture capture, BlockState state, BlockPos pos, MatrixStack poseStack, IVertexBuilder buffer, IModelData modelData){
         Random random = new Random();
 
         for(Direction direction : Direction.values()){
             random.setSeed(42L);
-            renderQuads(capture, state, pos, matrixStackIn, bufferIn, modelIn.getQuads(state, direction, random, modelData));
+            renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, direction, random, modelData));
         }
 
         random.setSeed(42L);
-        renderQuads(capture, state, pos, matrixStackIn, bufferIn, modelIn.getQuads(state, null, random, modelData));
+        renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, null, random, modelData));
     }
 
-    private static void renderQuads(WorldBlockCapture capture, BlockState state, BlockPos pos, MatrixStack matrixStackIn, IVertexBuilder bufferIn, List<BakedQuad> quadsIn){
-        MatrixStack.Entry matrix = matrixStackIn.last();
+    private static void renderQuads(WorldBlockCapture capture, BlockState state, BlockPos pos, MatrixStack poseStack, IVertexBuilder buffer, List<BakedQuad> quads){
+        MatrixStack.Entry matrix = poseStack.last();
 
-        for(BakedQuad bakedquad : quadsIn){
+        for(BakedQuad bakedquad : quads){
             float red = 1, blue = 1, green = 1, alpha = 1;
             if(bakedquad.isTinted()){
-                int color = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getWorld(), pos, bakedquad.getTintIndex());
+                int color = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getLevel(), pos, bakedquad.getTintIndex());
                 red = (color >> 16 & 255) / 255f;
                 green = (color >> 8 & 255) / 255f;
                 blue = (color & 255) / 255f;
             }
-            bufferIn.addVertexData(matrix, bakedquad, red, green, blue, alpha, 15728880, OverlayTexture.NO_OVERLAY, false);
+            buffer.addVertexData(matrix, bakedquad, red, green, blue, alpha, 15728880, OverlayTexture.NO_OVERLAY, false);
         }
     }
 }

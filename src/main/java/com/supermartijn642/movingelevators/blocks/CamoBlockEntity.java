@@ -1,6 +1,8 @@
 package com.supermartijn642.movingelevators.blocks;
 
-import com.supermartijn642.core.block.BaseTileEntity;
+import com.supermartijn642.core.block.BaseBlockEntity;
+import com.supermartijn642.core.block.BaseBlockEntityType;
+import com.supermartijn642.core.registry.Registries;
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.block.Block;
@@ -10,7 +12,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
@@ -21,11 +22,11 @@ import java.util.List;
 /**
  * Created 4/6/2020 by SuperMartijn642
  */
-public abstract class CamoBlockEntity extends BaseTileEntity {
+public abstract class CamoBlockEntity extends BaseBlockEntity {
 
     private BlockState camoState = Blocks.AIR.defaultBlockState();
 
-    public CamoBlockEntity(TileEntityType<?> blockEntityType){
+    public CamoBlockEntity(BaseBlockEntityType<?> blockEntityType){
         super(blockEntityType);
     }
 
@@ -49,7 +50,7 @@ public abstract class CamoBlockEntity extends BaseTileEntity {
         if(stack.isEmpty() || !(stack.getItem() instanceof BlockItem))
             return false;
         Block block = ((BlockItem)stack.getItem()).getBlock();
-        return !MovingElevators.CAMOUFLAGE_MOD_BLACKLIST.contains(block.getRegistryName().getNamespace()) && this.isFullCube(block.defaultBlockState());
+        return !MovingElevators.CAMOUFLAGE_MOD_BLACKLIST.contains(Registries.BLOCKS.getIdentifier(block).getNamespace()) && this.isFullCube(block.defaultBlockState());
     }
 
     private boolean isFullCube(BlockState state){
