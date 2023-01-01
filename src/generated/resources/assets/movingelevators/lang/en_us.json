@@ -16,7 +16,7 @@
   "movingelevators.elevator_screen.display_buttons": "Show buttons: %s",
   "movingelevators.elevator_screen.cabin_width.decrease_offset": "Move left",
   "movingelevators.elevator_screen.cabin_width": "Cabin width",
-  "movingelevators.elevator_display.tooltip": "Shows an elevators\u0027 floors when placed on top of an elevator controller or remote elevator panel",
+  "movingelevators.elevator_display.tooltip": "Shows an elevators' floors when placed on top of an elevator controller or remote elevator panel",
   "movingelevators.item_group": "Moving Elevators",
   "movingelevators.block.elevator_block": "Elevator Controller",
   "movingelevators.remote_controller.clear": "Cleared stored elevator location!",
