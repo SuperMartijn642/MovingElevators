@@ -1,15 +1,15 @@
 {
   "variants": {
-    "facing=east": {
+    "facing=south": {
       "model": "movingelevators:elevator_block"
     },
     "facing=north": {
       "model": "movingelevators:elevator_block"
     },
-    "facing=west": {
+    "facing=east": {
       "model": "movingelevators:elevator_block"
     },
-    "facing=south": {
+    "facing=west": {
       "model": "movingelevators:elevator_block"
     }
   }

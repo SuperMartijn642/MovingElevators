@@ -5,10 +5,10 @@
       "item": "movingelevators:elevator_block"
     },
     "title": {
-      "translate": "movingelevators.advancement.recipes/movingelevators/elevator_block.title"
+      "translate": "movingelevators.advancement.recipes/elevator_block.title"
     },
     "description": {
-      "translate": "movingelevators.advancement.recipes/movingelevators/elevator_block.description"
+      "translate": "movingelevators.advancement.recipes/elevator_block.description"
     },
     "frame": "task",
     "show_toast": false,
@@ -16,25 +16,25 @@
     "hidden": false
   },
   "criteria": {
-    "can_unlock_recipe": {
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "movingelevators:elevator_block"
+      }
+    },
+    "recipe_condition": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           null
         ]
       }
-    },
-    "has_the_recipe": {
-      "trigger": "minecraft:recipe_unlocked",
-      "conditions": {
-        "recipe": "movingelevators:elevator_block"
-      }
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "can_unlock_recipe"
+      "recipe_condition"
     ]
   ],
   "rewards": {
