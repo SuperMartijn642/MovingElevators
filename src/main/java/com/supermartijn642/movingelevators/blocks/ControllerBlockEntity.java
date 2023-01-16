@@ -50,6 +50,8 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
             compound.putString("name", this.name);
         compound.putInt("color", this.color.getId());
         compound.putBoolean("showButtons", this.showButtons);
+        if(this.facing != null)
+            compound.putInt("facing", this.facing.get2DDataValue());
         return compound;
     }
 
@@ -68,6 +70,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
             this.name = null;
         this.color = DyeColor.byId(compound.getInt("color"));
         this.showButtons = !compound.contains("showButtons", Constants.NBT.TAG_BYTE) || compound.getBoolean("showButtons");
+        this.facing = compound.contains("facing", Constants.NBT.TAG_INT) ? Direction.from2DDataValue(compound.getInt("facing")) : null;
     }
 
     public void onRemove(){
