@@ -50,6 +50,8 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
             compound.setString("name", this.name);
         compound.setInteger("color", this.color.getMetadata());
         compound.setBoolean("showButtons", this.showButtons);
+        if(this.facing != null)
+            compound.setInteger("facing", this.facing.getHorizontalIndex());
         return compound;
     }
 
@@ -64,6 +66,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
             this.name = null;
         this.color = EnumDyeColor.byMetadata(compound.getInteger("color"));
         this.showButtons = !compound.hasKey("showButtons", Constants.NBT.TAG_BYTE) || compound.getBoolean("showButtons");
+        this.facing = compound.hasKey("facing", Constants.NBT.TAG_INT) ? EnumFacing.getHorizontal(compound.getInteger("facing")) : null;
     }
 
     public void onRemove(){
