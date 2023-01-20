@@ -2,13 +2,13 @@
   "parent": "minecraft:recipes/root",
   "display": {
     "icon": {
-      "item": "movingelevators:button_block"
+      "item": "movingelevators:elevator_block"
     },
     "title": {
-      "translate": "movingelevators.advancement.recipes/movingelevators/button_block.title"
+      "translate": "movingelevators.advancement.recipes/misc/elevator_block.title"
     },
     "description": {
-      "translate": "movingelevators.advancement.recipes/movingelevators/button_block.description"
+      "translate": "movingelevators.advancement.recipes/misc/elevator_block.description"
     },
     "frame": "task",
     "show_toast": false,
@@ -19,7 +19,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "movingelevators:button_block"
+        "recipe": "movingelevators:elevator_block"
       }
     },
     "recipe_condition": {
@@ -27,9 +27,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "movingelevators:elevator_block"
-            ]
+            "tag": "forge:ingots/iron"
           }
         ]
       }
@@ -43,7 +41,7 @@
   ],
   "rewards": {
     "recipes": [
-      "movingelevators:button_block"
+      "movingelevators:elevator_block"
     ]
   }
 }

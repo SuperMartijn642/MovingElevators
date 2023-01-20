@@ -10,7 +10,6 @@
   "movingelevators.elevator_screen.cabin_height.decrease_offset": "Move down",
   "movingelevators.elevator_screen.cabin_height.increase_size": "Increase height",
   "movingelevators.remote_controller.tooltip.bound": "Bound to elevator controller at (%1$d, %2$d, %3$d) in %4$s",
-  "movingelevators": "Moving Elevators",
   "movingelevators.remote_controller.controller_location": "Bound to elevator controller at (%1$d, %2$d, %3$d)",
   "movingelevators.elevator_screen.cabin_width.increase_size": "Increase width",
   "movingelevators.elevator_screen.cabin_height": "Cabin height",

@@ -5,7 +5,7 @@ import com.supermartijn642.core.block.BlockProperties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -75,7 +75,7 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
             Component x = TextComponents.number(tag.getInt("controllerX")).color(ChatFormatting.GOLD).get();
             Component y = TextComponents.number(tag.getInt("controllerY")).color(ChatFormatting.GOLD).get();
             Component z = TextComponents.number(tag.getInt("controllerZ")).color(ChatFormatting.GOLD).get();
-            Component dimension = TextComponents.dimension(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tag.getString("controllerDim")))).color(ChatFormatting.GOLD).get();
+            Component dimension = TextComponents.dimension(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(tag.getString("controllerDim")))).color(ChatFormatting.GOLD).get();
             info.accept(TextComponents.translation("movingelevators.remote_controller.tooltip.bound", x, y, z, dimension).get());
         }
     }
