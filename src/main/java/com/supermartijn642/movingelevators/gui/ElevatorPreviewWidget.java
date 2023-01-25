@@ -21,7 +21,6 @@ public class ElevatorPreviewWidget extends BaseWidget {
     private final Supplier<ControllerBlockEntity> elevatorEntity;
     private final Supplier<BlockPos> previewSizeIncrease;
     private final Supplier<BlockPos> previewOffset;
-    private final Supplier<Float> guiLeft, guiTop;
 
     private float yaw = 20, pitch = 30;
     private boolean dragging = false;
@@ -30,15 +29,11 @@ public class ElevatorPreviewWidget extends BaseWidget {
     public ElevatorPreviewWidget(int x, int y, int width, int height,
                                  Supplier<ControllerBlockEntity> elevatorEntity,
                                  Supplier<BlockPos> previewSizeIncrease,
-                                 Supplier<BlockPos> previewOffset,
-                                 Supplier<Float> guiLeft,
-                                 Supplier<Float> guiTop){
+                                 Supplier<BlockPos> previewOffset){
         super(x, y, width, height);
         this.elevatorEntity = elevatorEntity;
         this.previewSizeIncrease = previewSizeIncrease;
         this.previewOffset = previewOffset;
-        this.guiLeft = guiLeft;
-        this.guiTop = guiTop;
     }
 
     @Override
@@ -106,7 +101,7 @@ public class ElevatorPreviewWidget extends BaseWidget {
         }
 
         // Render the preview
-        ElevatorPreviewRenderer.renderPreview(capture, cabinBox, previewBox, this.x + this.width / 2f + this.guiLeft.get(), this.y + this.height / 2f + this.guiTop.get(), Math.min(this.width, this.height), this.yaw + group.facing.toYRot(), this.pitch, false);
+        ElevatorPreviewRenderer.renderPreview(capture, cabinBox, previewBox, this.x + this.width / 2f, this.y + this.height / 2f, Math.min(this.width, this.height), this.yaw + group.facing.toYRot(), this.pitch, false);
     }
 
     @Override

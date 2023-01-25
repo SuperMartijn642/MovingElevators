@@ -27,8 +27,6 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
     private static final ResourceLocation BACKGROUND = new ResourceLocation("movingelevators", "textures/gui/gui_background.png");
     private static final ResourceLocation SIZE_ICONS = new ResourceLocation("movingelevators", "textures/gui/size_icons2.png");
 
-    public float offsetLeft, offsetTop;
-
     public ElevatorScreen(BlockPos entityPos){
         super(0, 0, 280, 118, ClientUtils.getWorld(), entityPos);
     }
@@ -74,7 +72,7 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
         // Cabin preview
         Supplier<BlockPos> previewSizeIncrease = () -> new BlockPos(widthSizeIncrease.active && widthSizeIncrease.isFocused() ? 1 : widthSizeDecrease.active && widthSizeDecrease.isFocused() ? -1 : 0, heightSizeIncrease.active && heightSizeIncrease.isFocused() ? 1 : heightSizeDecrease.active && heightSizeDecrease.isFocused() ? -1 : 0, depthSizeIncrease.active && depthSizeIncrease.isFocused() ? 1 : depthSizeDecrease.active && depthSizeDecrease.isFocused() ? -1 : 0);
         Supplier<BlockPos> previewOffset = () -> new BlockPos(widthOffsetIncrease.active && widthOffsetIncrease.isFocused() ? 1 : widthOffsetDecrease.active && widthOffsetDecrease.isFocused() ? -1 : 0, heightOffsetIncrease.active && heightOffsetIncrease.isFocused() ? 1 : heightOffsetDecrease.active && heightOffsetDecrease.isFocused() ? -1 : 0, depthOffsetIncrease.active && depthOffsetIncrease.isFocused() ? 1 : depthOffsetDecrease.active && depthOffsetDecrease.isFocused() ? -1 : 0);
-        this.addWidget(new ElevatorPreviewWidget(99, 13, 82, 99, () -> this.object, previewSizeIncrease, previewOffset, () -> this.offsetLeft, () -> this.offsetTop));
+        this.addWidget(new ElevatorPreviewWidget(99, 13, 82, 99, () -> this.object, previewSizeIncrease, previewOffset));
     }
 
     @Override

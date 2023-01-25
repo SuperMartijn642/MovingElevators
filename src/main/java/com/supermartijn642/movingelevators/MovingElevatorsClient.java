@@ -1,6 +1,5 @@
 package com.supermartijn642.movingelevators;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.gui.WidgetScreen;
@@ -71,14 +70,7 @@ public class MovingElevatorsClient {
     }
 
     public static void openElevatorScreen(BlockPos pos){
-        Minecraft.getInstance().setScreen(new WidgetScreen<ElevatorScreen>(new ElevatorScreen(pos)) {
-            @Override
-            public void render(MatrixStack poseStack, int mouseX, int mouseY, float partialTicks){
-                this.widget.offsetLeft = (this.width - this.widget.width()) / 2f;
-                this.widget.offsetTop = (this.height - this.widget.height()) / 2f;
-                super.render(poseStack, mouseX, mouseY, partialTicks);
-            }
-        });
+        Minecraft.getInstance().setScreen(WidgetScreen.of(new ElevatorScreen(pos)));
     }
 
     public static String formatFloorDisplayName(String name, int floor){
