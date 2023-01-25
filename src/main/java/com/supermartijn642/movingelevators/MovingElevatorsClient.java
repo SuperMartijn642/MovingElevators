@@ -70,14 +70,7 @@ public class MovingElevatorsClient {
     }
 
     public static void openElevatorScreen(BlockPos pos){
-        Minecraft.getInstance().setScreen(new WidgetScreen<ElevatorScreen>(new ElevatorScreen(pos)) {
-            @Override
-            public void render(int mouseX, int mouseY, float partialTicks){
-                this.widget.offsetLeft = (this.width - this.widget.width()) / 2f;
-                this.widget.offsetTop = (this.height - this.widget.height()) / 2f;
-                super.render(mouseX, mouseY, partialTicks);
-            }
-        });
+        Minecraft.getInstance().setScreen(WidgetScreen.of(new ElevatorScreen(pos)));
     }
 
     public static String formatFloorDisplayName(String name, int floor){
