@@ -1,3 +1,6 @@
+### Moving Elevators 1.3.11b
+- Accommodate for changes to LevelTickEvent in Forge 43.2.4
+
 ### Moving Elevators 1.3.11a
 - Fix rendering offsets inside the elevator controller's gui
 
