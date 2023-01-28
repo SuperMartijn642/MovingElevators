@@ -68,7 +68,7 @@ public class ElevatorGroupCapability {
 
     @SubscribeEvent
     public static void onTick(TickEvent.LevelTickEvent e){
-        if(e.phase != TickEvent.Phase.END)
+        if(e.level.isClientSide || e.phase != TickEvent.Phase.END)
             return;
 
         tickWorldCapability(e.level);
