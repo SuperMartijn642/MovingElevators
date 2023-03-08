@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class RedStoneWireBlockMixin {
 
     @Inject(
-        method = "shouldConnectTo",
+        method = "shouldConnectTo(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;)Z",
         at = @At("HEAD"),
         cancellable = true
     )

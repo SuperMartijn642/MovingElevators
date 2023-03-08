@@ -1,0 +1,4 @@
+// 1.19.3	2023-03-08T19:46:21.9107855	Moving Elevators/Moving Elevators Loot Table Generator
+08cb6b10162a8998590bccb8b3fd039add2c1bb3 data\movingelevators\loot_tables\blocks\display_block.json
+1a38fecbd13accf97a6a53dc114ecef38dffefa0 data\movingelevators\loot_tables\blocks\elevator_block.json
+67877b9fb8f3ecbc5d26bd806094849dc929e30f data\movingelevators\loot_tables\blocks\button_block.json

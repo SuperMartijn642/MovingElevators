@@ -1,0 +1,24 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:blocks/elevator"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:blocks/display_overlay"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:blocks/buttons"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:blocks/display_buttons"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:blocks/display"
+    }
+  ]
+}

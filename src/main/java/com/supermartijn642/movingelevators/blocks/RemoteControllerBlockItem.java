@@ -6,7 +6,7 @@ import com.supermartijn642.core.item.ItemProperties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -47,7 +47,7 @@ public class RemoteControllerBlockItem extends BaseBlockItem {
                     Component x = TextComponents.number(compound.getInt("controllerX")).color(ChatFormatting.GOLD).get();
                     Component y = TextComponents.number(compound.getInt("controllerY")).color(ChatFormatting.GOLD).get();
                     Component z = TextComponents.number(compound.getInt("controllerZ")).color(ChatFormatting.GOLD).get();
-                    Component dimension = TextComponents.dimension(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(compound.getString("controllerDim")))).color(ChatFormatting.GOLD).get();
+                    Component dimension = TextComponents.dimension(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("controllerDim")))).color(ChatFormatting.GOLD).get();
                     player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.tooltip.bound", x, y, z, dimension).get(), true);
                 }else
                     player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.tooltip").get(), true);

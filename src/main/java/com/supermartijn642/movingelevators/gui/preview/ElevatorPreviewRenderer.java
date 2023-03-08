@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -15,14 +14,15 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created 25/12/2021 by SuperMartijn642
@@ -42,7 +42,8 @@ public class ElevatorPreviewRenderer {
         PoseStack poseStack = new PoseStack();
         poseStack.translate(x, -y, 350);
         poseStack.scale((float)scale, (float)scale, (float)scale);
-        poseStack.mulPose(new Quaternion(pitch, yaw, 0, true));
+        poseStack.mulPose(new Quaternionf().setAngleAxis(pitch / 180 * Math.PI, 1, 0, 0));
+        poseStack.mulPose(new Quaternionf().setAngleAxis(yaw / 180 * Math.PI, 0, 1, 0));
         poseStack.translate(-center.x, -center.y, -center.z);
 
         if(doShading)
@@ -91,7 +92,7 @@ public class ElevatorPreviewRenderer {
     }
 
     private static void renderModel(BakedModel model, WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer){
-        Random random = new Random();
+        RandomSource random = RandomSource.create();
 
         for(Direction direction : Direction.values()){
             random.setSeed(42L);
