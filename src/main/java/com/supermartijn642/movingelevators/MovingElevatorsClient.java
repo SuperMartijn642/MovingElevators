@@ -8,32 +8,26 @@ import com.supermartijn642.core.render.TextureAtlases;
 import com.supermartijn642.movingelevators.blocks.CamoBlockEntity;
 import com.supermartijn642.movingelevators.blocks.DisplayBlockEntityRenderer;
 import com.supermartijn642.movingelevators.blocks.ElevatorInputBlockEntityRenderer;
-import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 /**
  * Created 3/28/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class MovingElevatorsClient {
+public class MovingElevatorsClient implements ClientModInitializer {
 
     public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = new ResourceLocation("movingelevators", "blocks/block_overlays");
-    public static TextureAtlasSprite OVERLAY_SPRITE;
+    private static TextureAtlasSprite OVERLAY_SPRITE;
 
-    public static void register(){
+    @Override
+    public void onInitializeClient(){
         ClientRegistrationHandler handler = ClientRegistrationHandler.get("movingelevators");
         // Renderers
         handler.registerCustomBlockEntityRenderer(() -> MovingElevators.elevator_tile, ElevatorInputBlockEntityRenderer::new);
@@ -49,11 +43,8 @@ public class MovingElevatorsClient {
         handler.registerBlockModelTranslucentRenderType(() -> MovingElevators.elevator_block);
         handler.registerBlockModelTranslucentRenderType(() -> MovingElevators.display_block);
         handler.registerBlockModelTranslucentRenderType(() -> MovingElevators.button_block);
-    }
 
-    @SubscribeEvent
-    public static void setup(FMLClientSetupEvent e){
-        ClientUtils.getMinecraft().getBlockColors().register(
+        ColorProviderRegistry.BLOCK.register(
             (state, blockAndTintGetter, pos, p_92570_) -> {
                 if(blockAndTintGetter == null || pos == null)
                     return 0;
@@ -64,10 +55,10 @@ public class MovingElevatorsClient {
         );
     }
 
-    @SubscribeEvent
-    public static void onTextureStitchPost(TextureStitchEvent.Post e){
-        if(e.getAtlas().location().equals(TextureAtlas.LOCATION_BLOCKS))
-            OVERLAY_SPRITE = e.getAtlas().getSprite(OVERLAY_TEXTURE_LOCATION);
+    public static TextureAtlasSprite getOverlaySprite(){
+        if(OVERLAY_SPRITE == null)
+            OVERLAY_SPRITE = ClientUtils.getMinecraft().getTextureAtlas(TextureAtlases.getBlocks()).apply(OVERLAY_TEXTURE_LOCATION);
+        return OVERLAY_SPRITE;
     }
 
     public static void openElevatorScreen(BlockPos pos){
@@ -76,15 +67,5 @@ public class MovingElevatorsClient {
 
     public static String formatFloorDisplayName(String name, int floor){
         return name == null ? TextComponents.translation("movingelevators.floor_name", TextComponents.number(floor).get()).format() : name;
-    }
-
-    @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
-    public static class ForgeEventListeners {
-
-        @SubscribeEvent
-        public static void onClientTick(TickEvent.ClientTickEvent e){
-            if(e.phase == TickEvent.Phase.END && !Minecraft.getInstance().isPaused() && Minecraft.getInstance().level != null)
-                ElevatorGroupCapability.tickWorldCapability(Minecraft.getInstance().level);
-        }
     }
 }

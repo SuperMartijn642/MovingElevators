@@ -11,6 +11,7 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 
 /**
@@ -48,8 +49,9 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
         Matrix4f matrix = poseStack.last().pose();
         Matrix3f normalMatrix = poseStack.last().normal();
 
-        float minU = MovingElevatorsClient.OVERLAY_SPRITE.getU(tX / 8f), maxU = MovingElevatorsClient.OVERLAY_SPRITE.getU((tX + tWidth) / 8f);
-        float minV = MovingElevatorsClient.OVERLAY_SPRITE.getV(tY / 8f), maxV = MovingElevatorsClient.OVERLAY_SPRITE.getV((tY + tHeight) / 8f);
+        TextureAtlasSprite overlaySprite = MovingElevatorsClient.getOverlaySprite();
+        float minU = overlaySprite.getU(tX / 8f), maxU = overlaySprite.getU((tX + tWidth) / 8f);
+        float minV = overlaySprite.getV(tY / 8f), maxV = overlaySprite.getV((tY + tHeight) / 8f);
 
         buffer.vertex(matrix, x, y + height, 0).color(255, 255, 255, 255).uv(maxU, minV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
         buffer.vertex(matrix, x + width, y + height, 0).color(255, 255, 255, 255).uv(minU, minV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();

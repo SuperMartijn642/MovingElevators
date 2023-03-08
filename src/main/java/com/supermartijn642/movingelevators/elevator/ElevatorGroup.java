@@ -672,7 +672,7 @@ public class ElevatorGroup {
     }
 
     private void updateGroup(){
-        this.level.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.updateGroup(this));
+        ElevatorGroupCapability.get(this.level).updateGroup(this);
     }
 
     private void syncMovement(){

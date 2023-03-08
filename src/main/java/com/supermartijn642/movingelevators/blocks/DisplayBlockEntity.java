@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -59,10 +58,5 @@ public class DisplayBlockEntity extends CamoBlockEntity {
     public ElevatorGroup getElevatorGroup(){
         ElevatorInputBlockEntity inputEntity = this.getInputBlockEntity();
         return inputEntity == null ? null : inputEntity.getGroup();
-    }
-
-    @Override
-    public AABB getRenderBoundingBox(){
-        return new AABB(this.worldPosition, this.worldPosition.offset(1, 2, 1));
     }
 }

@@ -11,14 +11,14 @@ import com.supermartijn642.core.registry.GeneratorRegistrationHandler;
 import com.supermartijn642.core.registry.RegistrationHandler;
 import com.supermartijn642.core.registry.RegistryEntryAcceptor;
 import com.supermartijn642.movingelevators.blocks.*;
+import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
+import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import com.supermartijn642.movingelevators.generators.*;
 import com.supermartijn642.movingelevators.packets.*;
+import net.fabricmc.api.ModInitializer;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -26,8 +26,7 @@ import java.util.function.Supplier;
 /**
  * Created 3/28/2020 by SuperMartijn642
  */
-@Mod("movingelevators")
-public class MovingElevators {
+public class MovingElevators implements ModInitializer {
 
     public static final Set<String> CAMOUFLAGE_MOD_BLACKLIST = Sets.newHashSet("movingelevators");
     public static final PacketChannel CHANNEL = PacketChannel.create("movingelevators");
@@ -47,7 +46,8 @@ public class MovingElevators {
 
     public static final CreativeItemGroup GROUP = CreativeItemGroup.create("movingelevators", () -> elevator_block.asItem());
 
-    public MovingElevators(){
+    @Override
+    public void onInitialize(){
         CHANNEL.registerMessage(PacketAddElevatorGroup.class, PacketAddElevatorGroup::new, true);
         CHANNEL.registerMessage(PacketDecreaseCabinDepth.class, PacketDecreaseCabinDepth::new, true);
         CHANNEL.registerMessage(PacketDecreaseCabinDepthOffset.class, PacketDecreaseCabinDepthOffset::new, true);
@@ -71,8 +71,10 @@ public class MovingElevators {
 
         MovingElevatorsConfig.init();
 
+        ElevatorGroupCapability.registerEventListeners();
+        ElevatorGroupRenderer.registerEventListeners();
+
         register();
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> MovingElevatorsClient::register);
         registerGenerators();
     }
 

@@ -95,7 +95,7 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
         }
         if(this.level == null || this.controllerPos == null || this.controllerFacing == null)
             return null;
-        ElevatorGroupCapability capability = this.level.getCapability(ElevatorGroupCapability.CAPABILITY).orElse(null);
+        ElevatorGroupCapability capability = ElevatorGroupCapability.get(this.level);
         return capability == null ? null : capability.get(this.controllerPos.getX(), this.controllerPos.getZ(), this.controllerFacing);
     }
 

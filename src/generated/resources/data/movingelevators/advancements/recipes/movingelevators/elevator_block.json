@@ -27,7 +27,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:ingots/iron"
+            "tag": "c:iron_ingots"
           }
         ]
       }

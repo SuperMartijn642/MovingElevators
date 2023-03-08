@@ -20,8 +20,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
 
 import java.util.List;
 import java.util.Random;
@@ -74,7 +72,6 @@ public class ElevatorPreviewRenderer {
         BlockState state = capture.getBlockState(pos);
         if(state.getBlock() != Blocks.AIR){
             BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
-            IModelData modelData = EmptyModelData.INSTANCE;
 //            if(model instanceof RechiseledConnectedBakedModel){ // TODO
 //                RechiseledModelData data = new RechiseledModelData();
 //                for(Direction direction : Direction.values())
@@ -83,7 +80,7 @@ public class ElevatorPreviewRenderer {
 //            }
 
             RenderType renderType = ItemBlockRenderTypes.getRenderType(state, true);
-            renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType), modelData);
+            renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType));
         }
 
         BlockEntity blockEntity = capture.getBlockEntity(pos);
@@ -93,16 +90,16 @@ public class ElevatorPreviewRenderer {
         poseStack.popPose();
     }
 
-    private static void renderModel(BakedModel model, WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer, IModelData modelData){
+    private static void renderModel(BakedModel model, WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer){
         Random random = new Random();
 
         for(Direction direction : Direction.values()){
             random.setSeed(42L);
-            renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, direction, random, modelData));
+            renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, direction, random));
         }
 
         random.setSeed(42L);
-        renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, null, random, modelData));
+        renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, null, random));
     }
 
     private static void renderQuads(WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer, List<BakedQuad> quads){
@@ -116,7 +113,7 @@ public class ElevatorPreviewRenderer {
                 green = (color >> 8 & 255) / 255f;
                 blue = (color & 255) / 255f;
             }
-            buffer.putBulkData(matrix, bakedquad, red, green, blue, alpha, 15728880, OverlayTexture.NO_OVERLAY, false);
+            buffer.putBulkData(matrix, bakedquad, red, green, blue, 15728880, OverlayTexture.NO_OVERLAY);
         }
     }
 }

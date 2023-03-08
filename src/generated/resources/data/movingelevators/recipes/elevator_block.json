@@ -7,10 +7,10 @@
   ],
   "key": {
     "A": {
-      "tag": "forge:ingots/iron"
+      "tag": "c:iron_ingots"
     },
     "B": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:redstone_dusts"
     },
     "C": {
       "item": "minecraft:observer"

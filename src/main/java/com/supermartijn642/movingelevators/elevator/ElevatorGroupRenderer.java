@@ -11,26 +11,20 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 /**
  * Created 11/8/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorGroupRenderer {
 
     public static final double RENDER_DISTANCE = 255 * 255 * 4;
 
-    @SubscribeEvent
+    public static void registerEventListeners(){
+        RenderWorldEvent.EVENT.register(ElevatorGroupRenderer::onRender);
+    }
+
     public static void onRender(RenderWorldEvent e){
-        LazyOptional<ElevatorGroupCapability> optional = ClientUtils.getWorld().getCapability(ElevatorGroupCapability.CAPABILITY);
-        if(!optional.isPresent())
-            return;
-        ElevatorGroupCapability groups = optional.resolve().get();
+        ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         e.getPoseStack().pushPose();
         Vec3 camera = RenderUtils.getCameraPosition();
@@ -68,7 +62,7 @@ public class ElevatorGroupRenderer {
 
                     poseStack.translate(startPos.x + x, startPos.y + y, startPos.z + z);
 
-                    ClientUtils.getBlockRenderer().renderSingleBlock(cage.blockStates[x][y][z], poseStack, buffer, currentLight, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+                    ClientUtils.getBlockRenderer().renderSingleBlock(cage.blockStates[x][y][z], poseStack, buffer, currentLight, OverlayTexture.NO_OVERLAY);
 
                     poseStack.popPose();
                 }

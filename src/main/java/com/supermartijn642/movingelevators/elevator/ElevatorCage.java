@@ -4,12 +4,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -62,7 +64,7 @@ public class ElevatorCage {
                     BlockPos pos = startPos.offset(x, y, z);
                     if(states[x][y][z] == null)
                         continue;
-                    world.markAndNotifyBlock(pos, world.getChunkAt(pos), states[x][y][z], world.getBlockState(pos), 1 | 2, 512);
+                    markAndNotify(world, pos, world.getChunkAt(pos), states[x][y][z], world.getBlockState(pos), 1 | 2, 512);
                 }
             }
         }
@@ -265,5 +267,30 @@ public class ElevatorCage {
             compound.getDouble("y2"),
             compound.getDouble("z2")
         );
+    }
+
+    private static void markAndNotify(Level level, BlockPos pos, LevelChunk levelChunk, BlockState oldState, BlockState newState, int flags, int maxUpdates){
+        BlockState currentState = level.getBlockState(pos);
+        if(currentState == newState){
+            if(oldState != currentState)
+                level.setBlocksDirty(pos, oldState, currentState);
+
+            if((flags & 2) != 0 && (!level.isClientSide || (flags & 4) == 0) && (level.isClientSide || levelChunk.getFullStatus() != null && levelChunk.getFullStatus().isOrAfter(ChunkHolder.FullChunkStatus.TICKING)))
+                level.sendBlockUpdated(pos, oldState, newState, flags);
+
+            if((flags & 1) != 0){
+                level.blockUpdated(pos, oldState.getBlock());
+                if(!level.isClientSide && newState.hasAnalogOutputSignal())
+                    level.updateNeighbourForOutputSignal(pos, newState.getBlock());
+            }
+
+            if((flags & 16) == 0 && maxUpdates > 0){
+                int k = flags & 0xFFFFFFDE;
+                oldState.updateIndirectNeighbourShapes(level, pos, k, maxUpdates - 1);
+                newState.updateNeighbourShapes(level, pos, k, maxUpdates - 1);
+                newState.updateIndirectNeighbourShapes(level, pos, k, maxUpdates - 1);
+            }
+            level.onBlockStateChange(pos, oldState, currentState);
+        }
     }
 }

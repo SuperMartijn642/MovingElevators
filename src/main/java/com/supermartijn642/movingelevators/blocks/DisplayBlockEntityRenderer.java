@@ -14,6 +14,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.DyeColor;
@@ -47,7 +48,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         else{
             int skyLight = Math.max(level.getBrightness(LightLayer.SKY, frontPos), level.getBrightness(LightLayer.SKY, frontPos.above()));
             int blockLight = Math.max(level.getBrightness(LightLayer.BLOCK, frontPos), level.getBrightness(LightLayer.BLOCK, frontPos.above()));
-            int blockStateLight = Math.max(level.getBlockState(frontPos).getLightEmission(level, frontPos), level.getBlockState(frontPos.above()).getLightEmission(level, frontPos.above()));
+            int blockStateLight = Math.max(level.getBlockState(frontPos).getLightEmission(), level.getBlockState(frontPos.above()).getLightEmission());
             blockLight = Math.max(blockLight, blockStateLight);
             combinedLight = skyLight << 20 | blockLight << 4;
         }
@@ -125,8 +126,9 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         Matrix4f matrix = poseStack.last().pose();
         Matrix3f normalMatrix = poseStack.last().normal();
 
-        float minU = MovingElevatorsClient.OVERLAY_SPRITE.getU(tX / 8f), maxU = MovingElevatorsClient.OVERLAY_SPRITE.getU((tX + tWidth) / 8f);
-        float minV = MovingElevatorsClient.OVERLAY_SPRITE.getV(tY / 8f), maxV = MovingElevatorsClient.OVERLAY_SPRITE.getV((tY + tHeight) / 8f);
+        TextureAtlasSprite overlaySprite = MovingElevatorsClient.getOverlaySprite();
+        float minU = overlaySprite.getU(tX / 8f), maxU = overlaySprite.getU((tX + tWidth) / 8f);
+        float minV = overlaySprite.getV(tY / 8f), maxV = overlaySprite.getV((tY + tHeight) / 8f);
 
         buffer.vertex(matrix, x, y + height, 0).color(255, 255, 255, 255).uv(maxU, minV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
         buffer.vertex(matrix, x + width, y + height, 0).color(255, 255, 255, 255).uv(minU, minV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
