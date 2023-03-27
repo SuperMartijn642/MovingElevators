@@ -1,8 +1,11 @@
+### Moving Elevators 1.3.12
+- Fixed rare crash when updating from older versions
+
 ### Moving Elevators 1.3.11a
-- Fix rendering offsets inside the elevator controller's gui
+- Fixed rendering offsets inside the elevator controller's gui
 
 ### Moving Elevators 1.3.11
-- Fix rare crash with Cracker's Wither Storm Mod
+- Fixed rare crash with Cracker's Wither Storm Mod
 - Update Russian translations (thanks to vanja-san!)
 
 ### Moving Elevators 1.3.10
