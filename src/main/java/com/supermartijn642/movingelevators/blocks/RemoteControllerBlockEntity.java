@@ -31,6 +31,14 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
         super.update();
         this.groupCheckCounter++;
         if(this.groupCheckCounter == 40){
+            // Update missing data when a remote elevator panel was placed in an older version
+            if(this.controllerFacing == null && this.controllerPos != null){
+                ControllerBlockEntity controller = this.getController();
+                if(controller != null)
+                    this.controllerFacing = controller.getFacing();
+            }
+
+            // Update comparator output if the remote group changed
             ElevatorGroup group = this.getGroup();
             if(group != this.lastGroup){
                 this.level.updateNeighbourForOutputSignal(this.worldPosition, this.getBlockState().getBlock());
@@ -86,13 +94,6 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
 
     @Override
     public ElevatorGroup getGroup(){
-        if(this.controllerFacing == null && this.controllerPos != null){
-            ControllerBlockEntity controller = this.getController();
-            if(controller != null){
-                this.controllerFacing = controller.getFacing();
-                return controller.getGroup();
-            }
-        }
         if(this.level == null || this.controllerPos == null || this.controllerFacing == null)
             return null;
         ElevatorGroupCapability capability = this.level.getCapability(ElevatorGroupCapability.CAPABILITY).orElse(null);
