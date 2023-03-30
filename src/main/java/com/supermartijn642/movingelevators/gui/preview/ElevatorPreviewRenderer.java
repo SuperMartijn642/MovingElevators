@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -82,8 +81,11 @@ public class ElevatorPreviewRenderer {
 //                modelData = new ModelDataMap.Builder().withInitial(RechiseledModelData.PROPERTY, data).build();
 //            }
 
-            RenderType renderType = ItemBlockRenderTypes.getRenderType(state, true);
-            renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType), modelData, renderType);
+            RandomSource random = RandomSource.create(42L);
+            for(RenderType renderType : model.getRenderTypes(state, random, modelData)){
+                renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType), modelData, renderType);
+                random.setSeed(42L);
+            }
         }
 
         BlockEntity blockEntity = capture.getBlockEntity(pos);
