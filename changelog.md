@@ -1,3 +1,6 @@
+### Moving Elevators 1.3.12a
+- Fixed crash when rendering certain blocks inside the elevator controller's gui
+
 ### Moving Elevators 1.3.12
 - Fixed rare crash when updating from older versions
 
