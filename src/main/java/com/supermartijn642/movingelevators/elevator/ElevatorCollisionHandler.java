@@ -2,7 +2,6 @@ package com.supermartijn642.movingelevators.elevator;
 
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.packets.PacketOnElevator;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -86,7 +85,7 @@ public class ElevatorCollisionHandler {
                 entity.setDeltaMovement(entity.getDeltaMovement().x, 0, entity.getDeltaMovement().z);
 
                 entity.setOnGround(true);
-                entity.causeFallDamage(entity.fallDistance, 1, DamageSource.FALL);
+                entity.causeFallDamage(entity.fallDistance, 1, entity.damageSources().fall());
                 entity.fallDistance = 0;
                 if(entity instanceof Player){
                     ElevatorFallDamageHandler.resetElevatorTime((Player)entity);
