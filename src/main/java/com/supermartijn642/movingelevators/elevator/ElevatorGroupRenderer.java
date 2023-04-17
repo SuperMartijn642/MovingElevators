@@ -36,7 +36,7 @@ public class ElevatorGroupRenderer {
         Vec3 camera = RenderUtils.getCameraPosition();
         e.getPoseStack().translate(-camera.x, -camera.y, -camera.z);
         for(ElevatorGroup group : groups.getGroups()){
-            BlockPos elevatorPos = new BlockPos(group.x, group.getCurrentY(), group.z);
+            BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
             if(elevatorPos.distSqr(Minecraft.getInstance().player.blockPosition()) < RENDER_DISTANCE)
                 renderGroup(e.getPoseStack(), group, RenderUtils.getMainBufferSource(), e.getPartialTicks());
         }
@@ -55,7 +55,7 @@ public class ElevatorGroupRenderer {
         double renderY = lastY + (currentY - lastY) * partialTicks;
         Vec3 startPos = group.getCageAnchorPos(renderY);
 
-        BlockPos topPos = new BlockPos(group.x, renderY, group.z).relative(group.facing, (int)Math.ceil(group.getCageDepth() / 2f));
+        BlockPos topPos = new BlockPos(group.x, (int)renderY, group.z).relative(group.facing, (int)Math.ceil(group.getCageDepth() / 2f));
         int currentLight = LevelRenderer.getLightColor(group.level, topPos);
 
         for(int x = 0; x < group.getCageSizeX(); x++){
