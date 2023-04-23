@@ -50,6 +50,10 @@ public class ElevatorGroupCapability {
         }, ElevatorGroupCapability::new);
     }
 
+    public static ElevatorGroupCapability get(World level){
+        return level.getCapability(CAPABILITY).orElse(null);
+    }
+
     @SubscribeEvent
     public static void attachCapabilities(AttachCapabilitiesEvent<World> e){
         World level = e.getObject();
