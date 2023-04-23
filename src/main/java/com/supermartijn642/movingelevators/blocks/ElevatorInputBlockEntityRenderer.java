@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
-import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -21,7 +20,7 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
 
     @Override
     public void render(T entity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay){
-        if(!entity.hasGroup() || entity.getFacing() == null || (entity instanceof ControllerBlockEntity && !((ControllerBlockEntity)entity).shouldShowButtons()))
+        if(entity.getFacing() == null || (entity instanceof ControllerBlockEntity && !((ControllerBlockEntity)entity).shouldShowButtons()))
             return;
 
         VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
@@ -36,11 +35,12 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
         poseStack.mulPose(new Quaternionf().setAngleAxis((180 - facing.toYRot()) / 180 * Math.PI, 0, 1, 0));
         poseStack.translate(-0.5, -0.5, -0.51);
 
-        ElevatorGroup group = entity.getGroup();
-        int floorNumber = group.getFloorNumber(entity.getFloorLevel()), floorCount = group.getFloorCount();
-        this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, floorNumber < floorCount - 1 ? 64 : 87, 23, 23);
-        this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 23, 64, 23, 23);
-        this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 46, floorNumber > 0 ? 64 : 87, 23, 23);
+        boolean canReceiveInput = entity.canReceiveInput();
+        boolean renderUp = canReceiveInput && entity.canMoveUp();
+        boolean renderDown = canReceiveInput && entity.canMoveDown();
+        this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, renderUp ? 64 : 87, 23, 23);
+        this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 23, canReceiveInput ? 64 : 87, 23, 23);
+        this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 46, renderDown ? 64 : 87, 23, 23);
 
         poseStack.popPose();
     }
