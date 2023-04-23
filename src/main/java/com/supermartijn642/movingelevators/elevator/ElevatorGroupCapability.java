@@ -32,8 +32,12 @@ import java.util.Map;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorGroupCapability {
 
-    public static Capability<ElevatorGroupCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<ElevatorGroupCapability>() {
+    private static Capability<ElevatorGroupCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<ElevatorGroupCapability>() {
     });
+
+    public static ElevatorGroupCapability get(Level level){
+        return level.getCapability(CAPABILITY).orElse(null);
+    }
 
     @SubscribeEvent
     public static void register(RegisterCapabilitiesEvent e){
