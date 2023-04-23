@@ -39,10 +39,11 @@ repositories {
 dependencies {
     // Forge
     minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
+    // SpongePowered Mixin
+    annotationProcessor "org.spongepowered:mixin:0.8.4:processor"
 
     // Core library
-//    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}")
-    implementation fg.deobf("com.supermartijn642:supermartijn642corelib:1.1.0-forge-mc1.14")
+    implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}")
     // Config library
     implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file}")
 
@@ -79,7 +80,7 @@ processResources {
 minecraft {
     mappings channel: "official", version: project.minecraft_version
 
-    // accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
+    accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
 
     runs {
         client {
@@ -135,6 +136,12 @@ task prepareDataResources(type: Sync) {
 tasks.whenTaskAdded {
     if(it.name == "prepareRunData")
         it.dependsOn "prepareDataResources"
+}
+
+// MixinGradle Settings
+mixin {
+    add sourceSets.main, "${project.mod_id}.mixins.refmap.json"
+    config "${project.mod_id}.mixins.json"
 }
 
 // CurseGradle settings for uploading to CurseForge
@@ -203,9 +210,4 @@ task publishAll {
     dependsOn("curseforge", "modrinth")
     // Also build the file so I have a copy locally
     dependsOn "build"
-}
-
-// Disable the check because I don't actually need any mixins
-mixin {
-    disableAnnotationProcessorCheck()
 }
