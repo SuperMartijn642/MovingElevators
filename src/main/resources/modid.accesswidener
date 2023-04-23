@@ -1,3 +1,4 @@
 accessWidener v1 named
 
+accessible field net/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher renderers Ljava/util/Map;
 accessible field net/minecraft/server/network/ServerGamePacketListenerImpl aboveGroundTickCount I

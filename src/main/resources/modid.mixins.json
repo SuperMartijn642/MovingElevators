@@ -9,7 +9,9 @@
     "LivingEntityMixin",
     "RedStoneWireBlockMixin"
   ],
-  "client": [],
+  "client": [
+    "LevelRendererMixin"
+  ],
   "server": [
     "ServerLevelMixin"
   ],

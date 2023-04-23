@@ -14,7 +14,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -222,14 +221,10 @@ public class ElevatorGroup {
         if(this.floors.isEmpty()){
             if(this.isMoving){
                 Vec3 spawnPos = this.getCageAnchorPos(this.targetY).add(this.cageSizeX / 2d, this.cageSizeY / 2d, this.cageSizeZ / 2d);
-                for(BlockState[][] arr : this.cage.blockStates){
-                    for(BlockState[] arr2 : arr){
-                        for(BlockState state : arr2){
-                            ItemEntity itemEntity = new ItemEntity(this.level, spawnPos.x, spawnPos.y, spawnPos.z, new ItemStack(state.getBlock()));
-                            this.level.addFreshEntity(itemEntity);
-                        }
-                    }
-                }
+                this.cage.getDrops().forEach(stack -> {
+                    ItemEntity itemEntity = new ItemEntity(this.level, spawnPos.x, spawnPos.y, spawnPos.z, stack);
+                    this.level.addFreshEntity(itemEntity);
+                });
             }
         }else
             this.shouldBeSynced = true;
@@ -610,7 +605,9 @@ public class ElevatorGroup {
                     }
                 }
                 shape.optimize();
-                this.cage = new ElevatorCage(size, 1, size, blockStates, shape.toAabbs());
+                this.cage = this.level.isClientSide ?
+                    new ClientElevatorCage(size, 1, size, blockStates, new CompoundTag[size][1][size], new CompoundTag[size][1][size], shape.toAabbs()) :
+                    new ElevatorCage(size, 1, size, blockStates, new CompoundTag[size][1][size], new CompoundTag[size][1][size], shape.toAabbs());
             }
             this.targetSpeed = compound.getDouble("speed");
             this.speed = this.targetSpeed;
@@ -622,7 +619,7 @@ public class ElevatorGroup {
                 this.targetY = compound.getInt("targetY");
                 this.lastY = compound.getDouble("lastY");
                 this.currentY = compound.getDouble("currentY");
-                this.cage = ElevatorCage.read(compound.getCompound("cage"));
+                this.cage = ElevatorCage.read(compound.getCompound("cage"), this.level.isClientSide);
             }
             this.targetSpeed = compound.getDouble("targetSpeed");
             this.speed = compound.getDouble("speed");
@@ -659,6 +656,16 @@ public class ElevatorGroup {
 
     public int getFloorNumber(int y){
         return this.floors.indexOf(y);
+    }
+
+    public int getClosestFloorNumber(int y){
+        if(y < this.floors.get(0))
+            return 0;
+        for(int floor = 1; floor < this.floors.size(); floor++){
+            if(y < (this.floors.get(floor - 1) + this.floors.get(floor)) / 2)
+                return floor - 1;
+        }
+        return this.floors.size() - 1; // this should never be reached
     }
 
     public int getFloorYLevel(int floor){

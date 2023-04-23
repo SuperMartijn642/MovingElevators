@@ -49,13 +49,13 @@ public class CamoBakedModel implements BakedModel, FabricBakedModel {
         }
 
         if(camoState == null)
-            context.fallbackConsumer().accept(this.originalModel);
+            context.bakedModelConsumer().accept(this.originalModel, state);
         else{
             BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(camoState);
             if(((FabricBakedModel)model).isVanillaAdapter())
-                context.fallbackConsumer().accept(model);
+                context.bakedModelConsumer().accept(model, camoState);
             else
-                ((FabricBakedModel)model).emitBlockQuads(blockView, state, pos, randomSupplier, context);
+                ((FabricBakedModel)model).emitBlockQuads(blockView, camoState, pos, randomSupplier, context);
         }
     }
 
