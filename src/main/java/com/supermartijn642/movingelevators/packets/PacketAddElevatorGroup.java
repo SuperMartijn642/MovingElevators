@@ -37,6 +37,6 @@ public class PacketAddElevatorGroup implements BasePacket {
         Level world = ClientUtils.getWorld();
         if(world == null)
             return;
-        world.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.readGroup(this.groupData));
+        ElevatorGroupCapability.get(world).readGroup(this.groupData);
     }
 }
