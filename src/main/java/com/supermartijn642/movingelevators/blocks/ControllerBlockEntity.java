@@ -29,7 +29,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     public void update(){
         super.update();
         if(!this.initialized){
-            this.level.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(cap -> cap.add(this));
+            ElevatorGroupCapability.get(this.level).add(this);
             this.getGroup().updateFloorData(this, this.name, this.color);
             this.initialized = true;
         }
@@ -75,7 +75,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
 
     public void onRemove(){
         if(!this.level.isClientSide)
-            this.level.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.remove(this));
+            ElevatorGroupCapability.get(this.level).remove(this);
     }
 
     @Override
@@ -113,12 +113,12 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
 
     @Override
     public ElevatorGroup getGroup(){
-        return this.level.getCapability(ElevatorGroupCapability.CAPABILITY).map(groups -> groups.getGroup(this)).orElse(null);
+        return ElevatorGroupCapability.get(this.level).getGroup(this);
     }
 
     @Override
     public boolean hasGroup(){
-        return this.initialized && this.level.getCapability(ElevatorGroupCapability.CAPABILITY).map(groups -> groups.getGroup(this) != null).orElse(false);
+        return this.initialized && ElevatorGroupCapability.get(this.level).getGroup(this) != null;
     }
 
     @Override

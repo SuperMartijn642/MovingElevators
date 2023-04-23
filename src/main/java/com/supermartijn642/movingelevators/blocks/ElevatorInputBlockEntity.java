@@ -2,6 +2,7 @@ package com.supermartijn642.movingelevators.blocks;
 
 import com.supermartijn642.core.block.BaseBlockEntityType;
 import com.supermartijn642.core.block.TickableBlockEntity;
+import com.supermartijn642.movingelevators.elevator.ElevatorCabinLevel;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.item.DyeColor;
 import net.minecraft.nbt.CompoundNBT;
@@ -43,6 +44,23 @@ public abstract class ElevatorInputBlockEntity extends CamoBlockEntity implement
     public abstract int getFloorLevel();
 
     public abstract Direction getFacing();
+
+    /**
+     * Determines whether the buttons are rendered grayed-out
+     */
+    public boolean canReceiveInput(){
+        return !(this.level instanceof ElevatorCabinLevel) && this.hasGroup();
+    }
+
+    public boolean canMoveUp(){
+        ElevatorGroup group = this.getGroup();
+        return group != null && group.getFloorNumber(this.getFloorLevel()) < group.getFloorCount() - 1;
+    }
+
+    public boolean canMoveDown(){
+        ElevatorGroup group = this.getGroup();
+        return group != null && group.getFloorNumber(this.getFloorLevel()) > 0;
+    }
 
     @Override
     protected CompoundNBT writeData(){

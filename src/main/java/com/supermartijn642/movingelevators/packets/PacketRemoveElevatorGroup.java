@@ -45,7 +45,6 @@ public class PacketRemoveElevatorGroup implements BasePacket {
         World world = ClientUtils.getWorld();
         if(world == null)
             return;
-        world.getCapability(ElevatorGroupCapability.CAPABILITY).ifPresent(groups -> groups.removeGroup(this.x, this.z, this.facing));
+        ElevatorGroupCapability.get(world).removeGroup(this.x, this.z, this.facing);
     }
-
 }

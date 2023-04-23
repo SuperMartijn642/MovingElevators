@@ -1,10 +1,14 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.supermartijn642.core.ClientUtils;
 import net.minecraft.block.*;
+import net.minecraft.inventory.IClearable;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -13,7 +17,9 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.Constants;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +34,8 @@ public class ElevatorCage {
             return null;
 
         BlockState[][][] states = new BlockState[xSize][ySize][zSize];
+        CompoundNBT[][][] entities = new CompoundNBT[xSize][ySize][zSize];
+        CompoundNBT[][][] entityItemStacks = new CompoundNBT[xSize][ySize][zSize];
         VoxelShape shape = VoxelShapes.empty();
 
         for(int x = 0; x < xSize; x++){
@@ -40,6 +48,17 @@ public class ElevatorCage {
                     VoxelShape blockShape = states[x][y][z].getCollisionShape(world, pos);
                     blockShape = blockShape.move(x, y, z);
                     shape = VoxelShapes.joinUnoptimized(shape, blockShape, IBooleanFunction.OR);
+                    TileEntity entity = world.getBlockEntity(pos);
+                    if(entity != null){
+                        CompoundNBT tag = entity.save(new CompoundNBT());
+                        tag.putInt("x", x);
+                        tag.putInt("y", y);
+                        tag.putInt("z", z);
+                        entities[x][y][z] = tag;
+                        ItemStack stack = new ItemStack(states[x][y][z].getBlock());
+                        ClientUtils.getMinecraft().addCustomNbtData(stack, entity);
+                        entityItemStacks[x][y][z] = stack.save(new CompoundNBT());
+                    }
                 }
             }
         }
@@ -50,6 +69,11 @@ public class ElevatorCage {
                     BlockPos pos = startPos.offset(x, y, z);
                     if(states[x][y][z] == null)
                         continue;
+                    TileEntity entity = world.getBlockEntity(pos);
+                    if(entity != null){
+                        IClearable.tryClear(entity);
+                        world.removeBlockEntity(pos);
+                    }
                     world.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
                 }
             }
@@ -68,7 +92,9 @@ public class ElevatorCage {
 
         shape.optimize();
 
-        return new ElevatorCage(xSize, ySize, zSize, states, shape.toAabbs());
+        return world.isClientSide ?
+            new ClientElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs()) :
+            new ElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs());
     }
 
     public static boolean canCreateCage(World level, BlockPos startPos, int xSize, int ySize, int zSize){
@@ -89,16 +115,20 @@ public class ElevatorCage {
 
     public static boolean canBlockBeInCage(World level, BlockPos pos){
         BlockState state = level.getBlockState(pos);
-        return state.getFluidState().isEmpty() && state.getDestroySpeed(level, pos) >= 0 && !state.hasTileEntity(); // TODO allow block entities
+        return state.getFluidState().isEmpty() && state.getDestroySpeed(level, pos) >= 0;
     }
 
     public final int xSize, ySize, zSize;
     public final BlockState[][][] blockStates;
+    public final CompoundNBT[][][] blockEntityData;
+    public final CompoundNBT[][][] blockEntityStacks;
     public final VoxelShape shape;
     public final List<AxisAlignedBB> collisionBoxes;
     public final AxisAlignedBB bounds;
 
-    public ElevatorCage(int xSize, int ySize, int zSize, BlockState[][][] states, List<AxisAlignedBB> collisionBoxes){
+    public ElevatorCage(int xSize, int ySize, int zSize, BlockState[][][] states, CompoundNBT[][][] blockEntityData, CompoundNBT[][][] blockEntityStacks, List<AxisAlignedBB> collisionBoxes){
+        this.blockEntityData = blockEntityData;
+        this.blockEntityStacks = blockEntityStacks;
         if(states.length != xSize || states[0].length != ySize || states[0][0].length != zSize)
             throw new IllegalArgumentException("Given size and block state array do not match!");
         this.xSize = xSize;
@@ -129,14 +159,20 @@ public class ElevatorCage {
                     if(state == null)
                         continue;
                     BlockPos pos = startPos.offset(x, y, z);
-                    if(level.isEmptyBlock(pos))
-                        level.setBlockAndUpdate(pos, state);
-                    else if(level.getBlockState(pos).getDestroySpeed(level, pos) >= 0){
-                        level.destroyBlock(pos, true);
-                        level.setBlockAndUpdate(pos, state);
+                    boolean isEmpty = level.isEmptyBlock(pos);
+                    if(isEmpty || level.getBlockState(pos).getDestroySpeed(level, pos) >= 0){
+                        if(!isEmpty)
+                            level.destroyBlock(pos, true);
+                        level.setBlock(pos, state, 2);
+                        if(this.blockEntityData[x][y][z] != null){
+                            TileEntity entity = TileEntity.loadStatic(this.blockEntityData[x][y][z]);
+                            if(entity != null)
+                                level.setBlockEntity(pos, entity);
+                        }
                     }else{
-                        // TODO account for tile entities vvv
-                        InventoryHelper.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, new ItemStack(state.getBlock()));
+                        CompoundNBT itemTag = this.blockEntityStacks[x][y][z];
+                        ItemStack stack = itemTag == null ? new ItemStack(state.getBlock()) : ItemStack.of(itemTag);
+                        InventoryHelper.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
                     }
                 }
             }
@@ -200,28 +236,54 @@ public class ElevatorCage {
         }
     }
 
+    public List<ItemStack> getDrops(){
+        List<ItemStack> drops = new ArrayList<>();
+        for(int x = 0; x < this.xSize; x++){
+            for(int y = 0; y < this.ySize; y++){
+                for(int z = 0; z < this.zSize; z++){
+                    if(this.blockEntityStacks[x][y][z] != null)
+                        drops.add(ItemStack.of(this.blockEntityStacks[x][y][z]));
+                    else
+                        drops.add(new ItemStack(this.blockStates[x][y][z].getBlock()));
+                }
+            }
+        }
+        return drops;
+    }
+
     public CompoundNBT write(){
         CompoundNBT compound = new CompoundNBT();
         compound.putInt("xSize", this.xSize);
         compound.putInt("ySize", this.ySize);
         compound.putInt("zSize", this.zSize);
         int[] stateIds = new int[this.xSize * this.ySize * this.zSize];
+        ListNBT entityData = new ListNBT();
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
                     int index = x * this.ySize * this.zSize + y * this.zSize + z;
                     stateIds[index] = Block.getId(this.blockStates[x][y][z]);
+                    if(this.blockEntityData[x][y][z] != null){
+                        CompoundNBT tag = new CompoundNBT();
+                        tag.putInt("x", x);
+                        tag.putInt("y", y);
+                        tag.putInt("z", z);
+                        tag.put("data", this.blockEntityData[x][y][z]);
+                        tag.put("stack", this.blockEntityStacks[x][y][z]);
+                        entityData.add(tag);
+                    }
                 }
             }
         }
         compound.putIntArray("blockStates", stateIds);
+        compound.put("entityData", entityData);
         ListNBT collisionBoxList = new ListNBT();
         this.collisionBoxes.forEach(box -> collisionBoxList.add(writeBox(box)));
         compound.put("collisionBoxes", collisionBoxList);
         return compound;
     }
 
-    public static ElevatorCage read(CompoundNBT compound){
+    public static ElevatorCage read(CompoundNBT compound, boolean isClientSide){
         int xSize = compound.getInt("xSize");
         int ySize = compound.getInt("ySize");
         int zSize = compound.getInt("zSize");
@@ -236,12 +298,26 @@ public class ElevatorCage {
                 }
             }
         }
+        CompoundNBT[][][] entityTags = new CompoundNBT[xSize][ySize][zSize];
+        CompoundNBT[][][] stackTags = new CompoundNBT[xSize][ySize][zSize];
+        if(compound.contains("entityData", Constants.NBT.TAG_LIST)){
+            ListNBT entityData = compound.getList("entityData", Constants.NBT.TAG_COMPOUND);
+            for(INBT tag : entityData){
+                int x = ((CompoundNBT)tag).getInt("x");
+                int y = ((CompoundNBT)tag).getInt("y");
+                int z = ((CompoundNBT)tag).getInt("z");
+                entityTags[x][y][z] = ((CompoundNBT)tag).getCompound("data");
+                stackTags[x][y][z] = ((CompoundNBT)tag).getCompound("stack");
+            }
+        }
         ListNBT collisionBoxList = compound.getList("collisionBoxes", 10);
         List<AxisAlignedBB> collisionBoxes = collisionBoxList.stream()
             .map(CompoundNBT.class::cast)
             .map(ElevatorCage::readBox)
             .collect(Collectors.toList());
-        return new ElevatorCage(xSize, ySize, zSize, blockStates, collisionBoxes);
+        return isClientSide ?
+            new ClientElevatorCage(xSize, ySize, zSize, blockStates, entityTags, stackTags, collisionBoxes) :
+            new ElevatorCage(xSize, ySize, zSize, blockStates, entityTags, stackTags, collisionBoxes);
     }
 
     private static CompoundNBT writeBox(AxisAlignedBB box){
