@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.blocks;
 
 import com.supermartijn642.movingelevators.MovingElevators;
+import com.supermartijn642.movingelevators.elevator.ElevatorCabinLevel;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.core.BlockPos;
@@ -19,7 +20,9 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
     private Direction facing = Direction.NORTH;
     private BlockPos controllerPos = BlockPos.ZERO;
     private Direction controllerFacing = null;
-    private int groupCheckCounter = 0;
+    private boolean isInCabin = false;
+    private int cabinFloorIndex = -1;
+    private int groupCheckCounter = 2;
     private ElevatorGroup lastGroup;
 
     public RemoteControllerBlockEntity(BlockPos pos, BlockState state){
@@ -29,8 +32,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
     @Override
     public void update(){
         super.update();
-        this.groupCheckCounter++;
-        if(this.groupCheckCounter == 40){
+        this.groupCheckCounter--;
+        if(this.groupCheckCounter <= 0){
             // Update missing data when a remote elevator panel was placed in an older version
             if(this.controllerFacing == null && this.controllerPos != null){
                 ControllerBlockEntity controller = this.getController();
@@ -45,6 +48,9 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
                 group.addComparatorListener(this.getFloorLevel(), this.worldPosition);
                 this.lastGroup = group;
             }
+
+            this.calculateInCabin();
+            this.groupCheckCounter = 40;
         }
     }
 
@@ -55,6 +61,24 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
         this.dataChanged();
     }
 
+    private void calculateInCabin(){
+        if(this.hasGroup()){
+            ElevatorGroup group = this.getGroup();
+            for(int floor = 0; floor < group.getFloorCount(); floor++){
+                int y = group.getFloorYLevel(floor);
+                BlockPos min = group.getCageAnchorBlockPos(y);
+                if(this.worldPosition.getX() >= min.getX() && this.worldPosition.getX() < min.getX() + group.getCageSizeX()
+                    && this.worldPosition.getY() >= min.getY() && this.worldPosition.getY() < min.getY() + group.getCageSizeY()
+                    && this.worldPosition.getZ() >= min.getZ() && this.worldPosition.getZ() < min.getZ() + group.getCageSizeZ()){
+                    this.isInCabin = true;
+                    this.cabinFloorIndex = floor;
+                    return;
+                }
+            }
+        }
+        this.isInCabin = false;
+    }
+
     @Override
     protected CompoundTag writeData(){
         CompoundTag compound = super.writeData();
@@ -63,7 +87,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
         compound.putInt("controllerY", this.controllerPos.getY());
         compound.putInt("controllerZ", this.controllerPos.getZ());
         if(this.controllerFacing != null)
-            compound.putInt("controllerPos", this.controllerFacing.get2DDataValue());
+            compound.putInt("controllerFacing", this.controllerFacing.get2DDataValue());
+        this.groupCheckCounter = 2;
         return compound;
     }
 
@@ -73,6 +98,7 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
         this.facing = Direction.from3DDataValue(compound.getInt("facing"));
         this.controllerPos = new BlockPos(compound.getInt("controllerX"), compound.getInt("controllerY"), compound.getInt("controllerZ"));
         this.controllerFacing = compound.contains("controllerFacing", Tag.TAG_INT) ? Direction.from2DDataValue(compound.getInt("controllerFacing")) : null;
+        this.isInCabin = false;
     }
 
     @Override
@@ -96,7 +122,9 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
     public ElevatorGroup getGroup(){
         if(this.level == null || this.controllerPos == null || this.controllerFacing == null)
             return null;
-        ElevatorGroupCapability capability = this.level.getCapability(ElevatorGroupCapability.CAPABILITY).orElse(null);
+        if(this.level instanceof ElevatorCabinLevel)
+            return ((ElevatorCabinLevel)this.level).getElevatorGroup();
+        ElevatorGroupCapability capability = ElevatorGroupCapability.get(this.level);
         return capability == null ? null : capability.get(this.controllerPos.getX(), this.controllerPos.getZ(), this.controllerFacing);
     }
 
@@ -114,7 +142,11 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
 
     @Override
     public int getFloorLevel(){
-        return this.controllerPos.getY();
+        if(this.level instanceof ElevatorCabinLevel && this.hasGroup()){
+            ElevatorGroup group = this.getGroup();
+            return group.getFloorYLevel(group.getClosestFloorNumber(this.worldPosition.getY()));
+        }
+        return this.isInCabin && this.hasGroup() ? this.getGroup().getFloorYLevel(this.cabinFloorIndex) : this.controllerPos.getY();
     }
 
     public BlockPos getControllerPos(){
