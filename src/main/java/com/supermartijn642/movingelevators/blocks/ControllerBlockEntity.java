@@ -27,9 +27,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     public void update(){
         super.update();
         if(!this.initialized){
-            ElevatorGroupCapability groupCapability = this.world.getCapability(ElevatorGroupCapability.CAPABILITY, null);
-            if(groupCapability != null)
-                groupCapability.add(this);
+            ElevatorGroupCapability.get(this.world).add(this);
             this.getGroup().updateFloorData(this, this.name, this.color);
             this.initialized = true;
         }
@@ -70,11 +68,8 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     }
 
     public void onRemove(){
-        if(!this.world.isRemote){
-            ElevatorGroupCapability groups = this.world.getCapability(ElevatorGroupCapability.CAPABILITY, null);
-            if(groups != null)
-                groups.remove(this);
-        }
+        if(!this.world.isRemote)
+            ElevatorGroupCapability.get(this.world).remove(this);
     }
 
     @Override
@@ -112,16 +107,12 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
 
     @Override
     public ElevatorGroup getGroup(){
-        ElevatorGroupCapability groups = this.world.getCapability(ElevatorGroupCapability.CAPABILITY, null);
-        return groups == null ? null : groups.getGroup(this);
+        return ElevatorGroupCapability.get(this.world).getGroup(this);
     }
 
     @Override
     public boolean hasGroup(){
-        if(!this.initialized)
-            return false;
-        ElevatorGroupCapability groups = this.world.getCapability(ElevatorGroupCapability.CAPABILITY, null);
-        return groups != null && groups.getGroup(this) != null;
+        return this.initialized && ElevatorGroupCapability.get(this.world).getGroup(this) != null;
     }
 
     @Override

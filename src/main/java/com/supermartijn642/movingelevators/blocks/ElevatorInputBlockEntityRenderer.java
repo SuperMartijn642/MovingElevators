@@ -4,7 +4,6 @@ import com.supermartijn642.core.gui.ScreenUtils;
 import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import com.supermartijn642.core.render.TextureAtlases;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
-import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -19,7 +18,7 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
 
     @Override
     public void render(T entity, float partialTicks, int combinedOverlay, float alpha){
-        if(!entity.hasGroup() || entity.getFacing() == null || (entity instanceof ControllerBlockEntity && !((ControllerBlockEntity)entity).shouldShowButtons()))
+        if(entity.getFacing() == null || (entity instanceof ControllerBlockEntity && !((ControllerBlockEntity)entity).shouldShowButtons()))
             return;
 
         // render buttons
@@ -38,11 +37,12 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
-        ElevatorGroup group = entity.getGroup();
-        int floorNumber = group.getFloorNumber(entity.getFloorLevel()), floorCount = group.getFloorCount();
-        this.drawOverlayPart(buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, floorNumber < floorCount - 1 ? 64 : 87, 23, 23);
-        this.drawOverlayPart(buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 23, 64, 23, 23);
-        this.drawOverlayPart(buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 46, floorNumber > 0 ? 64 : 87, 23, 23);
+        boolean canReceiveInput = entity.canReceiveInput();
+        boolean renderUp = canReceiveInput && entity.canMoveUp();
+        boolean renderDown = canReceiveInput && entity.canMoveDown();
+        this.drawOverlayPart(buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, renderUp ? 64 : 87, 23, 23);
+        this.drawOverlayPart(buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 23, canReceiveInput ? 64 : 87, 23, 23);
+        this.drawOverlayPart(buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 46, renderDown ? 64 : 87, 23, 23);
 
         Tessellator.getInstance().draw();
 

@@ -53,7 +53,7 @@ public class PacketSyncElevatorMovement implements BasePacket {
         World world = ClientUtils.getWorld();
         if(world == null)
             return;
-        ElevatorGroupCapability groups = world.getCapability(ElevatorGroupCapability.CAPABILITY, null);
+        ElevatorGroupCapability groups = ElevatorGroupCapability.get(world);
         if(groups == null)
             return;
         ElevatorGroup group = groups.get(this.x, this.z, this.facing);

@@ -12,7 +12,6 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -221,14 +220,10 @@ public class ElevatorGroup {
         if(this.floors.isEmpty()){
             if(this.isMoving){
                 Vec3d spawnPos = this.getCageAnchorPos(this.targetY).addVector(this.cageSizeX / 2d, this.cageSizeY / 2d, this.cageSizeZ / 2d);
-                for(IBlockState[][] arr : this.cage.blockStates){
-                    for(IBlockState[] arr2 : arr){
-                        for(IBlockState state : arr2){
-                            EntityItem itemEntity = new EntityItem(this.level, spawnPos.x, spawnPos.y, spawnPos.z, new ItemStack(state.getBlock()));
-                            this.level.spawnEntity(itemEntity);
-                        }
-                    }
-                }
+                this.cage.getDrops().forEach(stack -> {
+                    EntityItem itemEntity = new EntityItem(this.level, spawnPos.x, spawnPos.y, spawnPos.z, stack);
+                    this.level.spawnEntity(itemEntity);
+                });
             }
         }else
             this.shouldBeSynced = true;
@@ -610,7 +605,9 @@ public class ElevatorGroup {
                 }
                 // TODO reduce the number of collision boxes
 //                shape.optimize();
-                this.cage = new ElevatorCage(size, 1, size, blockStates, shape.toBoxes());
+                this.cage = this.level.isRemote ?
+                    new ClientElevatorCage(size, 1, size, blockStates, new NBTTagCompound[size][1][size], new NBTTagCompound[size][1][size], shape.toBoxes()) :
+                    new ElevatorCage(size, 1, size, blockStates, new NBTTagCompound[size][1][size], new NBTTagCompound[size][1][size], shape.toBoxes());
             }
             this.targetSpeed = compound.getDouble("speed");
             this.speed = this.targetSpeed;
@@ -622,7 +619,7 @@ public class ElevatorGroup {
                 this.targetY = compound.getInteger("targetY");
                 this.lastY = compound.getDouble("lastY");
                 this.currentY = compound.getDouble("currentY");
-                this.cage = ElevatorCage.read(compound.getCompoundTag("cage"));
+                this.cage = ElevatorCage.read(compound.getCompoundTag("cage"), this.level.isRemote);
             }
             this.targetSpeed = compound.getDouble("targetSpeed");
             this.speed = compound.getDouble("speed");
@@ -666,6 +663,16 @@ public class ElevatorGroup {
         return this.floors.indexOf(y);
     }
 
+    public int getClosestFloorNumber(int y){
+        if(y < this.floors.get(0))
+            return 0;
+        for(int floor = 1; floor < this.floors.size(); floor++){
+            if(y < (this.floors.get(floor - 1) + this.floors.get(floor)) / 2)
+                return floor - 1;
+        }
+        return this.floors.size() - 1; // this should never be reached
+    }
+
     public int getFloorYLevel(int floor){
         return this.floors.get(floor);
     }
@@ -677,8 +684,7 @@ public class ElevatorGroup {
     }
 
     private void updateGroup(){
-        ElevatorGroupCapability groups = this.level.getCapability(ElevatorGroupCapability.CAPABILITY, null);
-        groups.updateGroup(this);
+        ElevatorGroupCapability.get(this.level).updateGroup(this);
     }
 
     private void syncMovement(){
