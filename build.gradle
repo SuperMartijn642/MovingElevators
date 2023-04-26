@@ -43,6 +43,8 @@ dependencies {
     implementation fg.deobf("curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}")
     // Config library
     implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file}")
+    // Rubidium
+    compileOnly fg.deobf("curse.maven:rubidium-574856:${project.rubidium_file}")
 
     // Just Enough Items
 //    runtimeOnly fg.deobf("curse.maven:jei-238222:${project.just_enough_items_file}")
