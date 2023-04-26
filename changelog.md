@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.0a
+- Added separate mixins for Rubidium
+
 ### Moving Elevators 1.4.0
 - Elevator cabins can now contain block entities
 - Remote elevators panels can be used inside elevator cabins
