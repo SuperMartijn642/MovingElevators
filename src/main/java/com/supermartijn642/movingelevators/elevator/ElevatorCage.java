@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
@@ -57,9 +58,19 @@ public class ElevatorCage {
                         tag.putInt("y", y);
                         tag.putInt("z", z);
                         entities[x][y][z] = tag;
+                        // Create an item to drop in case the block can't be placed back
                         ItemStack stack = new ItemStack(states[x][y][z].getBlock());
-                        entity.saveToItem(stack);
-                        entityItemStacks[x][y][z] = stack.save(new CompoundTag());
+                        tag = tag.copy();
+                        tag.remove("x");
+                        tag.remove("y");
+                        tag.remove("z");
+                        stack.addTagElement("BlockEntityTag", tag);
+                        CompoundTag displayTag = new CompoundTag();
+                        ListTag loreTag = new ListTag();
+                        loreTag.add(StringTag.valueOf("\"(+NBT)\""));
+                        displayTag.put("Lore", loreTag);
+                        stack.addTagElement("display", displayTag);
+                        entityItemStacks[x][y][z] = stack.serializeNBT();
                     }
                 }
             }
