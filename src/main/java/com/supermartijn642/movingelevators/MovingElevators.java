@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators;
 
 import com.google.common.collect.Sets;
+import com.supermartijn642.core.CommonUtils;
 import com.supermartijn642.core.block.BaseBlockEntityType;
 import com.supermartijn642.core.block.BlockProperties;
 import com.supermartijn642.core.item.BaseBlockItem;
@@ -17,8 +18,6 @@ import com.supermartijn642.movingelevators.packets.*;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -77,7 +76,8 @@ public class MovingElevators {
         MovingElevatorsConfig.init();
 
         register();
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> MovingElevatorsClient::register);
+        if(CommonUtils.getEnvironmentSide().isClient())
+            MovingElevatorsClient.register();
         registerGenerators();
     }
 
