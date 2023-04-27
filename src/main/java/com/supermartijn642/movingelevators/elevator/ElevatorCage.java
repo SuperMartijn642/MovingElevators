@@ -1,7 +1,6 @@
 package com.supermartijn642.movingelevators.elevator;
 
 import com.google.common.collect.Streams;
-import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.block.BlockShape;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockButton;
@@ -13,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -58,8 +58,18 @@ public class ElevatorCage {
                         tag.setInteger("y", y);
                         tag.setInteger("z", z);
                         entities[x][y][z] = tag;
+                        // Create an item to drop in case the block can't be placed back
                         ItemStack stack = new ItemStack(states[x][y][z].getBlock());
-                        ClientUtils.getMinecraft().storeTEInStack(stack, entity);
+                        tag = tag.copy();
+                        tag.removeTag("x");
+                        tag.removeTag("y");
+                        tag.removeTag("z");
+                        stack.setTagInfo("BlockEntityTag", tag);
+                        NBTTagCompound displayTag = new NBTTagCompound();
+                        NBTTagList loreTag = new NBTTagList();
+                        loreTag.appendTag(new NBTTagString("(+NBT)"));
+                        displayTag.setTag("Lore", loreTag);
+                        stack.setTagInfo("display", displayTag);
                         entityItemStacks[x][y][z] = stack.serializeNBT();
                     }
                 }
