@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.1
+- Fixed error when trying to move block entities on a dedicated server
+
 ### Moving Elevators 1.4.0a
 - Added separate mixins for Rubidium
 
