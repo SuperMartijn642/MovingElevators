@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.1a
+- Fixed elevator data not getting saved in single player worlds
+
 ### Moving Elevators 1.4.1
 - Fixed error when trying to move block entities on a dedicated server
 
