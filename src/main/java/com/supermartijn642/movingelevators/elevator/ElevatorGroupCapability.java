@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.supermartijn642.core.CommonUtils;
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.blocks.ControllerBlockEntity;
 import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevel;
@@ -31,7 +32,8 @@ public class ElevatorGroupCapability {
     }
 
     public static void registerEventListeners(){
-        ClientTickEvents.END_WORLD_TICK.register(ElevatorGroupCapability::tickWorldCapability);
+        if(CommonUtils.getEnvironmentSide().isClient())
+            ClientTickEvents.END_WORLD_TICK.register(ElevatorGroupCapability::tickWorldCapability);
         ServerTickEvents.END_WORLD_TICK.register(ElevatorGroupCapability::tickWorldCapability);
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> onJoinWorld(player, destination));
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onJoin(handler.getPlayer()));
