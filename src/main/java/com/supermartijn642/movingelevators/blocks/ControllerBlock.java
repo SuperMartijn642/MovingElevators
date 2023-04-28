@@ -1,6 +1,5 @@
 package com.supermartijn642.movingelevators.blocks;
 
-import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.block.BlockProperties;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
@@ -39,7 +38,6 @@ public class ControllerBlock extends ElevatorInputBlock {
 
     @Override
     protected boolean onRightClick(BlockState state, Level level, CamoBlockEntity blockEntity, BlockPos pos, Player player, InteractionHand hand, Direction hitSide, Vec3 hitLocation){
-        ClientUtils.getBlockRenderer().getBlockModel(state);
         if(player != null && player.getItemInHand(hand).getItem() instanceof RemoteControllerBlockItem && blockEntity instanceof ControllerBlockEntity){
             if(!level.isClientSide){
                 ItemStack stack = player.getItemInHand(hand);
