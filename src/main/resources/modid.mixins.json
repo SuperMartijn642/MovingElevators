@@ -8,14 +8,13 @@
   "mixins": [
     "LevelMixin",
     "LivingEntityMixin",
-    "RedStoneWireBlockMixin"
+    "RedStoneWireBlockMixin",
+    "ServerLevelMixin"
   ],
   "client": [
     "LevelRendererMixin"
   ],
-  "server": [
-    "ServerLevelMixin"
-  ],
+  "server": [],
   "injectors": {
     "defaultRequire": 1
   }
