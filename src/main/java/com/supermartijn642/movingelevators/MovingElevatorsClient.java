@@ -12,7 +12,6 @@ import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -62,7 +61,7 @@ public class MovingElevatorsClient implements ClientModInitializer {
     }
 
     public static void openElevatorScreen(BlockPos pos){
-        Minecraft.getInstance().setScreen(WidgetScreen.of(new ElevatorScreen(pos)));
+        ClientUtils.displayScreen(WidgetScreen.of(new ElevatorScreen(pos)));
     }
 
     public static String formatFloorDisplayName(String name, int floor){

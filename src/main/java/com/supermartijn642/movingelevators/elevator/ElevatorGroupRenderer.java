@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
 import com.supermartijn642.core.render.RenderWorldEvent;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -36,7 +35,7 @@ public class ElevatorGroupRenderer {
         e.getPoseStack().translate(-camera.x, -camera.y, -camera.z);
         for(ElevatorGroup group : groups.getGroups()){
             BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-            if(elevatorPos.distSqr(Minecraft.getInstance().player.blockPosition()) < RENDER_DISTANCE
+            if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE
                 && ClientUtils.getMinecraft().getEntityRenderDispatcher().shouldRenderHitBoxes())
                 renderGroupCageOutlines(e.getPoseStack(), group);
         }
@@ -53,7 +52,7 @@ public class ElevatorGroupRenderer {
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving()){
                 BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distSqr(Minecraft.getInstance().player.blockPosition()) < RENDER_DISTANCE)
+                if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE)
                     renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
             }
         }
@@ -69,7 +68,7 @@ public class ElevatorGroupRenderer {
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving()){
                 BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distSqr(Minecraft.getInstance().player.blockPosition()) < RENDER_DISTANCE)
+                if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE)
                     renderGroupBlockEntities(poseStack, group, bufferSource, partialTicks);
             }
         }
