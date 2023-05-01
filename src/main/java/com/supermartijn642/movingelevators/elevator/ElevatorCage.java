@@ -197,41 +197,26 @@ public class ElevatorCage {
                 for(int z = 0; z < this.zSize; z++){
                     BlockPos pos = startPos.add(x, y, z);
                     IBlockState state = level.getBlockState(pos);
-                    if(x == 0){
-                        EnumFacing direction = EnumFacing.WEST;
-                        BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
-                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
-                    }
-                    if(x == this.xSize - 1){
-                        EnumFacing direction = EnumFacing.EAST;
-                        BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
-                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
-                    }
-                    if(y == 0){
-                        EnumFacing direction = EnumFacing.DOWN;
-                        BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
-                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
-                    }
-                    if(y == this.ySize - 1){
-                        EnumFacing direction = EnumFacing.UP;
-                        BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
-                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
-                    }
-                    if(z == 0){
-                        EnumFacing direction = EnumFacing.NORTH;
-                        BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
-                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
-                    }
-                    if(z == this.zSize - 1){
-                        EnumFacing direction = EnumFacing.SOUTH;
-                        BlockPos neighbor = pos.offset(direction);
-                        state.neighborChanged(level, pos, state.getBlock(), neighbor);
-                        level.notifyNeighborsOfStateChange(pos, state.getBlock(), false);
+                    boolean[] updateDirections = new boolean[6];
+                    if(x == 0)
+                        updateDirections[4] = true;
+                    if(x == this.xSize - 1)
+                        updateDirections[5] = true;
+                    if(y == 0)
+                        updateDirections[0] = true;
+                    if(y == this.ySize - 1)
+                        updateDirections[1] = true;
+                    if(z == 0)
+                        updateDirections[2] = true;
+                    if(z == this.zSize - 1)
+                        updateDirections[3] = true;
+                    for(int i = 0; i < updateDirections.length; i++){
+                        if(updateDirections[i]){
+                            EnumFacing direction = EnumFacing.values()[i];
+                            BlockPos neighbor = pos.offset(direction);
+                            state.neighborChanged(level, pos, state.getBlock(), neighbor);
+                            level.neighborChanged(pos.offset(direction), state.getBlock(), pos);
+                        }
                     }
 
                     // Special case for buttons and pressure plates to prevent them getting stuck
