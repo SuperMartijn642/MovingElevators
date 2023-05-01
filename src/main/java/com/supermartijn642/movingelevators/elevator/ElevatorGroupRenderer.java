@@ -6,7 +6,6 @@ import com.supermartijn642.core.render.RenderUtils;
 import com.supermartijn642.core.render.RenderWorldEvent;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -60,7 +59,7 @@ public class ElevatorGroupRenderer {
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving()){
                 BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distSqr(Minecraft.getInstance().player.getCommandSenderBlockPosition()) < RENDER_DISTANCE)
+                if(elevatorPos.distSqr(ClientUtils.getPlayer().getCommandSenderBlockPosition()) < RENDER_DISTANCE)
                     renderGroupBlocks(group, renderType, buffer, ClientUtils.getPartialTicks());
             }
         }
@@ -74,7 +73,7 @@ public class ElevatorGroupRenderer {
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving()){
                 BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distSqr(Minecraft.getInstance().player.getCommandSenderBlockPosition()) < RENDER_DISTANCE)
+                if(elevatorPos.distSqr(ClientUtils.getPlayer().getCommandSenderBlockPosition()) < RENDER_DISTANCE)
                     renderGroupBlockEntities(group, partialTicks);
             }
         }

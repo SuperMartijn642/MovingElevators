@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -46,7 +45,7 @@ public class ElevatorPreviewRenderer {
         scale /= span;
 
         ScreenUtils.bindTexture(TextureAtlases.getBlocks());
-        ClientUtils.getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS).pushFilter(false, false);
+        ClientUtils.getTextureManager().getTexture(TextureAtlases.getBlocks()).pushFilter(false, false);
         GlStateManager.enableRescaleNormal();
         GlStateManager.enableAlphaTest();
         GlStateManager.alphaFunc(516, 0.1F);
