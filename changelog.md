@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.2
+- Fixed neighboring blocks not properly getting updated when an elevator arrives
+
 ### Moving Elevators 1.4.1a
 - Fixed elevator data not getting saved in single player worlds
 
