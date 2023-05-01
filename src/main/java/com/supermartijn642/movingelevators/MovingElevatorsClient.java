@@ -11,8 +11,6 @@ import com.supermartijn642.movingelevators.blocks.ElevatorInputBlockEntityRender
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -66,12 +64,12 @@ public class MovingElevatorsClient {
 
     @SubscribeEvent
     public static void onTextureStitchPost(TextureStitchEvent.Post e){
-        if(e.getMap().location().equals(TextureAtlas.LOCATION_BLOCKS))
+        if(e.getMap().location().equals(TextureAtlases.getBlocks()))
             OVERLAY_SPRITE = e.getMap().getSprite(OVERLAY_TEXTURE_LOCATION);
     }
 
     public static void openElevatorScreen(BlockPos pos){
-        Minecraft.getInstance().setScreen(WidgetScreen.of(new ElevatorScreen(pos)));
+        ClientUtils.displayScreen(WidgetScreen.of(new ElevatorScreen(pos)));
     }
 
     public static String formatFloorDisplayName(String name, int floor){
@@ -83,8 +81,8 @@ public class MovingElevatorsClient {
 
         @SubscribeEvent
         public static void onClientTick(TickEvent.ClientTickEvent e){
-            if(e.phase == TickEvent.Phase.END && !Minecraft.getInstance().isPaused() && Minecraft.getInstance().level != null)
-                ElevatorGroupCapability.tickWorldCapability(Minecraft.getInstance().level);
+            if(e.phase == TickEvent.Phase.END && !ClientUtils.getMinecraft().isPaused() && ClientUtils.getWorld() != null)
+                ElevatorGroupCapability.tickWorldCapability(ClientUtils.getWorld());
         }
     }
 }
