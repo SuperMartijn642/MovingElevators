@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.2
+- Fixed neighboring blocks not properly getting updated when an elevator arrives
+
 ### Moving Elevators 1.4.1
 - Fixed error when trying to move block entities on a dedicated server
 
