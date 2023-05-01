@@ -11,7 +11,6 @@ import com.supermartijn642.movingelevators.blocks.ElevatorInputBlockEntityRender
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -79,7 +78,7 @@ public class MovingElevatorsClient {
 
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent e){
-        if(e.phase == TickEvent.Phase.END && !Minecraft.getMinecraft().isGamePaused() && Minecraft.getMinecraft().world != null)
-            ElevatorGroupCapability.tickWorldCapability(Minecraft.getMinecraft().world);
+        if(e.phase == TickEvent.Phase.END && !ClientUtils.getMinecraft().isGamePaused() && ClientUtils.getWorld() != null)
+            ElevatorGroupCapability.tickWorldCapability(ClientUtils.getWorld());
     }
 }
