@@ -196,41 +196,27 @@ public class ElevatorCage {
                 for(int z = 0; z < this.zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
                     BlockState state = world.getBlockState(pos);
-                    if(x == 0){
-                        Direction direction = Direction.WEST;
-                        BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
-                    }
-                    if(x == this.xSize - 1){
-                        Direction direction = Direction.EAST;
-                        BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
-                    }
-                    if(y == 0){
-                        Direction direction = Direction.DOWN;
-                        BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
-                    }
-                    if(y == this.ySize - 1){
-                        Direction direction = Direction.UP;
-                        BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
-                    }
-                    if(z == 0){
-                        Direction direction = Direction.NORTH;
-                        BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
-                    }
-                    if(z == this.zSize - 1){
-                        Direction direction = Direction.SOUTH;
-                        BlockPos neighbor = pos.relative(direction);
-                        BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
-                        Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
+                    boolean[] updateDirections = new boolean[6];
+                    if(x == 0)
+                        updateDirections[4] = true;
+                    if(x == this.xSize - 1)
+                        updateDirections[5] = true;
+                    if(y == 0)
+                        updateDirections[0] = true;
+                    if(y == this.ySize - 1)
+                        updateDirections[1] = true;
+                    if(z == 0)
+                        updateDirections[2] = true;
+                    if(z == this.zSize - 1)
+                        updateDirections[3] = true;
+                    for(int i = 0; i < updateDirections.length; i++){
+                        if(updateDirections[i]){
+                            Direction direction = Direction.values()[i];
+                            BlockPos neighbor = pos.relative(direction);
+                            BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
+                            Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
+                            world.neighborChanged(pos.relative(direction), updatedState.getBlock(), pos);
+                        }
                     }
 
                     // Special case for buttons and pressure plates to prevent them getting stuck
