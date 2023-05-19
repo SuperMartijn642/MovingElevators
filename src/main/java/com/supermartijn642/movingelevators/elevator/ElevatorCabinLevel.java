@@ -22,6 +22,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraft.world.ticks.ScheduledTick;
@@ -43,7 +44,7 @@ public class ElevatorCabinLevel extends Level {
     private BlockPos minPos, maxPos;
 
     protected ElevatorCabinLevel(Level clientLevel){
-        super(null, null, clientLevel.dimensionTypeRegistration(), null, true, false, 0);
+        super(null, null, clientLevel.dimensionTypeRegistration(), null, true, false, 0, 512);
         this.level = clientLevel;
     }
 
@@ -85,13 +86,11 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public void playSound(@Nullable Player player, double d, double e, double f, SoundEvent soundEvent, SoundSource soundSource, float g, float h){
-
+    public void playSeededSound(@Nullable Player player, double x, double y, double z, SoundEvent sound, SoundSource source, float pitch, float volume, long l){
     }
 
     @Override
-    public void playSound(@Nullable Player player, Entity entity, SoundEvent soundEvent, SoundSource soundSource, float f, float g){
-
+    public void playSeededSound(@Nullable Player player, Entity entity, SoundEvent sound, SoundSource source, float pitch, float volume, long l){
     }
 
     @Override
@@ -156,7 +155,6 @@ public class ElevatorCabinLevel extends Level {
 
             @Override
             public <U extends Entity> void get(EntityTypeTest<Entity,U> entityTypeTest, Consumer<U> consumer){
-
             }
 
             @Override
@@ -165,14 +163,13 @@ public class ElevatorCabinLevel extends Level {
 
             @Override
             public <U extends Entity> void get(EntityTypeTest<Entity,U> entityTypeTest, AABB aabb, Consumer<U> consumer){
-
             }
         };
     }
 
     @Override
     public LevelTickAccess<Block> getBlockTicks(){
-        return new LevelTickAccess<Block>() {
+        return new LevelTickAccess<>() {
             @Override
             public boolean willTickThisTick(BlockPos pos, Block block){
                 return false;
@@ -228,7 +225,7 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public void gameEvent(@Nullable Entity entity, GameEvent gameEvent, BlockPos pos){
+    public void gameEvent(GameEvent gameEvent, Vec3 vec3, GameEvent.Context context){
     }
 
     @Override
