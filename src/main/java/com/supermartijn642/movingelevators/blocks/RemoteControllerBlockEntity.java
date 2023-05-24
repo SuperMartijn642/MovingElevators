@@ -45,7 +45,8 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
             ElevatorGroup group = this.getGroup();
             if(group != this.lastGroup){
                 this.level.updateNeighbourForOutputSignal(this.worldPosition, this.getBlockState().getBlock());
-                group.addComparatorListener(this.getFloorLevel(), this.worldPosition);
+                if(group != null)
+                    group.addComparatorListener(this.getFloorLevel(), this.worldPosition);
                 this.lastGroup = group;
             }
 
