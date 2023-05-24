@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.3
+- Fixed crash when breaking the block a remote elevator panel is bound to
+
 ### Moving Elevators 1.4.2
 - Fixed neighboring blocks not properly getting updated when an elevator arrives
 
