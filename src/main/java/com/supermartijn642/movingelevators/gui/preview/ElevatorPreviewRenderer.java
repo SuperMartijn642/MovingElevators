@@ -73,13 +73,6 @@ public class ElevatorPreviewRenderer {
         BlockState state = capture.getBlockState(pos);
         if(state.getBlock() != Blocks.AIR){
             BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
-//            if(model instanceof RechiseledConnectedBakedModel){ // TODO
-//                RechiseledModelData data = new RechiseledModelData();
-//                for(Direction direction : Direction.values())
-//                    data.sides.put(direction, new RechiseledModelData.SideData(direction, capture::getBlock, pos, state.getBlock()));
-//                modelData = new ModelDataMap.Builder().withInitial(RechiseledModelData.PROPERTY, data).build();
-//            }
-
             RenderType renderType = ItemBlockRenderTypes.getRenderType(state, true);
             renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType));
         }

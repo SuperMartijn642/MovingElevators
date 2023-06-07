@@ -34,7 +34,7 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     private final BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier;
 
     public CamoBlock(BlockProperties properties, BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier){
-        super(false, properties.dynamicShape());
+        super(false, properties.toUnderlying().pushReaction(PushReaction.BLOCK).dynamicShape());
         this.entitySupplier = entitySupplier;
     }
 
@@ -72,11 +72,6 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     @Override
     public BlockEntity createNewBlockEntity(BlockPos pos, BlockState state){
         return this.entitySupplier.apply(pos, state);
-    }
-
-    @Override
-    public PushReaction getPistonPushReaction(BlockState state){
-        return PushReaction.BLOCK;
     }
 
     @Override

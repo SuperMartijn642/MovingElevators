@@ -48,7 +48,7 @@ public class ElevatorGroupCapability {
     }
 
     public static void onJoin(Player player){
-        MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(get(player.level).write()));
+        MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(get(player.level()).write()));
     }
 
     private final Level level;

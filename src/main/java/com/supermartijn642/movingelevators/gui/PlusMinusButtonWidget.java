@@ -1,7 +1,7 @@
 package com.supermartijn642.movingelevators.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -40,9 +40,9 @@ public class PlusMinusButtonWidget extends AbstractButtonWidget {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY){
+    public void render(WidgetRenderContext context, int mouseX, int mouseY){
         this.active = this.isActive.get();
         ScreenUtils.bindTexture(PLUS_MINUS_BUTTONS);
-        ScreenUtils.drawTexture(poseStack, this.x, this.y, this.width, this.height, this.isPlus ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
+        ScreenUtils.drawTexture(context.poseStack(), this.x, this.y, this.width, this.height, this.isPlus ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
     }
 }

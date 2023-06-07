@@ -89,7 +89,7 @@ public class ElevatorCollisionHandler {
                 entity.fallDistance = 0;
                 if(entity instanceof Player){
                     ElevatorFallDamageHandler.resetElevatorTime((Player)entity);
-                    if(entity.level.isClientSide)
+                    if(entity.level().isClientSide)
                         MovingElevators.CHANNEL.sendToServer(new PacketOnElevator());
                 }
             }
