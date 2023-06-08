@@ -141,7 +141,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.pushPose();
         poseStack.translate(0, 0.07, -0.005);
         poseStack.scale(-0.01f, -0.08f, 1);
-        fontRenderer.draw(poseStack, s, -fontRenderer.width(s) / 2f, -fontRenderer.lineHeight, 0xffffffff);
+        fontRenderer.drawInBatch(s, -fontRenderer.width(s) / 2f, -fontRenderer.lineHeight, 0xffffffff, false, poseStack.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, combinedLight);
         poseStack.popPose();
     }
 }

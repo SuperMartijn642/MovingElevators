@@ -1,7 +1,7 @@
 package com.supermartijn642.movingelevators.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.gui.widget.BaseWidget;
+import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.movingelevators.blocks.ControllerBlockEntity;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.gui.preview.ElevatorPreviewRenderer;
@@ -42,7 +42,7 @@ public class ElevatorPreviewWidget extends BaseWidget {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY){
+    public void render(WidgetRenderContext context, int mouseX, int mouseY){
         // Update the rotation
         if(this.dragging){
             this.yaw += (mouseX - this.mouseStartX) / 100d * 360;

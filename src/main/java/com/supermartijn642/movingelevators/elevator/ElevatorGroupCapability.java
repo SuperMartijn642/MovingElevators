@@ -85,7 +85,7 @@ public class ElevatorGroupCapability {
     @SubscribeEvent
     public static void onJoinWorld(PlayerEvent.PlayerChangedDimensionEvent e){
         ServerPlayer player = (ServerPlayer)e.getEntity();
-        player.level.getCapability(CAPABILITY).ifPresent(groups ->
+        player.level().getCapability(CAPABILITY).ifPresent(groups ->
             MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(groups.write()))
         );
     }
@@ -93,7 +93,7 @@ public class ElevatorGroupCapability {
     @SubscribeEvent
     public static void onJoin(PlayerEvent.PlayerLoggedInEvent e){
         ServerPlayer player = (ServerPlayer)e.getEntity();
-        player.level.getCapability(CAPABILITY).ifPresent(groups ->
+        player.level().getCapability(CAPABILITY).ifPresent(groups ->
             MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(groups.write()))
         );
     }

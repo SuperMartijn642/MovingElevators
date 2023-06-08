@@ -15,8 +15,7 @@ import com.supermartijn642.movingelevators.blocks.*;
 import com.supermartijn642.movingelevators.generators.*;
 import com.supermartijn642.movingelevators.packets.*;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.Set;
@@ -79,7 +78,7 @@ public class MovingElevators {
     private static void register(){
         RegistrationHandler handler = RegistrationHandler.get("movingelevators");
         // Blocks
-        Supplier<BlockProperties> properties = () -> BlockProperties.create(Material.STONE, MaterialColor.COLOR_GRAY).sound(SoundType.METAL).destroyTime(1.5f).explosionResistance(6);
+        Supplier<BlockProperties> properties = () -> BlockProperties.create().mapColor(MapColor.COLOR_GRAY).sound(SoundType.METAL).destroyTime(1.5f).explosionResistance(6);
         handler.registerBlock("elevator_block", () -> new ControllerBlock(properties.get()));
         handler.registerBlock("display_block", () -> new DisplayBlock(properties.get()));
         handler.registerBlock("button_block", () -> new RemoteControllerBlock(properties.get()));
