@@ -80,25 +80,13 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         int total = below + 1 + above;
 
         // render buttons
-        Vec3 buttonPos = new Vec3(entity.getBlockPos().getX() + 0.5, entity.getBlockPos().getY() + 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, entity.getBlockPos().getZ() + 0.5);
-        Vec3 cameraPos = RenderUtils.getCameraPosition();
-
         poseStack.pushPose();
         poseStack.translate(0, 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, -0.002);
         poseStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             DyeColor labelColor = group.getFloorDisplayColor(startIndex + i);
             this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, startIndex + i == index ? 96 : 64, labelColor.getId() * 4, 32, 4);
-
-            boolean drawText = cameraPos.distanceToSqr(buttonPos) < TEXT_RENDER_DISTANCE; // text rendering is VERY slow apparently, so only draw it within a certain distance
-            if(drawText){
-                poseStack.pushPose();
-                poseStack.translate(18.5 / 32d, 0, 0);
-                this.drawString(poseStack, bufferSource, combinedLight, MovingElevatorsClient.formatFloorDisplayName(group.getFloorDisplayName(startIndex + i), startIndex + i));
-                poseStack.popPose();
-            }
             poseStack.translate(0, 1, 0);
-            buttonPos = buttonPos.add(0, DisplayBlock.BUTTON_HEIGHT, 0);
         }
         poseStack.popPose();
 
@@ -113,11 +101,32 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
                     if(platformY >= belowY && platformY < aboveY)
                         yOffset += (i + (platformY - belowY) / (aboveY - belowY)) * DisplayBlock.BUTTON_HEIGHT;
                 }
+                poseStack.pushPose();
                 poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), yOffset, -0.003);
                 poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
                 this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, 32, 10, 10);
+                poseStack.popPose();
             }
         }
+
+        // Render floor names
+        Vec3 buttonPos = new Vec3(entity.getBlockPos().getX() + 0.5, entity.getBlockPos().getY() + 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, entity.getBlockPos().getZ() + 0.5);
+        Vec3 cameraPos = RenderUtils.getCameraPosition();
+        poseStack.pushPose();
+        poseStack.translate(0, 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, -0.002);
+        poseStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
+        for(int i = 0; i < total; i++){
+            boolean drawText = cameraPos.distanceToSqr(buttonPos) < TEXT_RENDER_DISTANCE; // text rendering is VERY slow apparently, so only draw it within a certain distance
+            if(drawText){
+                poseStack.pushPose();
+                poseStack.translate(18.5 / 32d, 0, 0);
+                this.drawString(poseStack, bufferSource, combinedLight, MovingElevatorsClient.formatFloorDisplayName(group.getFloorDisplayName(startIndex + i), startIndex + i));
+                poseStack.popPose();
+            }
+            poseStack.translate(0, 1, 0);
+            buttonPos = buttonPos.add(0, DisplayBlock.BUTTON_HEIGHT, 0);
+        }
+        poseStack.popPose();
 
         poseStack.popPose();
     }
