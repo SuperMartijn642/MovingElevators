@@ -45,11 +45,9 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
     // Core library
-//    modImplementation "curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}"
-    modImplementation "com.supermartijn642:supermartijn642corelib:1.1.9-fabric-mc1.20"
+    modImplementation "curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}"
     // Config library
-//    modImplementation "curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file}"
-    modImplementation "com.supermartijn642:supermartijn642configlib:1.1.6-fabric-mc1.20"
+    modImplementation "curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file}"
     // Sodium
     modCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
 
