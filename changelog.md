@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.3b
+- Update Sodium compatibility to account for changes in Sodium 0.5.1
+
 ### Moving Elevators 1.4.3a
 - Fixed elevators screens and buttons having weird texture artifacts
 
