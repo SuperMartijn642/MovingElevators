@@ -37,7 +37,7 @@ public class ElevatorCabinLevel extends World {
     private BlockPos minPos, maxPos;
 
     protected ElevatorCabinLevel(World clientLevel){
-        super(null, null, clientLevel.dimensionType(), null, true, false, 0);
+        super(null, clientLevel.dimension(), clientLevel.dimensionType(), null, true, false, 0);
         this.level = clientLevel;
     }
 
