@@ -43,7 +43,7 @@ public class ElevatorCabinLevel extends Level {
     private BlockPos minPos, maxPos;
 
     protected ElevatorCabinLevel(Level clientLevel){
-        super(null, null, clientLevel.dimensionTypeRegistration(), null, true, false, 0);
+        super(null, clientLevel.dimension(), clientLevel.dimensionTypeRegistration(), null, true, false, 0);
         this.level = clientLevel;
     }
 
