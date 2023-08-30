@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.3a
+- Fixed crash with some Mekanism blocks
+
 ### Moving Elevators 1.4.3
 - Fixed crash when breaking the block a remote elevator panel is bound to
 
