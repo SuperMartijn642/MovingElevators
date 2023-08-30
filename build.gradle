@@ -48,8 +48,14 @@ dependencies {
     modImplementation "curse.maven:supermartijn642s-core-lib-454372:${project.core_library_file}"
     // Config library
     modImplementation "curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file}"
+
     // Sodium
     modCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
+    // Iris
+    modCompileOnly "maven.modrinth:iris:${project.iris_version}"
+//    runtimeOnly "org.anarres:jcpp:1.4.14"
+//    runtimeOnly "io.github.douira:glsl-transformer:2.0.0-pre13"
+//    runtimeOnly "org.antlr:antlr4-runtime:4.11.1"
 
     // Just Enough Items
 //    modRuntimeOnly "curse.maven:jei-238222:${project.just_enough_items_file}"
