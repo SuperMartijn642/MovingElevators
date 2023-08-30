@@ -27,6 +27,7 @@ public class LevelRendererMixinSodium {
         at = @At("HEAD")
     )
     public void renderChunkLayer(RenderType renderType, MatrixStack poseStack, double cameraX, double cameraY, double cameraZ, CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(poseStack, renderType, this.renderBuffers.bufferSource());
+        if(!ElevatorGroupRenderer.isIrisRenderingShadows)
+            ElevatorGroupRenderer.renderBlocks(poseStack, renderType, this.renderBuffers.bufferSource());
     }
 }

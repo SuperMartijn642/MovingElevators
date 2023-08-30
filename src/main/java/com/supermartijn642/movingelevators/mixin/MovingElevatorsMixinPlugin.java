@@ -1,11 +1,12 @@
 package com.supermartijn642.movingelevators.mixin;
 
+import com.google.common.collect.Lists;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.service.MixinService;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -15,14 +16,20 @@ import java.util.Set;
 public class MovingElevatorsMixinPlugin implements IMixinConfigPlugin {
 
     private boolean isSodiumLoaded;
+    private boolean isIrisLoaded;
 
     @Override
     public void onLoad(String mixinPackage){
+        this.isSodiumLoaded = isClassAvailable("me.jellysquid.mods.sodium.client.SodiumClientMod");
+        this.isIrisLoaded = isClassAvailable("net.coderbot.iris.Iris");
+    }
+
+    private static boolean isClassAvailable(String location){
         try{
-            MixinService.getService().getBytecodeProvider().getClassNode("me.jellysquid.mods.sodium.client.SodiumClientMod");
-            this.isSodiumLoaded = true;
+            MixinService.getService().getBytecodeProvider().getClassNode(location);
+            return true;
         }catch(Exception ignored){
-            this.isSodiumLoaded = false;
+            return false;
         }
     }
 
@@ -42,9 +49,12 @@ public class MovingElevatorsMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public List<String> getMixins(){
-        return this.isSodiumLoaded ?
-            Arrays.asList("sodium.LevelRendererMixinSodium", "sodium.SodiumWorldRendererMixin")
-            : null;
+        List<String> mixins = new ArrayList<>();
+        if(this.isSodiumLoaded)
+            mixins.addAll(Lists.newArrayList("sodium.LevelRendererMixinSodium", "sodium.SodiumWorldRendererMixin"));
+        if(this.isIrisLoaded)
+            mixins.add("iris.ShadowRendererMixin");
+        return mixins;
     }
 
     @Override
