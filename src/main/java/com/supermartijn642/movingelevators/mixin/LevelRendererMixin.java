@@ -56,6 +56,7 @@ public class LevelRendererMixin {
         )
     )
     public void renderChunkLayer(RenderType renderType, PoseStack poseStack, double cameraX, double cameraY, double cameraZ, Matrix4f matrix4f, CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(poseStack, renderType, this.renderBuffers.bufferSource());
+        if(!ElevatorGroupRenderer.isIrisRenderingShadows)
+            ElevatorGroupRenderer.renderBlocks(poseStack, renderType, this.renderBuffers.bufferSource());
     }
 }
