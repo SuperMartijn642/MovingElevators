@@ -1,3 +1,7 @@
+### Moving Elevators 1.4.3c
+- Fixed crash with Iris
+- Fixed crash with Fabric Seasons
+
 ### Moving Elevators 1.4.3b
 - Update Sodium compatibility to account for changes in Sodium 0.5.1
 
