@@ -1,3 +1,5 @@
+import java.util.regex.Pattern
+
 plugins {
     id "fabric-loom" version "1.1-SNAPSHOT"
     id "com.matthewprenger.cursegradle" version "1.4.0"
@@ -67,8 +69,15 @@ sourceSets.main.resources { srcDir "src/generated/resources" }
 processResources {
     inputs.property "version", project.version
 
+    // Replace the mod version
+    Map<String, ?> copyProperties = project.properties.clone() as Map<String, ?>
+    if ((copyProperties.mod_version as String).matches("[^.0-9]")) {
+        int index = Pattern.compile("[^.0-9]").matcher(copyProperties.mod_version as String).start()
+        copyProperties.mod_version = copyProperties.mod_version.substring(0, index) + "+" + copyProperties.mod_version.substring(index)
+    }
+
     filesMatching(["fabric.mod.json", "modid.mixins.json", "pack.mcmeta"]) {
-        expand project.properties
+        expand copyProperties
     }
 
     exclude "**/*.pdn"
@@ -123,16 +132,19 @@ curseforge {
         releaseType = project.curseforge_release_type
         project.curseforge_game_versions.split(" ").each it::addGameVersion
         addGameVersion("Fabric")
+        addGameVersion("Quilt")
         // Point to 'changelog' setting to a the changelog file
         changelog = file("changelog.md")
         changelogType = "markdown"
-        relations {
-            // Required dependencies
-            if (!project.curseforge_required_dependency_ids.isEmpty())
-                project.curseforge_required_dependency_ids.split(" ").each it::requiredDependency
-            // Optional dependencies
-            if (!project.curseforge_optional_dependency_ids.isEmpty())
-                project.curseforge_optional_dependency_ids.split(" ").each it::optionalDependency
+        if (!project.curseforge_required_dependency_ids.isEmpty() || !project.curseforge_optional_dependency_ids.isEmpty()) {
+            relations {
+                // Required dependencies
+                if (!project.curseforge_required_dependency_ids.isEmpty())
+                    project.curseforge_required_dependency_ids.split(" ").each it::requiredDependency
+                // Optional dependencies
+                if (!project.curseforge_optional_dependency_ids.isEmpty())
+                    project.curseforge_optional_dependency_ids.split(" ").each it::optionalDependency
+            }
         }
 
         mainArtifact(remapJar) {
@@ -163,7 +175,7 @@ modrinth {
     // Convert the changelog file to text
     changelog = file("changelog.md").text
     uploadFile = remapJar // With Loom, this MUST be set to `remapJar` instead of `jar`!
-    loaders = ["fabric"]
+    loaders = ["fabric", "quilt"]
     if (!project.modrinth_required_dependency_ids.isEmpty() || !project.modrinth_optional_dependency_ids.isEmpty()) {
         dependencies {
             // Required dependencies
