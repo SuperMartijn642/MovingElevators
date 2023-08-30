@@ -27,6 +27,10 @@ import net.minecraftforge.fml.common.Mod;
 public class ElevatorGroupRenderer {
 
     public static final double RENDER_DISTANCE = 255 * 255 * 4;
+    /**
+     * Don't render anything when Iris is rendering shadows. For some reason that *sometimes* leads to issues
+     */
+    public static boolean isIrisRenderingShadows = false;
 
     @SubscribeEvent
     public static void onRender(RenderWorldEvent e){
