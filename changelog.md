@@ -1,3 +1,7 @@
+### Moving Elevators 1.4.3a
+- Fixed crash with Iris
+- Fixed crash with Fabric Seasons
+
 ### Moving Elevators 1.4.3
 - Fixed crash when breaking the block a remote elevator panel is bound to
 
