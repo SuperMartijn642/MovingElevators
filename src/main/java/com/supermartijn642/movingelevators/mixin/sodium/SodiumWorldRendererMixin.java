@@ -21,7 +21,7 @@ import java.util.SortedSet;
 public class SodiumWorldRendererMixin {
 
     @Inject(
-        method = "renderTileEntities",
+        method = {"renderTileEntities", "renderBlockEntities"},
         at = @At("HEAD"),
         remap = false
     )
