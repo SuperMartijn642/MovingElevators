@@ -36,7 +36,7 @@ public class LevelRendererMixin {
         method = "renderLevel",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$CompiledChunk;getRenderableBlockEntities()Ljava/util/List;",
+            target = "Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$CompiledSection;getRenderableBlockEntities()Ljava/util/List;",
             shift = At.Shift.AFTER
         )
     )
@@ -48,7 +48,7 @@ public class LevelRendererMixin {
     }
 
     @Inject(
-        method = "renderChunkLayer",
+        method = "renderSectionLayer",
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/vertex/VertexBuffer;unbind()V",

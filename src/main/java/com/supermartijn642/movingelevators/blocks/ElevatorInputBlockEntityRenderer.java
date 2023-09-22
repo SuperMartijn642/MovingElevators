@@ -48,8 +48,8 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
         Matrix4f matrix = poseStack.last().pose();
         Matrix3f normalMatrix = poseStack.last().normal();
 
-        float minU = MovingElevatorsClient.OVERLAY_SPRITE.getU(tX / 8f), maxU = MovingElevatorsClient.OVERLAY_SPRITE.getU((tX + tWidth) / 8f);
-        float minV = MovingElevatorsClient.OVERLAY_SPRITE.getV(tY / 8f), maxV = MovingElevatorsClient.OVERLAY_SPRITE.getV((tY + tHeight) / 8f);
+        float minU = MovingElevatorsClient.OVERLAY_SPRITE.getU(tX / 128f), maxU = MovingElevatorsClient.OVERLAY_SPRITE.getU((tX + tWidth) / 128f);
+        float minV = MovingElevatorsClient.OVERLAY_SPRITE.getV(tY / 128f), maxV = MovingElevatorsClient.OVERLAY_SPRITE.getV((tY + tHeight) / 128f);
 
         buffer.vertex(matrix, x, y + height, 0).color(255, 255, 255, 255).uv(maxU, minV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
         buffer.vertex(matrix, x + width, y + height, 0).color(255, 255, 255, 255).uv(minU, minV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
