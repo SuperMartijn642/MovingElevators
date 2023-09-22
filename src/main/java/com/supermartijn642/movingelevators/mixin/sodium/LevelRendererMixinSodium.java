@@ -24,7 +24,7 @@ public class LevelRendererMixinSodium {
     private RenderBuffers renderBuffers;
 
     @Inject(
-        method = "renderChunkLayer",
+        method = "renderSectionLayer",
         at = @At("HEAD")
     )
     public void renderChunkLayer(RenderType renderType, PoseStack poseStack, double cameraX, double cameraY, double cameraZ, Matrix4f matrix4f, CallbackInfo ci){

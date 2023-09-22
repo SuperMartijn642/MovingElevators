@@ -14,11 +14,15 @@ public class ElevatorGroupCapabilitySaveData extends SavedData {
     private final ElevatorGroupCapability capability;
 
     public static void init(ServerLevel level, ElevatorGroupCapability capability){
-        level.getDataStorage().computeIfAbsent(tag -> {
-            ElevatorGroupCapabilitySaveData saveData = new ElevatorGroupCapabilitySaveData(capability);
-            saveData.load(tag);
-            return saveData;
-        }, () -> new ElevatorGroupCapabilitySaveData(capability), IDENTIFIER);
+        level.getDataStorage().computeIfAbsent(new Factory<SavedData>(
+            () -> new ElevatorGroupCapabilitySaveData(capability),
+            tag -> {
+                ElevatorGroupCapabilitySaveData saveData = new ElevatorGroupCapabilitySaveData(capability);
+                saveData.load(tag);
+                return saveData;
+            },
+            null
+        ), IDENTIFIER);
     }
 
     public ElevatorGroupCapabilitySaveData(ElevatorGroupCapability capability){
