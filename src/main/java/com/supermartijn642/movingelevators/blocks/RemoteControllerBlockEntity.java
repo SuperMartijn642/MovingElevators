@@ -122,10 +122,14 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
     public ElevatorGroup getGroup(){
         if(this.level == null || this.controllerPos == null || this.controllerFacing == null)
             return null;
+        ElevatorGroup group;
         if(this.level instanceof ElevatorCabinLevel)
-            return ((ElevatorCabinLevel)this.level).getElevatorGroup();
-        ElevatorGroupCapability capability = ElevatorGroupCapability.get(this.level);
-        return capability == null ? null : capability.get(this.controllerPos.getX(), this.controllerPos.getZ(), this.controllerFacing);
+            group = ((ElevatorCabinLevel)this.level).getElevatorGroup();
+        else{
+            ElevatorGroupCapability capability = ElevatorGroupCapability.get(this.level);
+            group = capability == null ? null : capability.get(this.controllerPos.getX(), this.controllerPos.getZ(), this.controllerFacing);
+        }
+        return group != null && group.hasControllerAt(this.controllerPos.getY()) ? group : null;
     }
 
     @Override

@@ -54,7 +54,7 @@ public class ElevatorGroup {
     private final ArrayList<Integer> floors = new ArrayList<>();
     private final ArrayList<FloorData> floorData = new ArrayList<>();
     private boolean shouldBeSynced = false;
-    private Map<Integer,Set<BlockPos>> comparatorListeners = new Int2ObjectArrayMap<>();
+    private final Map<Integer,Set<BlockPos>> comparatorListeners = new Int2ObjectArrayMap<>();
 
     private int syncCounter = 0;
 
@@ -676,6 +676,10 @@ public class ElevatorGroup {
         if(floor < 0 || floor >= this.floors.size())
             return null;
         return this.getEntity(this.floors.get(floor));
+    }
+
+    public boolean hasControllerAt(int yLevel){
+        return this.floors.contains(yLevel);
     }
 
     private void updateGroup(){
