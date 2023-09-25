@@ -1,2 +1,5 @@
+### Moving Elevators 1.4.4
+- Added additional checks for the remote elevator panel
+
 ### Moving Elevators 1.4.3
 - Initial release of Moving Elevators for Minecraft 1.20.2
