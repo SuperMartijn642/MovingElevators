@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.4a
+- Fixed crash with Embeddium
+
 ### Moving Elevators 1.4.4
 - Added additional checks for the remote elevator panel
 
