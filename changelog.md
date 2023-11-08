@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.4a
+- Fixed block overlay textures being broken after reloading resources
+
 ### Moving Elevators 1.4.4
 - Added additional checks for the remote elevator panel
 
