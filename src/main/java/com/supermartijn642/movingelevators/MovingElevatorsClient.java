@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public class MovingElevatorsClient implements ClientModInitializer {
 
     public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = new ResourceLocation("movingelevators", "blocks/block_overlays");
-    private static TextureAtlasSprite OVERLAY_SPRITE;
 
     @Override
     public void onInitializeClient(){
@@ -55,9 +54,7 @@ public class MovingElevatorsClient implements ClientModInitializer {
     }
 
     public static TextureAtlasSprite getOverlaySprite(){
-        if(OVERLAY_SPRITE == null)
-            OVERLAY_SPRITE = ClientUtils.getMinecraft().getTextureAtlas(TextureAtlases.getBlocks()).apply(OVERLAY_TEXTURE_LOCATION);
-        return OVERLAY_SPRITE;
+        return ClientUtils.getMinecraft().getTextureAtlas(TextureAtlases.getBlocks()).apply(OVERLAY_TEXTURE_LOCATION);
     }
 
     public static void openElevatorScreen(BlockPos pos){
