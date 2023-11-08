@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.4b
+- Fixed block overlay textures being broken after reloading resources
+
 ### Moving Elevators 1.4.4a
 - Fixed call buttons and elevator screens not looking correct
 
