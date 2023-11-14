@@ -65,5 +65,8 @@ public class MovingElevatorsLanguageGenerator extends LanguageGenerator {
         this.translation("movingelevators.elevator_screen.display_buttons", "Show buttons: %s");
         this.translation("movingelevators.elevator_screen.display_buttons.on", "True");
         this.translation("movingelevators.elevator_screen.display_buttons.off", "False");
+
+        // Elevator arrive sound
+        this.translation("movingelevators.elevator.arrive_sound", "Elevator arrived");
     }
 }

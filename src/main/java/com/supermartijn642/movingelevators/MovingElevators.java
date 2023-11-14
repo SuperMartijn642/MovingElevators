@@ -18,6 +18,8 @@ import com.supermartijn642.movingelevators.packets.*;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
@@ -45,6 +47,8 @@ public class MovingElevators {
     public static RemoteControllerBlock button_block;
     @RegistryEntryAcceptor(namespace = "movingelevators", identifier = "buttonblocktile", registry = RegistryEntryAcceptor.Registry.BLOCK_ENTITY_TYPES)
     public static BaseBlockEntityType<RemoteControllerBlockEntity> button_tile;
+    @RegistryEntryAcceptor(namespace = "movingelevators", identifier = "arrive_sound", registry = RegistryEntryAcceptor.Registry.SOUND_EVENTS)
+    public static SoundEvent arrive_sound;
 
     public static final CreativeItemGroup GROUP = CreativeItemGroup.create("movingelevators", () -> elevator_block.asItem());
 
@@ -98,6 +102,8 @@ public class MovingElevators {
         handler.registerItem("elevator_block", () -> new BaseBlockItem(elevator_block, ItemProperties.create().group(GROUP)));
         handler.registerItem("display_block", () -> new BaseBlockItem(display_block, ItemProperties.create().group(GROUP)));
         handler.registerItem("button_block", () -> new RemoteControllerBlockItem(button_block, ItemProperties.create().group(GROUP)));
+        // Sounds
+        handler.registerSoundEvent("arrive_sound", () -> new SoundEvent(new ResourceLocation("movingelevators", "arrive_sound")));
     }
 
     private static void registerGenerators(){
