@@ -36,6 +36,7 @@
   "movingelevators.elevator_screen.cabin_height.decrease_size": "Decrease height",
   "movingelevators.elevator_screen.cabin_depth.decrease_offset": "Move backward",
   "movingelevators.remote_controller.wrong_dimension": "The block must be in the same dimension as the Elevator Controller!",
+  "movingelevators.elevator.arrive_sound": "Elevator arrived",
   "movingelevators.block.display_block": "Elevator Display",
   "movingelevators.floor_name": "Floor %d",
   "movingelevators.elevator_screen.cabin_depth.decrease_size": "Decrease depth"
