@@ -1,8 +1,8 @@
-// 1.19.3	2023-01-21T00:00:04.9164471	Resource Generator 2
+// 1.19.4	2023-11-14T22:39:22.9363947	Resource Generator 2
 a342fb09e01bba607c0087cf74461980f935e5f9 assets/minecraft/atlases/blocks.json
 a87c5f76165eace5081796f29ec801c734e8efb9 assets/movingelevators/models/block/button_block.json
 a87c5f76165eace5081796f29ec801c734e8efb9 assets/movingelevators/models/block/display_block.json
 75b4b981ca687783c774e95e65db4ae73778b346 assets/movingelevators/models/block/elevator_block.json
-3a098a280f4cadfa5d6df6807189e103bdf1dda1 assets/movingelevators/models/item/button_block.json
-b14a2bc31fb33e6baf229bdc579c60180b5c6162 assets/movingelevators/models/item/display_block.json
-ae7598e3198ba5337c6eb5f0ae6b781b6b96b223 assets/movingelevators/models/item/elevator_block.json
+b1dc0c6f2b26cd0c5c06cc34a36b62b17055902e assets/movingelevators/models/item/button_block.json
+a317229b6630b2ff26b7e3ce1819417e29fdf7a0 assets/movingelevators/models/item/display_block.json
+d09f68001b6c4da475571919150485b02c5eab58 assets/movingelevators/models/item/elevator_block.json
