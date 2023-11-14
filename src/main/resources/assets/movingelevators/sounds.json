@@ -1,0 +1,9 @@
+{
+  "arrive_sound": {
+    "category": "block",
+    "subtitle": "movingelevators.elevator.arrive_sound",
+    "sounds": [
+      "random/orb"
+    ]
+  }
+}
