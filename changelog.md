@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.5
+- Created a separate sound entry for when the elevator arrives, so it can be changed by resource packs
+
 ### Moving Elevators 1.4.4a
 - Fixed block overlay textures being broken after reloading resources
 
