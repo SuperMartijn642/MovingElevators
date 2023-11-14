@@ -16,7 +16,6 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.IBooleanFunction;
@@ -117,7 +116,7 @@ public class ElevatorGroup {
                     this.level.updateNeighbourForOutputSignal(pos, this.level.getBlockState(pos).getBlock());
             this.shouldBeSynced = true;
             Vec3d soundPos = this.getCageAnchorPos(this.targetY).add(this.cageSizeX / 2d, this.cageSizeY / 2d, this.cageSizeZ / 2d);
-            this.level.playSound(null, soundPos.x, soundPos.y, soundPos.z, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.4f, 0.5f);
+            this.level.playSound(null, soundPos.x, soundPos.y, soundPos.z, MovingElevators.arrive_sound, SoundCategory.BLOCKS, 0.4f, 0.5f);
             this.syncCounter = 0;
         }
     }
