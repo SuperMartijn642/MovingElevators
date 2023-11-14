@@ -22,13 +22,13 @@
         "south": {
           "texture": "#all"
         },
+        "west": {
+          "texture": "#all"
+        },
         "up": {
           "texture": "#all"
         },
         "down": {
-          "texture": "#all"
-        },
-        "west": {
           "texture": "#all"
         },
         "east": {
