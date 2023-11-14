@@ -1,7 +1,1 @@
-// 1.19.3	2023-03-08T19:46:21.868788	Moving Elevators/Moving Elevators Recipe Generator
-e1bb4d9d6d566297440a1e9b7ef5df9d58f7ba97 data\movingelevators\advancements\recipes\misc\elevator_block.json
-a7d6612e857d05e350be4e494a1aba8d70a4f64d data\movingelevators\recipes\elevator_block.json
-0ef43ccc85ada0c316c65306dfcb108147d44f49 data\movingelevators\recipes\display_block.json
-870bdaad376d9a655c5b5ebebd412c3e90773bec data\movingelevators\recipes\button_block.json
-302b28e1d2b996ea62ce48094355a0fdbcd528f1 data\movingelevators\advancements\recipes\misc\display_block.json
-9523d7f7be7e816f329da68fa1608e7be13cd4b8 data\movingelevators\advancements\recipes\misc\button_block.json
+// 1.20.2	2023-11-14T23:03:04.1613545	Moving Elevators/Moving Elevators Recipe Generator
