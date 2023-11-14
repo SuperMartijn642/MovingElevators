@@ -37,5 +37,6 @@
   "movingelevators.elevator_screen.current_speed": "%s blocks/tick",
   "movingelevators.elevator_screen.display_buttons": "Show buttons: %s",
   "movingelevators.elevator_screen.display_buttons.on": "True",
-  "movingelevators.elevator_screen.display_buttons.off": "False"
+  "movingelevators.elevator_screen.display_buttons.off": "False",
+  "movingelevators.elevator.arrive_sound": "Elevator arrived"
 }
