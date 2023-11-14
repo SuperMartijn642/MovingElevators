@@ -10,8 +10,8 @@
       ],
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "movingelevators:elevator_block"
+          "name": "movingelevators:elevator_block",
+          "type": "minecraft:item"
         }
       ]
     }
