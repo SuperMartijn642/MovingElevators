@@ -138,7 +138,7 @@ public class ElevatorGroupRenderer {
     public static void renderGroupCageOutlines(PoseStack poseStack, ElevatorGroup group){
         for(int floor = 0; floor < group.getFloorCount(); floor++){
             BlockPos anchorPos = group.getCageAnchorBlockPos(group.getFloorYLevel(floor));
-            AABB cageArea = new AABB(anchorPos, anchorPos.offset(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ()));
+            AABB cageArea = new AABB(anchorPos.getX(), anchorPos.getY(), anchorPos.getZ(), anchorPos.getX() + group.getCageSizeX(), anchorPos.getY() + group.getCageSizeY(), anchorPos.getZ() + group.getCageSizeZ());
             cageArea.inflate(0.01);
             RenderUtils.renderBox(poseStack, cageArea, 1, 1, 1, true);
         }

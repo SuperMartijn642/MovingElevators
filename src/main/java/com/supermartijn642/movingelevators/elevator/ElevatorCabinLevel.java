@@ -6,6 +6,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -262,6 +263,11 @@ public class ElevatorCabinLevel extends Level {
     @Override
     public long getDayTime(){
         return this.level.getDayTime();
+    }
+
+    @Override
+    public TickRateManager tickRateManager(){
+        return this.level.tickRateManager();
     }
 
     @Override
