@@ -51,11 +51,11 @@ dependencies {
 //    runtimeOnly fg.deobf("curse.maven:jei-238222:${project.just_enough_items_file}")
 
     // SpongePowered Mixin
-    annotationProcessor "org.spongepowered:mixin:0.8.3-SNAPSHOT:processor"
-    implementation("org.spongepowered:mixin:0.8.3-SNAPSHOT") {
-        exclude module: "guava"
-        exclude module: "commons-io"
-        exclude module: "gson"
+    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    implementation('org.spongepowered:mixin:0.8.5') {
+        exclude module: 'guava'
+        exclude module: 'commons-io'
+        exclude module: 'gson'
     }
 }
 
