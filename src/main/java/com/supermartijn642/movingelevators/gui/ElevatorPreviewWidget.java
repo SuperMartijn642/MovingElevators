@@ -69,7 +69,7 @@ public class ElevatorPreviewWidget extends BaseWidget {
         }
 
         // Get the bounding boxes
-        AABB cabinBox = new AABB(anchorPos, anchorPos.offset(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ())).inflate(0.1);
+        AABB cabinBox = new AABB(anchorPos.getX(), anchorPos.getY(), anchorPos.getZ(), anchorPos.getX() + group.getCageSizeX(), anchorPos.getY() + group.getCageSizeY(), anchorPos.getZ() + group.getCageSizeZ()).inflate(0.1);
         BlockPos previewSizeIncrease = this.previewSizeIncrease.get();
         BlockPos previewOffset = this.previewOffset.get();
         AABB previewBox = null;

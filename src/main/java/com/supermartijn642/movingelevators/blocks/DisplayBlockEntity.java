@@ -63,6 +63,6 @@ public class DisplayBlockEntity extends CamoBlockEntity {
 
     @Override
     public AABB getRenderBoundingBox(){
-        return new AABB(this.worldPosition, this.worldPosition.offset(1, 2, 1));
+        return AABB.encapsulatingFullBlocks(this.worldPosition, this.worldPosition.above());
     }
 }
