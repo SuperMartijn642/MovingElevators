@@ -15,12 +15,12 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
+import net.neoforged.neoforge.event.TickEvent;
 
 /**
  * Created 3/28/2020 by SuperMartijn642
@@ -59,7 +59,7 @@ public class MovingElevatorsClient {
     }
 
     @SubscribeEvent
-    public static void onTextureStitchPost(TextureStitchEvent.Post e){
+    public static void onTextureStitchPost(TextureAtlasStitchedEvent e){
         if(e.getAtlas().location().equals(TextureAtlases.getBlocks()))
             OVERLAY_SPRITE = e.getAtlas().getSprite(OVERLAY_TEXTURE_LOCATION);
     }

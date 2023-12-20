@@ -2,22 +2,16 @@ package com.supermartijn642.movingelevators.elevator;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-
-import java.lang.reflect.Field;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 
 /**
  * Created 4/30/2020 by SuperMartijn642
  */
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorFallDamageHandler {
-
-    public static final Field floatingTickCount = ObfuscationReflectionHelper.findField(ServerGamePacketListenerImpl.class, "f_9737_");
 
     @SubscribeEvent
     public static void onFallDamage(LivingFallEvent e){
@@ -37,11 +31,6 @@ public class ElevatorFallDamageHandler {
     }
 
     public static void resetFloatingTicks(ServerPlayer player){
-        try{
-            floatingTickCount.setInt(player.connection, 0);
-        }catch(IllegalAccessException e){
-            e.printStackTrace();
-        }
+        player.connection.aboveGroundTickCount = 0;
     }
-
 }

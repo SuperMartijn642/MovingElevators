@@ -15,15 +15,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * Created 11/8/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorGroupRenderer {
 
     public static final double RENDER_DISTANCE = 255 * 255 * 4;
@@ -32,7 +29,10 @@ public class ElevatorGroupRenderer {
      */
     public static boolean isIrisRenderingShadows = false;
 
-    @SubscribeEvent
+    public static void registerEventListeners(){
+        NeoForge.EVENT_BUS.addListener(ElevatorGroupRenderer::onRender);
+    }
+
     public static void onRender(RenderWorldEvent e){
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 

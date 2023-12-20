@@ -12,13 +12,15 @@ import com.supermartijn642.core.registry.GeneratorRegistrationHandler;
 import com.supermartijn642.core.registry.RegistrationHandler;
 import com.supermartijn642.core.registry.RegistryEntryAcceptor;
 import com.supermartijn642.movingelevators.blocks.*;
+import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
+import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import com.supermartijn642.movingelevators.generators.*;
 import com.supermartijn642.movingelevators.packets.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.fml.common.Mod;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -72,6 +74,9 @@ public class MovingElevators {
         CHANNEL.registerMessage(PacketUpdateElevatorGroups.class, PacketUpdateElevatorGroups::new, true);
 
         MovingElevatorsConfig.init();
+
+        ElevatorGroupCapability.registerEventListeners();
+        ElevatorGroupRenderer.registerEventListeners();
 
         register();
         if(CommonUtils.getEnvironmentSide().isClient())

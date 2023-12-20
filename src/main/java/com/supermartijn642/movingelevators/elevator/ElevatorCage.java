@@ -70,7 +70,7 @@ public class ElevatorCage {
                         loreTag.add(StringTag.valueOf("\"(+NBT)\""));
                         displayTag.put("Lore", loreTag);
                         stack.addTagElement("display", displayTag);
-                        entityItemStacks[x][y][z] = stack.serializeNBT();
+                        entityItemStacks[x][y][z] = stack.save(new CompoundTag());
                     }
                 }
             }
