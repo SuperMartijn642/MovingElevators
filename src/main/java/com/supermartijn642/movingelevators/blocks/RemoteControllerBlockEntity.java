@@ -151,7 +151,12 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
             ElevatorGroup group = this.getGroup();
             return group.getFloorYLevel(group.getClosestFloorNumber(this.worldPosition.getY()));
         }
-        return this.isInCabin && this.hasGroup() ? this.getGroup().getFloorYLevel(this.cabinFloorIndex) : this.controllerPos.getY();
+        if(this.isInCabin && this.hasGroup()){
+            ElevatorGroup group = this.getGroup();
+            if(this.cabinFloorIndex >= 0 && this.cabinFloorIndex < group.getFloorCount())
+                return group.getFloorYLevel(this.cabinFloorIndex);
+        }
+        return this.controllerPos.getY();
     }
 
     public BlockPos getControllerPos(){
