@@ -1,8 +1,8 @@
 {
-  "block.movingelevators.elevator_block": "Contrôleur d'ascenseur",
-  "block.movingelevators.display_block": "Affichage d'ascenseur",
-  "block.movingelevators.button_block": "Panneau d'ascenseur à distance",
-  "itemGroup.movingelevators": "Ascenseurs mobiles",
+  "movingelevators.block.elevator_block": "Contrôleur d'ascenseur",
+  "movingelevators.block.display_block": "Écran d'ascenseur",
+  "movingelevators.block.button_block": "Panneau d'ascenseur à distance",
+  "movingelevators.item_group": "Ascenseurs mobiles",
   "movingelevators.elevator_controller.tooltip": "Placez les contrôleurs d'ascenseur les uns au-dessus des autres pour créer des étages pour un ascenseur",
   "movingelevators.elevator_display.tooltip": "Affiche les étages d'un ascenseur lorsqu'il est placé au-dessus d'un contrôleur d'ascenseur ou d'un panneau d'ascenseur à distance",
   "movingelevators.elevator_screen.cabin_depth": "Profondeur de la cabine",
