@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -118,7 +119,12 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
 
     @Override
     public int getLightBlock(BlockState state, BlockGetter reader, BlockPos pos){
-        BlockEntity blockEntity = reader instanceof Level ? ((Level)reader).getChunkSource().getChunkForLighting(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ())).getBlockEntity(pos) : reader.getBlockEntity(pos);
-        return blockEntity instanceof CamoBlockEntity && ((CamoBlockEntity)blockEntity).hasCamoState() ? ((CamoBlockEntity)blockEntity).getCamoState().getLightBlock(reader, pos) : reader.getMaxLightLevel();
+        BlockEntity entity;
+        if(reader instanceof Level){
+            LevelChunk chunk = ((Level)reader).getChunkSource().getChunkNow(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
+            entity = chunk == null ? reader.getBlockEntity(pos) : chunk.getBlockEntity(pos);
+        }else
+            entity = reader.getBlockEntity(pos);
+        return entity instanceof CamoBlockEntity && ((CamoBlockEntity)entity).hasCamoState() ? ((CamoBlockEntity)entity).getCamoState().getLightBlock(reader, pos) : reader.getMaxLightLevel();
     }
 }
