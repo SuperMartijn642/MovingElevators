@@ -44,7 +44,7 @@ public class ElevatorCage {
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     BlockPos pos = startPos.add(x, y, z);
-                    if(world.isAirBlock(pos))
+                    if(canBlockBeIgnored(world, pos))
                         continue;
                     states[x][y][z] = world.getBlockState(pos);
                     AxisAlignedBB boundingBox = states[x][y][z].getCollisionBoundingBox(world, pos);
@@ -114,7 +114,7 @@ public class ElevatorCage {
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
-                    if(level.isAirBlock(startPos.add(x, y, z)))
+                    if(canBlockBeIgnored(level, startPos.add(x, y, z)))
                         continue;
                     if(!canBlockBeInCage(level, startPos.add(x, y, z)))
                         return false;
@@ -123,6 +123,10 @@ public class ElevatorCage {
             }
         }
         return hasBlocks;
+    }
+
+    public static boolean canBlockBeIgnored(World level, BlockPos pos){
+        return level.isAirBlock(pos);
     }
 
     public static boolean canBlockBeInCage(World level, BlockPos pos){
@@ -173,9 +177,8 @@ public class ElevatorCage {
                     if(state == null)
                         continue;
                     BlockPos pos = startPos.add(x, y, z);
-                    boolean isEmpty = level.isAirBlock(pos);
-                    if(isEmpty || level.getBlockState(pos).getBlockHardness(level, pos) >= 0){
-                        if(!isEmpty)
+                    if(canBlockBeIgnored(level, pos) || level.getBlockState(pos).getBlockHardness(level, pos) >= 0){
+                        if(!level.isAirBlock(pos))
                             level.destroyBlock(pos, true);
                         level.setBlockState(pos, state, 2);
                         if(this.blockEntityData[x][y][z] != null){
