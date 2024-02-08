@@ -42,7 +42,7 @@ public class ElevatorCage {
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
-                    if(world.isEmptyBlock(pos))
+                    if(canBlockBeIgnored(world, pos))
                         continue;
                     states[x][y][z] = world.getBlockState(pos);
                     VoxelShape blockShape = states[x][y][z].getCollisionShape(world, pos);
@@ -112,7 +112,7 @@ public class ElevatorCage {
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
-                    if(level.isEmptyBlock(startPos.offset(x, y, z)))
+                    if(canBlockBeIgnored(level, startPos.offset(x, y, z)))
                         continue;
                     if(!canBlockBeInCage(level, startPos.offset(x, y, z)))
                         return false;
@@ -121,6 +121,10 @@ public class ElevatorCage {
             }
         }
         return hasBlocks;
+    }
+
+    public static boolean canBlockBeIgnored(World level, BlockPos pos){
+        return level.isEmptyBlock(pos);
     }
 
     public static boolean canBlockBeInCage(World level, BlockPos pos){
@@ -169,9 +173,8 @@ public class ElevatorCage {
                     if(state == null)
                         continue;
                     BlockPos pos = startPos.offset(x, y, z);
-                    boolean isEmpty = level.isEmptyBlock(pos);
-                    if(isEmpty || level.getBlockState(pos).getDestroySpeed(level, pos) >= 0){
-                        if(!isEmpty)
+                    if(canBlockBeIgnored(level, pos) || level.getBlockState(pos).getDestroySpeed(level, pos) >= 0){
+                        if(!level.isEmptyBlock(pos))
                             level.destroyBlock(pos, true);
                         level.setBlock(pos, state, 2);
                         if(this.blockEntityData[x][y][z] != null){
