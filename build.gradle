@@ -100,6 +100,9 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
+// Remove the 'idePostSync' task from running after sync and run it in the gradle script directly to not break when switching to other branches (https://youtrack.jetbrains.com/issue/IDEA-282322/Gradle-Execute-After-Sync-keeps-trying-to-run-a-removed-task)
+idea.project.settings.taskTriggers.phaseMap.get("afterSync").removeIf(task -> task.name.equals("idePostSync"))
+
 // CurseGradle settings for uploading to CurseForge
 curseforge {
     project {
