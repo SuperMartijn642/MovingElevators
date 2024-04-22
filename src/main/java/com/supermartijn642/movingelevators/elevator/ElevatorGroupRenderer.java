@@ -32,6 +32,8 @@ public class ElevatorGroupRenderer {
 
     @SubscribeEvent
     public static void onRender(RenderWorldEvent e){
+        if(!ClientUtils.getMinecraft().getRenderManager().isDebugBoundingBox())
+            return;
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         GlStateManager.pushMatrix();
@@ -39,8 +41,7 @@ public class ElevatorGroupRenderer {
         GlStateManager.translate(-camera.x, -camera.y, -camera.z);
         for(ElevatorGroup group : groups.getGroups()){
             BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-            if(elevatorPos.distanceSq(ClientUtils.getPlayer().getPosition()) < RENDER_DISTANCE
-                && ClientUtils.getMinecraft().getRenderManager().isDebugBoundingBox())
+            if(elevatorPos.distanceSq(ClientUtils.getPlayer().getPosition()) < RENDER_DISTANCE)
                 renderGroupCageOutlines(group);
         }
         GlStateManager.popMatrix();
@@ -56,16 +57,21 @@ public class ElevatorGroupRenderer {
         double d4 = renderViewEntity.lastTickPosY + (renderViewEntity.posY - renderViewEntity.lastTickPosY) * partialTicks;
         double d5 = renderViewEntity.lastTickPosZ + (renderViewEntity.posZ - renderViewEntity.lastTickPosZ) * partialTicks;
         GlStateManager.translate(-d3, -d4, -d5);
-        BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+        BufferBuilder buffer = null;
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving()){
                 BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distanceSq(ClientUtils.getPlayer().getPosition()) < RENDER_DISTANCE)
+                if(elevatorPos.distanceSq(ClientUtils.getPlayer().getPosition()) < RENDER_DISTANCE){
+                    if(buffer == null){
+                        buffer = Tessellator.getInstance().getBuffer();
+                        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+                    }
                     renderGroupBlocks(group, renderType, buffer, partialTicks);
+                }
             }
         }
-        Tessellator.getInstance().draw();
+        if(buffer != null)
+            Tessellator.getInstance().draw();
         GlStateManager.popMatrix();
     }
 
