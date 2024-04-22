@@ -36,6 +36,8 @@ public class ElevatorGroupRenderer {
 
     @SubscribeEvent
     public static void onRender(RenderWorldEvent e){
+        if(!ClientUtils.getMinecraft().getEntityRenderDispatcher().shouldRenderHitBoxes())
+            return;
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         e.getPoseStack().pushPose();
@@ -43,8 +45,7 @@ public class ElevatorGroupRenderer {
         e.getPoseStack().translate(-camera.x, -camera.y, -camera.z);
         for(ElevatorGroup group : groups.getGroups()){
             BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-            if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE
-                && ClientUtils.getMinecraft().getEntityRenderDispatcher().shouldRenderHitBoxes())
+            if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE)
                 renderGroupCageOutlines(e.getPoseStack(), group);
         }
         e.getPoseStack().popPose();
@@ -53,21 +54,24 @@ public class ElevatorGroupRenderer {
     public static void renderBlocks(PoseStack poseStack, RenderType renderType, MultiBufferSource bufferSource){
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
-        VertexConsumer buffer = bufferSource.getBuffer(renderType);
         poseStack.pushPose();
         Vec3 camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
+        VertexConsumer buffer = null;
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving()){
                 BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE)
+                if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE){
+                    if(buffer == null)
+                        buffer = bufferSource.getBuffer(renderType);
                     renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
+                }
             }
         }
         poseStack.popPose();
 
         // For some reason this is needed ¯\(o_o)/¯
-        if(renderType == RenderType.translucent())
+        if(buffer != null && renderType == RenderType.translucent())
             ((MultiBufferSource.BufferSource)bufferSource).endBatch(renderType);
     }
 
