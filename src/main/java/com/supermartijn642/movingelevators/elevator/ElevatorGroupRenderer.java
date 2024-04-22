@@ -30,6 +30,13 @@ public class ElevatorGroupRenderer {
 
     public static final double RENDER_DISTANCE = 255 * 255 * 4;
 
+    private static boolean isWithinRenderDistance(ElevatorGroup group){
+        float renderDistance = ClientUtils.getMinecraft().gameSettings.renderDistanceChunks * 16 + 8 + group.getCageSizeX() / 2f + group.getCageSizeZ() / 2f;
+        BlockPos playerPos = ClientUtils.getPlayer().getPosition();
+        float distance = (group.x - playerPos.getX()) * (group.x - playerPos.getX()) + (group.z - playerPos.getZ()) * (group.z - playerPos.getZ());
+        return distance < renderDistance * renderDistance;
+    }
+
     @SubscribeEvent
     public static void onRender(RenderWorldEvent e){
         if(!ClientUtils.getMinecraft().getRenderManager().isDebugBoundingBox())
@@ -40,8 +47,7 @@ public class ElevatorGroupRenderer {
         Vec3d camera = RenderUtils.getCameraPosition();
         GlStateManager.translate(-camera.x, -camera.y, -camera.z);
         for(ElevatorGroup group : groups.getGroups()){
-            BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-            if(elevatorPos.distanceSq(ClientUtils.getPlayer().getPosition()) < RENDER_DISTANCE)
+            if(isWithinRenderDistance(group))
                 renderGroupCageOutlines(group);
         }
         GlStateManager.popMatrix();
@@ -59,15 +65,12 @@ public class ElevatorGroupRenderer {
         GlStateManager.translate(-d3, -d4, -d5);
         BufferBuilder buffer = null;
         for(ElevatorGroup group : groups.getGroups()){
-            if(group.isMoving()){
-                BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distanceSq(ClientUtils.getPlayer().getPosition()) < RENDER_DISTANCE){
-                    if(buffer == null){
-                        buffer = Tessellator.getInstance().getBuffer();
-                        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-                    }
-                    renderGroupBlocks(group, renderType, buffer, partialTicks);
+            if(group.isMoving() && isWithinRenderDistance(group)){
+                if(buffer == null){
+                    buffer = Tessellator.getInstance().getBuffer();
+                    buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
                 }
+                renderGroupBlocks(group, renderType, buffer, partialTicks);
             }
         }
         if(buffer != null)
@@ -79,11 +82,8 @@ public class ElevatorGroupRenderer {
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         for(ElevatorGroup group : groups.getGroups()){
-            if(group.isMoving()){
-                BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distanceSq(ClientUtils.getPlayer().getPosition()) < RENDER_DISTANCE)
-                    renderGroupBlockEntities(group, partialTicks);
-            }
+            if(group.isMoving() && isWithinRenderDistance(group))
+                renderGroupBlockEntities(group, partialTicks);
         }
     }
 
