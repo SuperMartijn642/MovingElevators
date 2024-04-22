@@ -7,6 +7,7 @@ import com.supermartijn642.core.render.RenderWorldEvent;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
@@ -30,7 +31,15 @@ import org.lwjgl.opengl.GL11;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorGroupRenderer {
 
-    public static final double RENDER_DISTANCE = 255 * 255 * 4;
+    private static boolean isWithinRenderDistance(ElevatorGroup group){
+        GameRenderer renderer = ClientUtils.getMinecraft().gameRenderer;
+        if(renderer == null)
+            return false;
+        float renderDistance = renderer.getRenderDistance() + 8 + group.getCageSizeX() / 2f + group.getCageSizeZ() / 2f;
+        BlockPos playerPos = ClientUtils.getPlayer().getCommandSenderBlockPosition();
+        float distance = (group.x - playerPos.getX()) * (group.x - playerPos.getX()) + (group.z - playerPos.getZ()) * (group.z - playerPos.getZ());
+        return distance < renderDistance * renderDistance;
+    }
 
     @SubscribeEvent
     public static void onRender(RenderWorldEvent e){
@@ -42,8 +51,7 @@ public class ElevatorGroupRenderer {
         Vec3d camera = RenderUtils.getCameraPosition();
         GlStateManager.translated(-camera.x, -camera.y, -camera.z);
         for(ElevatorGroup group : groups.getGroups()){
-            BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-            if(elevatorPos.distSqr(ClientUtils.getPlayer().getCommandSenderBlockPosition()) < RENDER_DISTANCE)
+            if(isWithinRenderDistance(group))
                 renderGroupCageOutlines(group);
         }
         GlStateManager.popMatrix();
@@ -57,15 +65,12 @@ public class ElevatorGroupRenderer {
         GlStateManager.translated(-camera.x, -camera.y, -camera.z);
         BufferBuilder buffer = null;
         for(ElevatorGroup group : groups.getGroups()){
-            if(group.isMoving()){
-                BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distSqr(ClientUtils.getPlayer().getCommandSenderBlockPosition()) < RENDER_DISTANCE){
-                    if(buffer == null){
-                        buffer = Tessellator.getInstance().getBuilder();
-                        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-                    }
-                    renderGroupBlocks(group, renderType, buffer, ClientUtils.getPartialTicks());
+            if(group.isMoving() && isWithinRenderDistance(group)){
+                if(buffer == null){
+                    buffer = Tessellator.getInstance().getBuilder();
+                    buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
                 }
+                renderGroupBlocks(group, renderType, buffer, ClientUtils.getPartialTicks());
             }
         }
         if(buffer != null)
@@ -77,11 +82,8 @@ public class ElevatorGroupRenderer {
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         for(ElevatorGroup group : groups.getGroups()){
-            if(group.isMoving()){
-                BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distSqr(ClientUtils.getPlayer().getCommandSenderBlockPosition()) < RENDER_DISTANCE)
-                    renderGroupBlockEntities(group, partialTicks);
-            }
+            if(group.isMoving() && isWithinRenderDistance(group))
+                renderGroupBlockEntities(group, partialTicks);
         }
     }
 
