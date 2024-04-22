@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
 import com.supermartijn642.core.render.RenderWorldEvent;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -28,7 +29,15 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorGroupRenderer {
 
-    public static final double RENDER_DISTANCE = 255 * 255 * 4;
+    private static boolean isWithinRenderDistance(ElevatorGroup group){
+        GameRenderer renderer = ClientUtils.getMinecraft().gameRenderer;
+        if(renderer == null)
+            return false;
+        float renderDistance = renderer.getRenderDistance() + 8 + group.getCageSizeX() / 2f + group.getCageSizeZ() / 2f;
+        BlockPos playerPos = ClientUtils.getPlayer().blockPosition();
+        float distance = (group.x - playerPos.getX()) * (group.x - playerPos.getX()) + (group.z - playerPos.getZ()) * (group.z - playerPos.getZ());
+        return distance < renderDistance * renderDistance;
+    }
 
     @SubscribeEvent
     public static void onRender(RenderWorldEvent e){
@@ -40,8 +49,7 @@ public class ElevatorGroupRenderer {
         Vec3 camera = RenderUtils.getCameraPosition();
         e.getPoseStack().translate(-camera.x, -camera.y, -camera.z);
         for(ElevatorGroup group : groups.getGroups()){
-            BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-            if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE)
+            if(isWithinRenderDistance(group))
                 renderGroupCageOutlines(e.getPoseStack(), group);
         }
         e.getPoseStack().popPose();
@@ -55,13 +63,10 @@ public class ElevatorGroupRenderer {
         poseStack.translate(-camera.x, -camera.y, -camera.z);
         VertexConsumer buffer = null;
         for(ElevatorGroup group : groups.getGroups()){
-            if(group.isMoving()){
-                BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE){
-                    if(buffer == null)
-                        buffer = bufferSource.getBuffer(renderType);
-                    renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
-                }
+            if(group.isMoving() && isWithinRenderDistance(group)){
+                if(buffer == null)
+                    buffer = bufferSource.getBuffer(renderType);
+                renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
             }
         }
         poseStack.popPose();
@@ -78,11 +83,8 @@ public class ElevatorGroupRenderer {
         Vec3 camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
         for(ElevatorGroup group : groups.getGroups()){
-            if(group.isMoving()){
-                BlockPos elevatorPos = new BlockPos(group.x, (int)group.getCurrentY(), group.z);
-                if(elevatorPos.distSqr(ClientUtils.getPlayer().blockPosition()) < RENDER_DISTANCE)
-                    renderGroupBlockEntities(poseStack, group, bufferSource, partialTicks);
-            }
+            if(group.isMoving() && isWithinRenderDistance(group))
+                renderGroupBlockEntities(poseStack, group, bufferSource, partialTicks);
         }
         poseStack.popPose();
     }
