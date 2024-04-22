@@ -35,6 +35,7 @@
   "movingelevators.elevator_screen.cabin_height.decrease_size": "Уменьшить высоту",
   "movingelevators.elevator_screen.cabin_depth.decrease_offset": "Сдвинуть назад",
   "movingelevators.remote_controller.wrong_dimension": "Блок должен быть в том же измерении, что и контроллер!",
+  "movingelevators.elevator.arrive_sound": "Лифт прибыл",
   "movingelevators.block.display_block": "Экран лифта",
   "movingelevators.floor_name": "%d этаж",
   "movingelevators.elevator_screen.cabin_depth.decrease_size": "Уменьшить глубину"
