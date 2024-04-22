@@ -1,3 +1,8 @@
+### Moving Elevators 1.4.7
+- Updated Russian and Ukrainian translations (thanks to dnrovs!)
+- Render distance for moving elevators is now based on actual render distance rather than fixed 300 blocks
+- Small optimizations when rendering elevators
+
 ### Moving Elevators 1.4.6
 - Added workaround for when Nothirium is installed
 - Fixed crash when removing a floor right after remote elevator panel caching
