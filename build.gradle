@@ -45,7 +45,7 @@ dependencies {
     implementation fg.deobf("curse.maven:supermartijn642s-config-lib-438332:${project.config_library_file}")
 
     // Rubidium
-    compileOnly fg.deobf("curse.maven:rubidium-574856:${project.rubidium_file}")
+    //compileOnly fg.deobf("curse.maven:rubidium-574856:${project.rubidium_file}")
     // Oculus
     compileOnly fg.deobf("curse.maven:oculus-581495:${project.oculus_file}")
 

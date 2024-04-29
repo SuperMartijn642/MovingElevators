@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -47,13 +48,10 @@ public class LevelRendererMixin {
         }
     }
 
+
     @Inject(
-        method = "renderChunkLayer",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/vertex/VertexBuffer;unbind()V",
-            shift = At.Shift.BEFORE
-        )
+            method = "renderChunkLayer",
+            at = @At("HEAD")
     )
     public void renderChunkLayer(RenderType renderType, PoseStack poseStack, double cameraX, double cameraY, double cameraZ, Matrix4f matrix4f, CallbackInfo ci){
         if(!ElevatorGroupRenderer.isIrisRenderingShadows)
