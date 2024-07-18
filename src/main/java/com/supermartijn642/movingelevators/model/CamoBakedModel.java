@@ -49,19 +49,16 @@ public class CamoBakedModel implements BakedModel, FabricBakedModel {
         }
 
         if(camoState == null)
-            context.bakedModelConsumer().accept(this.originalModel, state);
+            this.originalModel.emitBlockQuads(blockView, state, pos, randomSupplier, context);
         else{
             BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(camoState);
-            if(((FabricBakedModel)model).isVanillaAdapter())
-                context.bakedModelConsumer().accept(model, camoState);
-            else
-                ((FabricBakedModel)model).emitBlockQuads(blockView, camoState, pos, randomSupplier, context);
+            model.emitBlockQuads(blockView, camoState, pos, randomSupplier, context);
         }
     }
 
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context){
-        context.fallbackConsumer().accept(this.originalModel);
+        this.originalModel.emitItemQuads(stack, randomSupplier, context);
     }
 
     @Override

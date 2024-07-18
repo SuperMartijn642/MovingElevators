@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -16,7 +17,7 @@ public class ElevatorGroupCapabilitySaveData extends SavedData {
     public static void init(ServerLevel level, ElevatorGroupCapability capability){
         level.getDataStorage().computeIfAbsent(new Factory<SavedData>(
             () -> new ElevatorGroupCapabilitySaveData(capability),
-            tag -> {
+            (tag, provider) -> {
                 ElevatorGroupCapabilitySaveData saveData = new ElevatorGroupCapabilitySaveData(capability);
                 saveData.load(tag);
                 return saveData;
@@ -30,7 +31,7 @@ public class ElevatorGroupCapabilitySaveData extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag){
+    public CompoundTag save(CompoundTag tag, HolderLookup.Provider provider){
         return this.capability.write();
     }
 

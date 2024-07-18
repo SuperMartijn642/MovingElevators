@@ -7,10 +7,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -30,24 +28,21 @@ public class RemoteControllerBlockItem extends BaseBlockItem {
     @Override
     public ItemUseResult interact(ItemStack stack, Player player, InteractionHand hand, Level level){
         if(player.isShiftKeyDown()){
-            if(stack.hasTag() && stack.getTag().contains("controllerDim")){
+            if(stack.has(RemoteControllerBlock.TARGET)){
                 if(!level.isClientSide){
-                    stack.removeTagKey("controllerDim");
-                    stack.removeTagKey("controllerX");
-                    stack.removeTagKey("controllerY");
-                    stack.removeTagKey("controllerZ");
+                    stack.remove(RemoteControllerBlock.TARGET);
                     player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.clear").get(), true);
                 }
                 return ItemUseResult.success(stack);
             }
         }else{
             if(!level.isClientSide){
-                if(stack.hasTag() && stack.getTag().contains("controllerDim")){
-                    CompoundTag compound = stack.getTag();
-                    Component x = TextComponents.number(compound.getInt("controllerX")).color(ChatFormatting.GOLD).get();
-                    Component y = TextComponents.number(compound.getInt("controllerY")).color(ChatFormatting.GOLD).get();
-                    Component z = TextComponents.number(compound.getInt("controllerZ")).color(ChatFormatting.GOLD).get();
-                    Component dimension = TextComponents.dimension(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(compound.getString("controllerDim")))).color(ChatFormatting.GOLD).get();
+                RemoteControllerBlock.Target target = stack.get(RemoteControllerBlock.TARGET);
+                if(target != null){
+                    Component x = TextComponents.number(target.pos().getX()).color(ChatFormatting.GOLD).get();
+                    Component y = TextComponents.number(target.pos().getY()).color(ChatFormatting.GOLD).get();
+                    Component z = TextComponents.number(target.pos().getZ()).color(ChatFormatting.GOLD).get();
+                    Component dimension = TextComponents.dimension(ResourceKey.create(Registries.DIMENSION, target.dimension())).color(ChatFormatting.GOLD).get();
                     player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.tooltip.bound", x, y, z, dimension).get(), true);
                 }else
                     player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.tooltip").get(), true);
@@ -59,13 +54,13 @@ public class RemoteControllerBlockItem extends BaseBlockItem {
 
     @Override
     public InteractionFeedback interactWithBlock(ItemStack stack, Player player, InteractionHand hand, Level level, BlockPos hitPos, Direction hitSide, Vec3 hitLocation){
-        CompoundTag tag = stack.getTag();
-        if(tag == null || !tag.contains("controllerDim")){
+        RemoteControllerBlock.Target target = stack.get(RemoteControllerBlock.TARGET);
+        if(target == null){
             if(player != null && !level.isClientSide)
                 player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.not_bound").color(ChatFormatting.RED).get(), true);
             return InteractionFeedback.CONSUME;
         }
-        if(!tag.getString("controllerDim").equals(level.dimension().location().toString())){
+        if(!target.dimension().equals(level.dimension().location())){
             if(player != null && !level.isClientSide)
                 player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.wrong_dimension").color(ChatFormatting.RED).get(), true);
             return InteractionFeedback.CONSUME;

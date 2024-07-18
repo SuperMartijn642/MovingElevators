@@ -8,6 +8,7 @@ import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -18,6 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 
+    @Unique
+    private static final PoseStack POSE_STACK = new PoseStack();
+    @Unique
     private static boolean render = false;
 
     @Shadow
@@ -28,7 +32,7 @@ public class LevelRendererMixin {
         method = "renderLevel",
         at = @At("HEAD")
     )
-    public void renderLevelHead(PoseStack poseStack, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci){
+    public void renderLevelHead(float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
         render = true;
     }
 
@@ -40,10 +44,12 @@ public class LevelRendererMixin {
             shift = At.Shift.AFTER
         )
     )
-    public void renderLevelBlockEntities(PoseStack poseStack, float partialTicks, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci){
+    public void renderLevelBlockEntities(float partialTicks, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
         if(render){
             render = false;
-            ElevatorGroupRenderer.renderBlockEntities(poseStack, partialTicks, this.renderBuffers.bufferSource());
+            ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, partialTicks, this.renderBuffers.bufferSource());
+            if(!POSE_STACK.clear())
+                throw new IllegalStateException("Pose stack not empty");
         }
     }
 
@@ -55,8 +61,11 @@ public class LevelRendererMixin {
             shift = At.Shift.BEFORE
         )
     )
-    public void renderChunkLayer(RenderType renderType, PoseStack poseStack, double cameraX, double cameraY, double cameraZ, Matrix4f matrix4f, CallbackInfo ci){
+    public void renderChunkLayer(RenderType renderType, double cameraX, double cameraY, double cameraZ, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
+        POSE_STACK.pushPose();
+        POSE_STACK.mulPose(matrix4f);
         if(!ElevatorGroupRenderer.isIrisRenderingShadows)
-            ElevatorGroupRenderer.renderBlocks(poseStack, renderType, this.renderBuffers.bufferSource());
+            ElevatorGroupRenderer.renderBlocks(POSE_STACK, renderType, this.renderBuffers.bufferSource());
+        POSE_STACK.popPose();
     }
 }

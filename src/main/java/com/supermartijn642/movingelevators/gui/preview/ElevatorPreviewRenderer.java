@@ -35,7 +35,7 @@ public class ElevatorPreviewRenderer {
         double span = Math.sqrt(bounds.getXsize() * bounds.getXsize() + bounds.getYsize() * bounds.getYsize() + bounds.getZsize() * bounds.getZsize());
         scale /= span;
 
-        RenderSystem.getModelViewStack().pushPose();
+        RenderSystem.getModelViewStack().pushMatrix();
         RenderSystem.getModelViewStack().scale(1, -1, 1);
         RenderSystem.applyModelViewMatrix();
 
@@ -62,7 +62,7 @@ public class ElevatorPreviewRenderer {
         if(previewBox != null)
             RenderUtils.renderBox(poseStack, previewBox, 0, 0.7f, 0, 0.8f, true);
 
-        RenderSystem.getModelViewStack().popPose();
+        RenderSystem.getModelViewStack().popMatrix();
         RenderSystem.applyModelViewMatrix();
     }
 
@@ -107,7 +107,7 @@ public class ElevatorPreviewRenderer {
                 green = (color >> 8 & 255) / 255f;
                 blue = (color & 255) / 255f;
             }
-            buffer.putBulkData(matrix, bakedquad, red, green, blue, 15728880, OverlayTexture.NO_OVERLAY);
+            buffer.putBulkData(matrix, bakedquad, red, green, blue, 1, 15728880, OverlayTexture.NO_OVERLAY);
         }
     }
 }
