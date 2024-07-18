@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "display": {
     "icon": {
-      "item": "movingelevators:display_block"
+      "id": "movingelevators:display_block"
     },
     "title": {
       "translate": "movingelevators.advancement.recipes/misc/display_block.title"
@@ -27,9 +27,7 @@
       "conditions": {
         "items": [
           {
-            "items": [
-              "movingelevators:elevator_block"
-            ]
+            "items": "movingelevators:elevator_block"
           }
         ]
       }

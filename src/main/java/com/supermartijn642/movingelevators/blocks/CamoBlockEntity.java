@@ -6,9 +6,7 @@ import com.supermartijn642.core.registry.Registries;
 import com.supermartijn642.movingelevators.MovingElevators;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -64,30 +62,6 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
 
     @Override
     protected void readData(CompoundTag compound){
-        if(compound.contains("camoState"))
-            this.camoState = Block.stateById(compound.getInt("camoState"));
-        else if(compound.contains("hasCamo")){ // Do this for older versions
-            if(compound.getBoolean("hasCamo"))
-                this.camoState = Block.stateById(compound.getInt("camo"));
-            else
-                this.camoState = Blocks.AIR.defaultBlockState();
-        }else if(compound.contains("camo")){ // Do this for older versions
-            ItemStack camoStack = ItemStack.of(compound.getCompound("camo"));
-            Item item = camoStack.getItem();
-            if(item instanceof BlockItem){
-                Block block = ((BlockItem)item).getBlock();
-                this.camoState = block.defaultBlockState();
-            }
-        }
-    }
-
-    @Override
-    public void load(CompoundTag nbt){
-        if(nbt.contains("info", Tag.TAG_COMPOUND)){
-            // Do this for older versions
-            nbt.put("data", nbt.getCompound("info"));
-            nbt.remove("info");
-        }
-        super.load(nbt);
+        this.camoState = Block.stateById(compound.getInt("camoState"));
     }
 }

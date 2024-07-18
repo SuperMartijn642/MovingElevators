@@ -7,16 +7,16 @@
   ],
   "key": {
     "A": {
-      "tag": "c:iron_ingots"
+      "tag": "c:ingots/iron"
     },
     "B": {
-      "tag": "c:redstone_dusts"
+      "tag": "c:dusts/redstone"
     },
     "C": {
       "item": "minecraft:ender_pearl"
     }
   },
   "result": {
-    "item": "movingelevators:button_block"
+    "id": "movingelevators:button_block"
   }
 }

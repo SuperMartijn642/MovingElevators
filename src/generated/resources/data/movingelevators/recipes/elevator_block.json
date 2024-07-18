@@ -7,10 +7,10 @@
   ],
   "key": {
     "A": {
-      "tag": "c:iron_ingots"
+      "tag": "c:ingots/iron"
     },
     "B": {
-      "tag": "c:redstone_dusts"
+      "tag": "c:dusts/redstone"
     },
     "C": {
       "item": "minecraft:observer"
@@ -20,6 +20,6 @@
     }
   },
   "result": {
-    "item": "movingelevators:elevator_block"
+    "id": "movingelevators:elevator_block"
   }
 }

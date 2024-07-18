@@ -220,7 +220,7 @@ public class ElevatorGroup {
         if(this.floors.isEmpty()){
             if(this.isMoving){
                 Vec3 spawnPos = this.getCageAnchorPos(this.targetY).add(this.cageSizeX / 2d, this.cageSizeY / 2d, this.cageSizeZ / 2d);
-                this.cage.getDrops().forEach(stack -> {
+                this.cage.getDrops(this.level.registryAccess()).forEach(stack -> {
                     ItemEntity itemEntity = new ItemEntity(this.level, spawnPos.x, spawnPos.y, spawnPos.z, stack);
                     this.level.addFreshEntity(itemEntity);
                 });

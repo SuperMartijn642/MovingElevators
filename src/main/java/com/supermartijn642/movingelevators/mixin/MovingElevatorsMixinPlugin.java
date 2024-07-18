@@ -15,19 +15,17 @@ import java.util.Set;
 public class MovingElevatorsMixinPlugin implements IMixinConfigPlugin {
 
     private boolean isSodiumLoaded;
-    private boolean isIrisLoaded;
 
     @Override
     public void onLoad(String mixinPackage){
         this.isSodiumLoaded = isClassAvailable("me.jellysquid.mods.sodium.client.SodiumClientMod");
-        this.isIrisLoaded = isClassAvailable("net.coderbot.iris.Iris");
     }
 
     private static boolean isClassAvailable(String location){
-        try {
+        try{
             MixinService.getService().getBytecodeProvider().getClassNode(location);
             return true;
-        } catch (Exception ignored){
+        }catch(Exception ignored){
             return false;
         }
     }
@@ -51,8 +49,6 @@ public class MovingElevatorsMixinPlugin implements IMixinConfigPlugin {
         List<String> mixins = new ArrayList<>();
         if(this.isSodiumLoaded)
             mixins.addAll(List.of("sodium.LevelRendererMixinSodium", "sodium.SodiumWorldRendererMixin"));
-        if(this.isIrisLoaded)
-            mixins.add("iris.ShadowRendererMixin");
         return mixins;
     }
 

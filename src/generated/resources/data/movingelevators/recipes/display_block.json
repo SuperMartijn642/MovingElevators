@@ -7,16 +7,16 @@
   ],
   "key": {
     "A": {
-      "tag": "c:iron_ingots"
+      "tag": "c:ingots/iron"
     },
     "B": {
-      "tag": "c:redstone_dusts"
+      "tag": "c:dusts/redstone"
     },
     "C": {
       "tag": "c:glass_blocks"
     }
   },
   "result": {
-    "item": "movingelevators:display_block"
+    "id": "movingelevators:display_block"
   }
 }

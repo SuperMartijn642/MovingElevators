@@ -22,11 +22,6 @@ import net.minecraft.world.phys.Vec3;
  */
 public class ElevatorGroupRenderer {
 
-    /**
-     * Don't render anything when Iris is rendering shadows. For some reason that *sometimes* leads to issues
-     */
-    public static boolean isIrisRenderingShadows = false;
-
     public static void registerEventListeners(){
         RenderWorldEvent.EVENT.register(ElevatorGroupRenderer::onRender);
     }

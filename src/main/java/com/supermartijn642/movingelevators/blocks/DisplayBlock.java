@@ -12,7 +12,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -113,7 +112,7 @@ public class DisplayBlock extends CamoBlock {
     }
 
     @Override
-    protected void appendItemInformation(ItemStack stack, @org.jetbrains.annotations.Nullable BlockGetter level, Consumer<Component> info, boolean advanced){
+    protected void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
         info.accept(TextComponents.translation("movingelevators.elevator_display.tooltip").color(ChatFormatting.AQUA).get());
     }
 }
