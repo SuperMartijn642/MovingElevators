@@ -99,6 +99,8 @@ public class MovingElevators {
         handler.registerItem("elevator_block", () -> new BaseBlockItem(elevator_block, ItemProperties.create().group(GROUP)));
         handler.registerItem("display_block", () -> new BaseBlockItem(display_block, ItemProperties.create().group(GROUP)));
         handler.registerItem("button_block", () -> new RemoteControllerBlockItem(button_block, ItemProperties.create().group(GROUP)));
+        // Data components
+        handler.registerDataComponentType("button_block_target", RemoteControllerBlock.TARGET);
         // Sounds
         handler.registerSoundEvent("arrive_sound", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation("movingelevators", "arrive_sound")));
     }

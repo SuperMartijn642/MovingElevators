@@ -17,15 +17,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
-import net.neoforged.neoforge.event.TickEvent;
 
 /**
  * Created 3/28/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class MovingElevatorsClient {
 
     public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = new ResourceLocation("movingelevators", "blocks/block_overlays");
@@ -72,12 +72,12 @@ public class MovingElevatorsClient {
         return name == null ? TextComponents.translation("movingelevators.floor_name", TextComponents.number(floor).get()).format() : name;
     }
 
-    @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    @EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
     public static class ForgeEventListeners {
 
         @SubscribeEvent
-        public static void onClientTick(TickEvent.ClientTickEvent e){
-            if(e.phase == TickEvent.Phase.END && !ClientUtils.getMinecraft().isPaused() && ClientUtils.getWorld() != null)
+        public static void onClientTick(ClientTickEvent.Post e){
+            if(!ClientUtils.getMinecraft().isPaused() && ClientUtils.getWorld() != null)
                 ElevatorGroupCapability.tickWorldCapability(ClientUtils.getWorld());
         }
     }

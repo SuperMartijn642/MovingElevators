@@ -13,8 +13,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 /**
@@ -37,7 +37,7 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
     }
 
     @Override
-    protected void addWidgets(@Nonnull ControllerBlockEntity blockEntity){
+    protected void addWidgets(@NotNull ControllerBlockEntity blockEntity){
         // Floor name
         this.addWidget(new SynchingTextFieldWidget(6, 31, 84, MAX_NAME_LENGTH, () -> {
                 String name = blockEntity.getFloorName();
@@ -112,7 +112,7 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
     }
 
     @Override
-    protected void renderTooltips(WidgetRenderContext context, int mouseX, int mouseY, @Nonnull ControllerBlockEntity blockEntity){
+    protected void renderTooltips(WidgetRenderContext context, int mouseX, int mouseY, @NotNull ControllerBlockEntity blockEntity){
         if(mouseX >= 190 && mouseX <= 190 + 11 && mouseY >= 31 && mouseY <= 31 + 11)
             ScreenUtils.drawTooltip(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.cabin_width").get(), mouseX, mouseY);
         else if(mouseX >= 190 && mouseX <= 190 + 11 && mouseY >= 47 && mouseY <= 47 + 11)

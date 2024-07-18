@@ -24,11 +24,6 @@ import net.neoforged.neoforge.common.NeoForge;
  */
 public class ElevatorGroupRenderer {
 
-    /**
-     * Don't render anything when Iris is rendering shadows. For some reason that *sometimes* leads to issues
-     */
-    public static boolean isIrisRenderingShadows = false;
-
     public static void registerEventListeners(){
         NeoForge.EVENT_BUS.addListener(ElevatorGroupRenderer::onRender);
     }

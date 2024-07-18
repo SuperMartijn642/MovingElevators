@@ -13,8 +13,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,9 +31,9 @@ public class ElevatorGroupCapability {
     }
 
     public static void registerEventListeners(){
-        NeoForge.EVENT_BUS.addListener((Consumer<TickEvent.LevelTickEvent>)event -> {
-            if(event.side.isServer() && event.phase == TickEvent.Phase.END)
-                tickWorldCapability(event.level);
+        NeoForge.EVENT_BUS.addListener((Consumer<LevelTickEvent.Post>)event -> {
+            if(!event.getLevel().isClientSide)
+                tickWorldCapability(event.getLevel());
         });
         NeoForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerChangedDimensionEvent>)event -> onJoinWorld(event.getEntity(), event.getEntity().level()));
         NeoForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerLoggedInEvent>)event -> onJoin(event.getEntity()));

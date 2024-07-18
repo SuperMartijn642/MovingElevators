@@ -8,8 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -74,11 +72,6 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     @Override
     public BlockEntity createNewBlockEntity(BlockPos pos, BlockState state){
         return this.entitySupplier.apply(pos, state);
-    }
-
-    @Override
-    public boolean isValidSpawn(BlockState state, BlockGetter world, BlockPos pos, SpawnPlacements.Type type, EntityType<?> entityType){
-        return false;
     }
 
     @Override

@@ -6,13 +6,11 @@ import com.supermartijn642.movingelevators.MovingElevatorsClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -21,8 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 /**
@@ -41,12 +39,11 @@ public class ControllerBlock extends ElevatorInputBlock {
         if(player != null && player.getItemInHand(hand).getItem() instanceof RemoteControllerBlockItem && blockEntity instanceof ControllerBlockEntity){
             if(!level.isClientSide){
                 ItemStack stack = player.getItemInHand(hand);
-                CompoundTag tag = stack.getOrCreateTag();
-                tag.putString("controllerDim", level.dimension().location().toString());
-                tag.putInt("controllerX", pos.getX());
-                tag.putInt("controllerY", pos.getY());
-                tag.putInt("controllerZ", pos.getZ());
-                tag.putInt("controllerFacing", ((ControllerBlockEntity)blockEntity).getFacing().get2DDataValue());
+                stack.set(RemoteControllerBlock.TARGET, new RemoteControllerBlock.Target(
+                    level.dimension().location(),
+                    pos,
+                    ((ControllerBlockEntity)blockEntity).getFacing()
+                ));
                 player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.bind").get(), true);
             }
             return true;
@@ -91,7 +88,7 @@ public class ControllerBlock extends ElevatorInputBlock {
     }
 
     @Override
-    protected void appendItemInformation(ItemStack stack, @org.jetbrains.annotations.Nullable BlockGetter level, Consumer<Component> info, boolean advanced){
+    protected void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
         info.accept(TextComponents.translation("movingelevators.elevator_controller.tooltip").color(ChatFormatting.AQUA).get());
     }
 

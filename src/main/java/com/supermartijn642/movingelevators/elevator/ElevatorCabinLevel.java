@@ -10,6 +10,7 @@ import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -108,17 +110,17 @@ public class ElevatorCabinLevel extends Level {
 
     @Nullable
     @Override
-    public MapItemSavedData getMapData(String s){
-        return this.level.getMapData(s);
+    public MapItemSavedData getMapData(MapId id){
+        return this.level.getMapData(id);
     }
 
     @Override
-    public void setMapData(String s, MapItemSavedData data){
+    public void setMapData(MapId id, MapItemSavedData savedData){
     }
 
     @Override
-    public int getFreeMapId(){
-        return 0;
+    public MapId getFreeMapId(){
+        return new MapId(0);
     }
 
     @Override
@@ -167,6 +169,11 @@ public class ElevatorCabinLevel extends Level {
             public <U extends Entity> void get(EntityTypeTest<Entity,U> entityTypeTest, AABB aabb, AbortableIterationConsumer<U> abortableIterationConsumer){
             }
         };
+    }
+
+    @Override
+    public PotionBrewing potionBrewing(){
+        return null;
     }
 
     @Override
@@ -227,7 +234,7 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public void gameEvent(GameEvent gameEvent, Vec3 vec3, GameEvent.Context context){
+    public void gameEvent(Holder<GameEvent> gameEvent, Vec3 vec3, GameEvent.Context context){
     }
 
     @Override

@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "display": {
     "icon": {
-      "item": "movingelevators:elevator_block"
+      "id": "movingelevators:elevator_block"
     },
     "title": {
       "translate": "movingelevators.advancement.recipes/misc/elevator_block.title"
@@ -27,7 +27,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:ingots/iron"
+            "items": "#c:ingots/iron"
           }
         ]
       }

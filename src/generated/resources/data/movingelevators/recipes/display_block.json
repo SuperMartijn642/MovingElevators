@@ -7,16 +7,16 @@
   ],
   "key": {
     "A": {
-      "tag": "forge:ingots/iron"
+      "tag": "c:ingots/iron"
     },
     "B": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:dusts/redstone"
     },
     "C": {
-      "tag": "forge:glass"
+      "tag": "c:glass_blocks"
     }
   },
   "result": {
-    "item": "movingelevators:display_block"
+    "id": "movingelevators:display_block"
   }
 }
