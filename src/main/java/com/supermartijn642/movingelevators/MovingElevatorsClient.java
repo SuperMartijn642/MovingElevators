@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  */
 public class MovingElevatorsClient implements ClientModInitializer {
 
-    public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = new ResourceLocation("movingelevators", "blocks/block_overlays");
+    public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays");
 
     @Override
     public void onInitializeClient(){

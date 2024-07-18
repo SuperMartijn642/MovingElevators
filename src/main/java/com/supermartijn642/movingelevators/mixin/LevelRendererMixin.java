@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.*;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -32,8 +33,11 @@ public class LevelRendererMixin {
         method = "renderLevel",
         at = @At("HEAD")
     )
-    public void renderLevelHead(float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
+    public void renderLevelHead(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
         render = true;
+        // Apply the model-view matrix to the matrix stack
+        POSE_STACK.pushPose();
+        POSE_STACK.mulPose(modelView);
     }
 
     @Inject(
@@ -44,13 +48,24 @@ public class LevelRendererMixin {
             shift = At.Shift.AFTER
         )
     )
-    public void renderLevelBlockEntities(float partialTicks, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
+    public void renderLevelBlockEntities(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
         if(render){
             render = false;
-            ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, partialTicks, this.renderBuffers.bufferSource());
-            if(!POSE_STACK.clear())
-                throw new IllegalStateException("Pose stack not empty");
+            ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, deltaTracker.getGameTimeDeltaPartialTick(false), this.renderBuffers.bufferSource());
         }
+    }
+
+    @Inject(
+        method = "renderLevel",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/RenderBuffers;bufferSource()Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;",
+            shift = At.Shift.AFTER
+        )
+    )
+    public void afterModelViewMatrix(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+        // At some point the model-view matrix gets updated, so we can undo applying it to the matrix stack
+        POSE_STACK.popPose();
     }
 
     @Inject(
@@ -61,11 +76,7 @@ public class LevelRendererMixin {
             shift = At.Shift.BEFORE
         )
     )
-    public void renderChunkLayer(RenderType renderType, double cameraX, double cameraY, double cameraZ, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci){
-        POSE_STACK.pushPose();
-        POSE_STACK.mulPose(matrix4f);
-        if(!ElevatorGroupRenderer.isIrisRenderingShadows)
-            ElevatorGroupRenderer.renderBlocks(POSE_STACK, renderType, this.renderBuffers.bufferSource());
-        POSE_STACK.popPose();
+    public void renderChunkLayer(RenderType renderType, double cameraX, double cameraY, double cameraZ, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+        ElevatorGroupRenderer.renderBlocks(POSE_STACK, renderType, this.renderBuffers.bufferSource());
     }
 }

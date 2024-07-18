@@ -137,10 +137,10 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         float minU = overlaySprite.getU(tX / 128f), maxU = overlaySprite.getU((tX + tWidth) / 128f);
         float minV = overlaySprite.getV(tY / 128f), maxV = overlaySprite.getV((tY + tHeight) / 128f);
 
-        buffer.vertex(matrix, x, y + height, 0).color(255, 255, 255, 255).uv(maxU, minV).uv2(combinedLight).normal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
-        buffer.vertex(matrix, x + width, y + height, 0).color(255, 255, 255, 255).uv(minU, minV).uv2(combinedLight).normal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
-        buffer.vertex(matrix, x + width, y, 0).color(255, 255, 255, 255).uv(minU, maxV).uv2(combinedLight).normal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
-        buffer.vertex(matrix, x, y, 0).color(255, 255, 255, 255).uv(maxU, maxV).uv2(combinedLight).normal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
+        buffer.addVertex(matrix, x, y + height, 0).setColor(255, 255, 255, 255).setUv(maxU, minV).setLight(combinedLight).setNormal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).setOverlay(combinedOverlay);
+        buffer.addVertex(matrix, x + width, y + height, 0).setColor(255, 255, 255, 255).setUv(minU, minV).setLight(combinedLight).setNormal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).setOverlay(combinedOverlay);
+        buffer.addVertex(matrix, x + width, y, 0).setColor(255, 255, 255, 255).setUv(minU, maxV).setLight(combinedLight).setNormal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).setOverlay(combinedOverlay);
+        buffer.addVertex(matrix, x, y, 0).setColor(255, 255, 255, 255).setUv(maxU, maxV).setLight(combinedLight).setNormal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).setOverlay(combinedOverlay);
     }
 
     private void drawString(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, String s){

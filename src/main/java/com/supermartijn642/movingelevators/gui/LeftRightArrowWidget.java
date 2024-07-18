@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  */
 public class LeftRightArrowWidget extends AbstractButtonWidget {
 
-    private static final ResourceLocation ARROW_BUTTONS = new ResourceLocation("movingelevators", "textures/gui/arrow_buttons.png");
+    private static final ResourceLocation ARROW_BUTTONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/arrow_buttons.png");
 
     private final boolean isLeft;
     private final Component hoverText;

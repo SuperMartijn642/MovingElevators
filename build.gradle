@@ -39,9 +39,9 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     // Core library
-    modImplementation "com.supermartijn642.core:supermartijn642corelib:1.1.17-fabric-mc1.20.6" // TODO
+    modImplementation "com.supermartijn642.core:supermartijn642corelib:1.1.17-fabric-mc1.21" // TODO
     // Config library
-    modImplementation "com.supermartijn642.config:supermartijn642configlib:1.1.8-fabric-mc1.20.6" // TODO
+    modImplementation "com.supermartijn642.config:supermartijn642configlib:1.1.8-fabric-mc1.21" // TODO
 
     // Sodium
     modCompileOnly "maven.modrinth:sodium:${sodium_version}"
