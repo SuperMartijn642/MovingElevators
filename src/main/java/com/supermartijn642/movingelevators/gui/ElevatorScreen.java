@@ -24,8 +24,8 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
 
     public static final int MAX_NAME_LENGTH = 11;
 
-    private static final ResourceLocation BACKGROUND = new ResourceLocation("movingelevators", "textures/gui/gui_background.png");
-    private static final ResourceLocation SIZE_ICONS = new ResourceLocation("movingelevators", "textures/gui/size_icons2.png");
+    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/gui_background.png");
+    private static final ResourceLocation SIZE_ICONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/size_icons2.png");
 
     public ElevatorScreen(BlockPos entityPos){
         super(0, 0, 280, 118, ClientUtils.getWorld(), entityPos);

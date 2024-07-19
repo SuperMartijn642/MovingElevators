@@ -28,7 +28,7 @@ import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 @EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class MovingElevatorsClient {
 
-    public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = new ResourceLocation("movingelevators", "blocks/block_overlays");
+    public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays");
     public static TextureAtlasSprite OVERLAY_SPRITE;
 
     public static void register(){

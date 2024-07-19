@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  */
 public class CheckBoxWidget extends AbstractButtonWidget {
 
-    private static final ResourceLocation CHECKMARK_BOX_TEXTURE = new ResourceLocation("movingelevators", "textures/gui/checkmark_box.png");
+    private static final ResourceLocation CHECKMARK_BOX_TEXTURE = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/checkmark_box.png");
 
     private final Function<Boolean,Component> hoverText;
     private final Supplier<Boolean> isChecked;

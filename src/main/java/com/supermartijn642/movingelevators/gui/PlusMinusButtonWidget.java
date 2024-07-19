@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  */
 public class PlusMinusButtonWidget extends AbstractButtonWidget {
 
-    private static final ResourceLocation PLUS_MINUS_BUTTONS = new ResourceLocation("movingelevators", "textures/gui/plus_minus_buttons.png");
+    private static final ResourceLocation PLUS_MINUS_BUTTONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/plus_minus_buttons.png");
 
     private final boolean isPlus;
     private final Component hoverText;
