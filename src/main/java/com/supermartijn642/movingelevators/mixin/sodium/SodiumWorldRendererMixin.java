@@ -21,7 +21,7 @@ import java.util.SortedSet;
 public class SodiumWorldRendererMixin {
 
     @Inject(
-        method = {"renderTileEntities", "renderBlockEntities"},
+        method = "renderBlockEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderBuffers;Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;Lnet/minecraft/client/Camera;F)V",
         at = @At("HEAD"),
         remap = false
     )

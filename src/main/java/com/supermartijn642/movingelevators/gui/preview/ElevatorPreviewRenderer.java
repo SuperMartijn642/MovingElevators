@@ -35,7 +35,7 @@ public class ElevatorPreviewRenderer {
         double span = Math.sqrt(bounds.getXsize() * bounds.getXsize() + bounds.getYsize() * bounds.getYsize() + bounds.getZsize() * bounds.getZsize());
         scale /= span;
 
-        RenderSystem.getModelViewStack().pushPose();
+        RenderSystem.getModelViewStack().pushMatrix();
         RenderSystem.getModelViewStack().scale(1, -1, 1);
         RenderSystem.applyModelViewMatrix();
 
@@ -62,7 +62,7 @@ public class ElevatorPreviewRenderer {
         if(previewBox != null)
             RenderUtils.renderBox(poseStack, previewBox, 0, 0.7f, 0, 0.8f, true);
 
-        RenderSystem.getModelViewStack().popPose();
+        RenderSystem.getModelViewStack().popMatrix();
         RenderSystem.applyModelViewMatrix();
     }
 
@@ -73,14 +73,7 @@ public class ElevatorPreviewRenderer {
         BlockState state = capture.getBlockState(pos);
         if(state.getBlock() != Blocks.AIR){
             BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
-            ModelData modelData = ModelData.EMPTY;
-//            if(model instanceof RechiseledConnectedBakedModel){ // TODO
-//                RechiseledModelData data = new RechiseledModelData();
-//                for(Direction direction : Direction.values())
-//                    data.sides.put(direction, new RechiseledModelData.SideData(direction, capture::getBlock, pos, state.getBlock()));
-//                modelData = new ModelDataMap.Builder().withInitial(RechiseledModelData.PROPERTY, data).build();
-//            }
-
+            ModelData modelData = ModelData.EMPTY; // TODO proper model data
             RandomSource random = RandomSource.create(42L);
             for(RenderType renderType : model.getRenderTypes(state, random, modelData)){
                 renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType), modelData, renderType);

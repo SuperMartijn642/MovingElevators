@@ -1,6 +1,5 @@
 package com.supermartijn642.movingelevators.mixin;
 
-import com.google.common.collect.Lists;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -16,12 +15,10 @@ import java.util.Set;
 public class MovingElevatorsMixinPlugin implements IMixinConfigPlugin {
 
     private boolean isSodiumLoaded;
-    private boolean isIrisLoaded;
 
     @Override
     public void onLoad(String mixinPackage){
         this.isSodiumLoaded = isClassAvailable("me.jellysquid.mods.sodium.client.SodiumClientMod");
-        this.isIrisLoaded = isClassAvailable("net.coderbot.iris.Iris");
     }
 
     private static boolean isClassAvailable(String location){
@@ -51,9 +48,7 @@ public class MovingElevatorsMixinPlugin implements IMixinConfigPlugin {
     public List<String> getMixins(){
         List<String> mixins = new ArrayList<>();
         if(this.isSodiumLoaded)
-            mixins.addAll(Lists.newArrayList("sodium.LevelRendererMixinSodium", "sodium.SodiumWorldRendererMixin"));
-        if(this.isIrisLoaded)
-            mixins.add("iris.ShadowRendererMixin");
+            mixins.addAll(List.of("sodium.LevelRendererMixinSodium", "sodium.SodiumWorldRendererMixin"));
         return mixins;
     }
 

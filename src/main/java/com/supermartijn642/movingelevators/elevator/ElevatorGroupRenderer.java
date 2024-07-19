@@ -16,21 +16,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.common.MinecraftForge;
 
 /**
  * Created 11/8/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorGroupRenderer {
 
-    /**
-     * Don't render anything when Iris is rendering shadows. For some reason that *sometimes* leads to issues
-     */
-    public static boolean isIrisRenderingShadows = false;
+    public static void registerEventListeners(){
+        MinecraftForge.EVENT_BUS.addListener(ElevatorGroupRenderer::onRender);
+    }
 
     private static boolean isWithinRenderDistance(ElevatorGroup group){
         GameRenderer renderer = ClientUtils.getMinecraft().gameRenderer;
@@ -42,7 +38,6 @@ public class ElevatorGroupRenderer {
         return distance < renderDistance * renderDistance;
     }
 
-    @SubscribeEvent
     public static void onRender(RenderWorldEvent e){
         if(!ClientUtils.getMinecraft().getEntityRenderDispatcher().shouldRenderHitBoxes())
             return;

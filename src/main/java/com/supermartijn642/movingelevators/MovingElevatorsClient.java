@@ -76,8 +76,8 @@ public class MovingElevatorsClient {
     public static class ForgeEventListeners {
 
         @SubscribeEvent
-        public static void onClientTick(TickEvent.ClientTickEvent e){
-            if(e.phase == TickEvent.Phase.END && !ClientUtils.getMinecraft().isPaused() && ClientUtils.getWorld() != null)
+        public static void onClientTick(TickEvent.ClientTickEvent.Post e){
+            if(!ClientUtils.getMinecraft().isPaused() && ClientUtils.getWorld() != null)
                 ElevatorGroupCapability.tickWorldCapability(ClientUtils.getWorld());
         }
     }

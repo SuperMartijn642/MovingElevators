@@ -10,26 +10,25 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Created 11/7/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorGroupCapability {
 
     private static Capability<ElevatorGroupCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<ElevatorGroupCapability>() {
@@ -39,12 +38,21 @@ public class ElevatorGroupCapability {
         return level.getCapability(CAPABILITY).orElse(null);
     }
 
-    @SubscribeEvent
+    public static void registerEventListeners(){
+        MinecraftForge.EVENT_BUS.addListener((Consumer<TickEvent.LevelTickEvent.Post>)event -> {
+            if(!event.level.isClientSide)
+                tickWorldCapability(event.level);
+        });
+        MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerChangedDimensionEvent>)event -> onJoinWorld(event.getEntity(), event.getEntity().level()));
+        MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerLoggedInEvent>)event -> onJoin(event.getEntity()));
+        MinecraftForge.EVENT_BUS.addListener(ElevatorGroupCapability::register);
+        MinecraftForge.EVENT_BUS.addGenericListener(Level.class, ElevatorGroupCapability::attachCapabilities);
+    }
+
     public static void register(RegisterCapabilitiesEvent e){
         e.register(ElevatorGroupCapability.class);
     }
 
-    @SubscribeEvent
     public static void attachCapabilities(AttachCapabilitiesEvent<Level> e){
         Level level = e.getObject();
 
@@ -69,33 +77,16 @@ public class ElevatorGroupCapability {
         e.addListener(capability::invalidate);
     }
 
-
-    @SubscribeEvent
-    public static void onTick(TickEvent.LevelTickEvent e){
-        if(e.level.isClientSide || e.phase != TickEvent.Phase.END)
-            return;
-
-        tickWorldCapability(e.level);
-    }
-
     public static void tickWorldCapability(Level level){
-        level.getCapability(CAPABILITY).ifPresent(ElevatorGroupCapability::tick);
+        get(level).tick();
     }
 
-    @SubscribeEvent
-    public static void onJoinWorld(PlayerEvent.PlayerChangedDimensionEvent e){
-        ServerPlayer player = (ServerPlayer)e.getEntity();
-        player.level().getCapability(CAPABILITY).ifPresent(groups ->
-            MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(groups.write()))
-        );
+    public static void onJoinWorld(Player player, Level level){
+        MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(get(level).write()));
     }
 
-    @SubscribeEvent
-    public static void onJoin(PlayerEvent.PlayerLoggedInEvent e){
-        ServerPlayer player = (ServerPlayer)e.getEntity();
-        player.level().getCapability(CAPABILITY).ifPresent(groups ->
-            MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(groups.write()))
-        );
+    public static void onJoin(Player player){
+        MovingElevators.CHANNEL.sendToPlayer(player, new PacketUpdateElevatorGroups(get(player.level()).write()));
     }
 
     private final Level level;

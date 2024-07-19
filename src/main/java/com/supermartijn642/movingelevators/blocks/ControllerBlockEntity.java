@@ -1,6 +1,5 @@
 package com.supermartijn642.movingelevators.blocks;
 
-import com.google.gson.JsonParseException;
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
@@ -8,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -61,16 +59,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     @Override
     protected void readData(CompoundTag compound){
         super.readData(compound);
-        if(compound.contains("hasName", Tag.TAG_BYTE))
-            this.name = compound.getBoolean("hasName") ? compound.getString("name") : null;
-        else if(compound.contains("name")){ // For older versions
-            try{
-                this.name = Component.Serializer.fromJson(compound.getString("name")).getString(Integer.MAX_VALUE);
-            }catch(JsonParseException ignore){
-                this.name = compound.getString("name");
-            }
-        }else
-            this.name = null;
+        this.name = compound.getBoolean("hasName") ? compound.getString("name") : null;
         this.color = DyeColor.byId(compound.getInt("color"));
         this.showButtons = !compound.contains("showButtons", Tag.TAG_BYTE) || compound.getBoolean("showButtons");
         this.facing = compound.contains("facing", Tag.TAG_INT) ? Direction.from2DDataValue(compound.getInt("facing")) : null;

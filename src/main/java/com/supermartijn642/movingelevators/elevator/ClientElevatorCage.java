@@ -4,6 +4,7 @@ import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.registry.Registries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,7 +28,7 @@ public class ClientElevatorCage extends ElevatorCage {
     private BlockPos renderPos = null;
     public final BlockEntity[][][] blockEntities;
 
-    public ClientElevatorCage(int xSize, int ySize, int zSize, BlockState[][][] states, CompoundTag[][][] blockEntityData, CompoundTag[][][] blockEntityStacks, List<AABB> collisionBoxes){
+    public ClientElevatorCage(int xSize, int ySize, int zSize, BlockState[][][] states, CompoundTag[][][] blockEntityData, Tag[][][] blockEntityStacks, List<AABB> collisionBoxes){
         super(xSize, ySize, zSize, states, blockEntityData, blockEntityStacks, collisionBoxes);
         this.blockEntities = new BlockEntity[xSize][ySize][zSize];
     }
@@ -55,7 +56,7 @@ public class ClientElevatorCage extends ElevatorCage {
                         BlockPos pos = new BlockPos(renderPos.getX() + x, renderPos.getY() + y, renderPos.getZ() + z);
                         BlockEntity entity = entityType.create(pos, state);
                         if(entity != null){
-                            entity.load(entityData);
+                            entity.loadWithComponents(entityData, group.level.registryAccess());
                             entity.setLevel(level);
                             this.blockEntities[x][y][z] = entity;
                         }

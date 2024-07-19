@@ -43,5 +43,4 @@ public class ElevatorFallDamageHandler {
             e.printStackTrace();
         }
     }
-
 }

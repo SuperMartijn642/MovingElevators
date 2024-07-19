@@ -12,6 +12,8 @@ import com.supermartijn642.core.registry.GeneratorRegistrationHandler;
 import com.supermartijn642.core.registry.RegistrationHandler;
 import com.supermartijn642.core.registry.RegistryEntryAcceptor;
 import com.supermartijn642.movingelevators.blocks.*;
+import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
+import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import com.supermartijn642.movingelevators.generators.*;
 import com.supermartijn642.movingelevators.packets.*;
 import net.minecraft.resources.ResourceLocation;
@@ -73,6 +75,9 @@ public class MovingElevators {
 
         MovingElevatorsConfig.init();
 
+        ElevatorGroupCapability.registerEventListeners();
+        ElevatorGroupRenderer.registerEventListeners();
+
         register();
         if(CommonUtils.getEnvironmentSide().isClient())
             MovingElevatorsClient.register();
@@ -94,6 +99,8 @@ public class MovingElevators {
         handler.registerItem("elevator_block", () -> new BaseBlockItem(elevator_block, ItemProperties.create().group(GROUP)));
         handler.registerItem("display_block", () -> new BaseBlockItem(display_block, ItemProperties.create().group(GROUP)));
         handler.registerItem("button_block", () -> new RemoteControllerBlockItem(button_block, ItemProperties.create().group(GROUP)));
+        // Data components
+        handler.registerDataComponentType("button_block_target", RemoteControllerBlock.TARGET);
         // Sounds
         handler.registerSoundEvent("arrive_sound", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation("movingelevators", "arrive_sound")));
     }
