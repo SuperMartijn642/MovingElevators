@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.*;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -32,7 +33,7 @@ public class LevelRendererMixin {
         method = "renderLevel",
         at = @At("HEAD")
     )
-    public void renderLevelHead(float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+    public void renderLevelHead(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
         render = true;
         // Apply the model-view matrix to the matrix stack
         POSE_STACK.pushPose();
@@ -47,10 +48,10 @@ public class LevelRendererMixin {
             shift = At.Shift.AFTER
         )
     )
-    public void renderLevelBlockEntities(float partialTicks, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+    public void renderLevelBlockEntities(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
         if(render){
             render = false;
-            ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, partialTicks, this.renderBuffers.bufferSource());
+            ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, deltaTracker.getGameTimeDeltaPartialTick(false), this.renderBuffers.bufferSource());
         }
     }
 
@@ -62,7 +63,7 @@ public class LevelRendererMixin {
             shift = At.Shift.AFTER
         )
     )
-    public void afterModelViewMatrix(float partialTicks, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+    public void afterModelViewMatrix(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
         // At some point the model-view matrix gets updated, so we can undo applying it to the matrix stack
         POSE_STACK.popPose();
     }

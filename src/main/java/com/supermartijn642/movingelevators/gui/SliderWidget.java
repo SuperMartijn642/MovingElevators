@@ -14,7 +14,7 @@ import java.util.function.Function;
  */
 public class SliderWidget extends BaseWidget {
 
-    private static final ResourceLocation SLIDER_TEXTURE = new ResourceLocation("movingelevators", "textures/gui/slider.png");
+    private static final ResourceLocation SLIDER_TEXTURE = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/slider.png");
 
     private final int min, max, range;
     private int value, lastValue;

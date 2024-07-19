@@ -7,6 +7,7 @@ import com.supermartijn642.movingelevators.packets.PacketRemoveElevatorGroup;
 import com.supermartijn642.movingelevators.packets.PacketUpdateElevatorGroups;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
@@ -29,9 +30,10 @@ import java.util.function.Consumer;
 /**
  * Created 11/7/2020 by SuperMartijn642
  */
+@AutoRegisterCapability
 public class ElevatorGroupCapability {
 
-    private static Capability<ElevatorGroupCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<ElevatorGroupCapability>() {
+    private static final Capability<ElevatorGroupCapability> CAPABILITY = CapabilityManager.get(new CapabilityToken<ElevatorGroupCapability>() {
     });
 
     public static ElevatorGroupCapability get(Level level){
@@ -45,19 +47,14 @@ public class ElevatorGroupCapability {
         });
         MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerChangedDimensionEvent>)event -> onJoinWorld(event.getEntity(), event.getEntity().level()));
         MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerLoggedInEvent>)event -> onJoin(event.getEntity()));
-        MinecraftForge.EVENT_BUS.addListener(ElevatorGroupCapability::register);
         MinecraftForge.EVENT_BUS.addGenericListener(Level.class, ElevatorGroupCapability::attachCapabilities);
-    }
-
-    public static void register(RegisterCapabilitiesEvent e){
-        e.register(ElevatorGroupCapability.class);
     }
 
     public static void attachCapabilities(AttachCapabilitiesEvent<Level> e){
         Level level = e.getObject();
 
         LazyOptional<ElevatorGroupCapability> capability = LazyOptional.of(() -> new ElevatorGroupCapability(level));
-        e.addCapability(new ResourceLocation("movingelevators", "elevator_groups"), new ICapabilitySerializable<Tag>() {
+        e.addCapability(ResourceLocation.fromNamespaceAndPath("movingelevators", "elevator_groups"), new ICapabilitySerializable<Tag>() {
             @Nonnull
             @Override
             public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side){
@@ -65,12 +62,12 @@ public class ElevatorGroupCapability {
             }
 
             @Override
-            public Tag serializeNBT(){
+            public Tag serializeNBT(HolderLookup.Provider provider){
                 return capability.map(ElevatorGroupCapability::write).orElse(null);
             }
 
             @Override
-            public void deserializeNBT(Tag nbt){
+            public void deserializeNBT(HolderLookup.Provider provider, Tag nbt){
                 capability.ifPresent(capability -> capability.read(nbt));
             }
         });

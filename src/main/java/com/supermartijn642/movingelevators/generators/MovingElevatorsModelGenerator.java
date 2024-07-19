@@ -16,9 +16,9 @@ public class MovingElevatorsModelGenerator extends ModelGenerator {
 
     @Override
     public void generate(){
-        this.cubeAll("block/elevator_block", new ResourceLocation("movingelevators", "blocks/elevator"));
-        this.cubeAll("block/display_block", new ResourceLocation("movingelevators", "blocks/display"));
-        this.cubeAll("block/button_block", new ResourceLocation("movingelevators", "blocks/display"));
+        this.cubeAll("block/elevator_block", ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/elevator"));
+        this.cubeAll("block/display_block", ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/display"));
+        this.cubeAll("block/button_block", ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/display"));
         this.model("item/elevator_block")
             .parent("block/elevator_block")
             .texture("overlay", "blocks/buttons")

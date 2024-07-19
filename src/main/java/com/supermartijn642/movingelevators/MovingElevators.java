@@ -102,7 +102,7 @@ public class MovingElevators {
         // Data components
         handler.registerDataComponentType("button_block_target", RemoteControllerBlock.TARGET);
         // Sounds
-        handler.registerSoundEvent("arrive_sound", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation("movingelevators", "arrive_sound")));
+        handler.registerSoundEvent("arrive_sound", () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath("movingelevators", "arrive_sound")));
     }
 
     private static void registerGenerators(){

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.CommonUtils;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.*;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -33,7 +34,7 @@ public class LevelRendererMixinSodium {
         method = "renderLevel",
         at = @At("HEAD")
     )
-    public void renderLevelHead(float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+    public void renderLevelHead(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
         // Apply the model-view matrix to the matrix stack
         POSE_STACK.pushPose();
         if(this.isIrisLoaded == null)
@@ -50,7 +51,7 @@ public class LevelRendererMixinSodium {
             shift = At.Shift.AFTER
         )
     )
-    public void afterModelViewMatrix(float partialTicks, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+    public void afterModelViewMatrix(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
         // At some point the model-view matrix gets updated, so we can undo applying it to the matrix stack
         POSE_STACK.popPose();
     }

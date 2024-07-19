@@ -37,9 +37,9 @@ dependencies {
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 
     // Core library
-    implementation "com.supermartijn642.core:supermartijn642corelib:1.1.17-forge-mc1.20.6" // TODO
+    implementation "com.supermartijn642.core:supermartijn642corelib:1.1.17-forge-mc1.21" // TODO
     // Config library
-    implementation "com.supermartijn642.config:supermartijn642configlib:1.1.8-forge-mc1.20.6" //TODO
+    implementation "com.supermartijn642.config:supermartijn642configlib:1.1.8-forge-mc1.21" //TODO
 
     // Embeddium
     compileOnly "curse.maven:embeddium-908741:${embeddium_file}"
