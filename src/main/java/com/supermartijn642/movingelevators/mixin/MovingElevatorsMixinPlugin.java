@@ -18,7 +18,8 @@ public class MovingElevatorsMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage){
-        this.isSodiumLoaded = isClassAvailable("me.jellysquid.mods.sodium.client.SodiumClientMod");
+        this.isSodiumLoaded = isClassAvailable("me.jellysquid.mods.sodium.client.SodiumClientMod")
+            || isClassAvailable("org.embeddedt.embeddium.impl.Embeddium");
     }
 
     private static boolean isClassAvailable(String location){
@@ -48,7 +49,7 @@ public class MovingElevatorsMixinPlugin implements IMixinConfigPlugin {
     public List<String> getMixins(){
         List<String> mixins = new ArrayList<>();
         if(this.isSodiumLoaded)
-            mixins.addAll(List.of("sodium.LevelRendererMixinSodium", "sodium.SodiumWorldRendererMixin"));
+            mixins.addAll(List.of("sodium.LevelRendererMixinSodium"));
         return mixins;
     }
 

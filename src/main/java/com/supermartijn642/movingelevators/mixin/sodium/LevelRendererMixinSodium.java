@@ -23,6 +23,8 @@ public class LevelRendererMixinSodium {
 
     @Unique
     private static final PoseStack POSE_STACK = new PoseStack();
+    @Unique
+    private static boolean render = false;
 
     @Shadow
     @Final
@@ -35,12 +37,29 @@ public class LevelRendererMixinSodium {
         at = @At("HEAD")
     )
     public void renderLevelHead(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+        render = true;
         // Apply the model-view matrix to the matrix stack
         POSE_STACK.pushPose();
         if(this.isIrisLoaded == null)
             this.isIrisLoaded = CommonUtils.isModLoaded("iris");
         if(!this.isIrisLoaded)
             POSE_STACK.mulPose(modelView);
+    }
+
+    @Inject(
+        method = "renderLevel",
+        at = {@At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;globalBlockEntities:Ljava/util/Set;",
+            shift = At.Shift.BEFORE,
+            ordinal = 0
+        )}
+    )
+    public void renderLevelBlockEntities(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+        if(render){
+            render = false;
+            ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, deltaTracker.getGameTimeDeltaPartialTick(false), this.renderBuffers.bufferSource());
+        }
     }
 
     @Inject(
