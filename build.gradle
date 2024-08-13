@@ -34,7 +34,7 @@ dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
 
     // Core library
-    implementation "com.supermartijn642.core:supermartijn642corelib:1.1.17-neoforge-mc1.21" // TODO
+    implementation "com.supermartijn642.core:supermartijn642corelib:1.1.17c-neoforge-mc1.21" // TODO
     // Config library
     implementation "com.supermartijn642.config:supermartijn642configlib:1.1.8-neoforge-mc1.21" // TODO
 
