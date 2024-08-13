@@ -58,14 +58,21 @@ public class ElevatorGroupRenderer {
         Vec3 camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
         VertexConsumer buffer = null;
+        boolean rendered =false;
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving() && isWithinRenderDistance(group)){
                 if(buffer == null)
                     buffer = bufferSource.getBuffer(renderType);
                 renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
+                rendered =true;
             }
         }
         poseStack.popPose();
+
+        if(rendered
+            && renderType != RenderType.translucent()
+            && bufferSource instanceof MultiBufferSource.BufferSource) // Make sure blocks get rendered before the model view matrix gets updated
+            ((MultiBufferSource.BufferSource)bufferSource).endBatch(renderType);
     }
 
     public static void renderBlockEntities(PoseStack poseStack, float partialTicks, MultiBufferSource bufferSource){
