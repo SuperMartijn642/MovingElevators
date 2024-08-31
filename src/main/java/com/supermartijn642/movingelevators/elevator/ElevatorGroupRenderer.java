@@ -27,11 +27,6 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ElevatorGroupRenderer {
 
-    /**
-     * Don't render anything when Iris is rendering shadows. For some reason that *sometimes* leads to issues
-     */
-    public static boolean isIrisRenderingShadows = false;
-
     private static boolean isWithinRenderDistance(ElevatorGroup group){
         GameRenderer renderer = ClientUtils.getMinecraft().gameRenderer;
         if(renderer == null)

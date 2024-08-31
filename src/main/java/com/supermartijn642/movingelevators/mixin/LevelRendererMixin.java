@@ -18,45 +18,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 
-    private static boolean render = false;
-
     @Shadow
     @Final
     private RenderBuffers renderBuffers;
 
     @Inject(
         method = "renderLevel",
-        at = @At("HEAD")
-    )
-    public void renderLevelHead(PoseStack poseStack, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci){
-        render = true;
-    }
-
-    @Inject(
-        method = "renderLevel",
         at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/SectionRenderDispatcher$CompiledSection;getRenderableBlockEntities()Ljava/util/List;",
-            shift = At.Shift.AFTER
+            value = "FIELD",
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;visibleSections:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;",
+            shift = At.Shift.BEFORE
         )
     )
     public void renderLevelBlockEntities(PoseStack poseStack, float partialTicks, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci){
-        if(render){
-            render = false;
-            ElevatorGroupRenderer.renderBlockEntities(poseStack, partialTicks, this.renderBuffers.bufferSource());
-        }
+        ElevatorGroupRenderer.renderBlockEntities(poseStack, partialTicks, this.renderBuffers.bufferSource());
     }
 
     @Inject(
         method = "renderSectionLayer",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/vertex/VertexBuffer;unbind()V",
-            shift = At.Shift.BEFORE
-        )
+        at = @At("HEAD")
     )
     public void renderChunkLayer(RenderType renderType, PoseStack poseStack, double cameraX, double cameraY, double cameraZ, Matrix4f matrix4f, CallbackInfo ci){
-        if(!ElevatorGroupRenderer.isIrisRenderingShadows)
-            ElevatorGroupRenderer.renderBlocks(poseStack, renderType, this.renderBuffers.bufferSource());
+        ElevatorGroupRenderer.renderBlocks(poseStack, renderType, this.renderBuffers.bufferSource());
     }
 }
