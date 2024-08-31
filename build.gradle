@@ -41,11 +41,6 @@ dependencies {
     // Config library
     implementation "com.supermartijn642.config:supermartijn642configlib:1.1.8-forge-mc1.20.6" //TODO
 
-    // Embeddium
-    compileOnly "curse.maven:embeddium-908741:${embeddium_file}"
-    // Oculus
-    compileOnly "curse.maven:oculus-581495:${oculus_file}"
-
     // Just Enough Items
 //    runtimeOnly fg.deobf("curse.maven:jei-238222:${just_enough_items_file}")
 
