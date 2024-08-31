@@ -43,8 +43,14 @@ dependencies {
 
     // Rubidium
     compileOnly fg.deobf("curse.maven:rubidium-574856:${rubidium_file}")
+    // Embeddium
+    compileOnly fg.deobf("curse.maven:embeddium-908741:${embeddium_file}")
+    // Sodium
+    compileOnly fg.deobf("something:sodium:forge-0.6.0-alpha.3+mc1.20.1")
     // Oculus
     compileOnly fg.deobf("curse.maven:oculus-581495:${oculus_file}")
+    // Iris
+    compileOnly fg.deobf("something:iris:forge-1.20.1-1.8.0-snapshot+mc1.20.1-local")
 
     // Just Enough Items
 //    runtimeOnly fg.deobf("curse.maven:jei-238222:${just_enough_items_file}")
