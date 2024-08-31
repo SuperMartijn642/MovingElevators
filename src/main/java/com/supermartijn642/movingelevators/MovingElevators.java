@@ -51,6 +51,8 @@ public class MovingElevators {
 
     public static final CreativeItemGroup GROUP = CreativeItemGroup.create("movingelevators", () -> elevator_block.asItem());
 
+    public static final boolean isIrisLoaded = CommonUtils.isModLoaded("iris");
+
     public MovingElevators(){
         CHANNEL.registerMessage(PacketAddElevatorGroup.class, PacketAddElevatorGroup::new, true);
         CHANNEL.registerMessage(PacketDecreaseCabinDepth.class, PacketDecreaseCabinDepth::new, true);

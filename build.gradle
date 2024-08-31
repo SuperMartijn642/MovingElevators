@@ -40,8 +40,10 @@ dependencies {
 
     // Embeddium
     compileOnly "curse.maven:embeddium-908741:${embeddium_file}"
-    // Oculus
-    compileOnly "curse.maven:oculus-581495:${oculus_file}"
+    // Sodium
+    compileOnly "maven.modrinth:sodium:${sodium_version}"
+    // Iris
+    compileOnly "maven.modrinth:iris:${iris_version}"
 
     // Just Enough Items
 //    runtimeOnly "curse.maven:jei-238222:${just_enough_items_file}"
