@@ -44,9 +44,9 @@ dependencies {
     modImplementation "com.supermartijn642.config:supermartijn642configlib:1.1.8-fabric-mc1.21" // TODO
 
     // Sodium
-    modCompileOnly "maven.modrinth:sodium:${sodium_version}"
+//    runtimeOnly "maven.modrinth:sodium:${sodium_version}"
     // Iris
-    modCompileOnly "maven.modrinth:iris:${iris_version}"
+//    runtimeOnly "maven.modrinth:iris:${iris_version}"
 //    runtimeOnly "org.anarres:jcpp:1.4.14"
 //    runtimeOnly "io.github.douira:glsl-transformer:2.0.0-pre13"
 //    runtimeOnly "org.antlr:antlr4-runtime:4.11.1"
