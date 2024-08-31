@@ -177,6 +177,24 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
+    public void setDayTimeFraction(float v){
+    }
+
+    @Override
+    public float getDayTimeFraction(){
+        return this.level.getDayTimeFraction();
+    }
+
+    @Override
+    public float getDayTimePerTick(){
+        return this.level.getDayTimePerTick();
+    }
+
+    @Override
+    public void setDayTimePerTick(float v){
+    }
+
+    @Override
     public LevelTickAccess<Block> getBlockTicks(){
         return new LevelTickAccess<Block>() {
             @Override
