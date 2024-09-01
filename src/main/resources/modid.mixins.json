@@ -6,7 +6,8 @@
   "refmap": "${mod_id}.mixins.refmap.json",
   "mixins": [],
   "client": [
-    "LevelRendererMixin"
+    "LevelRendererMixin",
+    "vintagium.SodiumWorldRendererMixin"
   ],
   "server": [],
   "injectors": {
