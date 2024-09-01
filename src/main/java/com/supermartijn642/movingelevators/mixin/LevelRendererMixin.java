@@ -30,11 +30,7 @@ public class LevelRendererMixin {
 
     @Inject(
         method = "renderSameAsLast",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/AbstractChunkRenderContainer;render(Lnet/minecraft/util/BlockRenderLayer;)V",
-            shift = At.Shift.AFTER
-        )
+        at = @At("HEAD")
     )
     public void renderChunkLayer(BlockRenderLayer renderType, CallbackInfo ci){
         ElevatorGroupRenderer.renderBlocks(renderType);
