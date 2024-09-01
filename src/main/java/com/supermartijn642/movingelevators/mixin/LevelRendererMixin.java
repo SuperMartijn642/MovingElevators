@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Created 22/04/2023 by SuperMartijn642
@@ -29,14 +30,10 @@ public class LevelRendererMixin {
     }
 
     @Inject(
-        method = "renderBlockLayer(Lnet/minecraft/util/BlockRenderLayer;)V",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/ChunkRenderContainer;renderChunkLayer(Lnet/minecraft/util/BlockRenderLayer;)V",
-            shift = At.Shift.AFTER
-        )
+        method = "renderBlockLayer(Lnet/minecraft/util/BlockRenderLayer;DILnet/minecraft/entity/Entity;)I",
+        at = @At("HEAD")
     )
-    public void renderChunkLayer(BlockRenderLayer renderType, CallbackInfo ci){
+    public void renderChunkLayer(BlockRenderLayer renderType, double partialTicks, int pass, Entity entity, CallbackInfoReturnable<Integer> ci){
         ElevatorGroupRenderer.renderBlocks(renderType);
     }
 }
