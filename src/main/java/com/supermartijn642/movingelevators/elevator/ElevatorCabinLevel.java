@@ -18,6 +18,7 @@ import net.minecraft.world.NextTickListEntry;
 import net.minecraft.world.TickPriority;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
@@ -61,6 +62,11 @@ public class ElevatorCabinLevel extends World {
         return pos.getX() >= this.minPos.getX() && pos.getX() <= this.maxPos.getX()
             && pos.getY() >= this.minPos.getY() && pos.getY() <= this.maxPos.getY()
             && pos.getZ() >= this.minPos.getZ() && pos.getZ() <= this.maxPos.getZ();
+    }
+
+    @Override
+    public BiomeManager getBiomeManager(){
+        return this.level.getBiomeManager();
     }
 
     @Nullable
