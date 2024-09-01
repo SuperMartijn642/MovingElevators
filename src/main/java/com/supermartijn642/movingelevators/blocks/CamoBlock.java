@@ -14,6 +14,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -148,8 +149,17 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     @Override
     public IBlockState getExtendedState(IBlockState state, IBlockAccess level, BlockPos pos){
         TileEntity entity = level.getTileEntity(pos);
-        if(entity instanceof CamoBlockEntity)
-            return ((IExtendedBlockState)state).withProperty(CAMO_PROPERTY, ((CamoBlockEntity)entity).getCamoState());
+        if(entity instanceof CamoBlockEntity){
+            IBlockState camoState = ((CamoBlockEntity)entity).getCamoState();
+            if(camoState != null)
+                camoState = camoState.getBlock().getExtendedState(camoState, level, pos);
+            return ((IExtendedBlockState)state).withProperty(CAMO_PROPERTY, camoState);
+        }
         return state;
+    }
+
+    @Override
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer){
+        return true;
     }
 }

@@ -9,13 +9,15 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,7 +26,6 @@ import java.util.List;
 public class CamoBakedModel implements IBakedModel {
 
     private final IBakedModel originalModel;
-    private List<BakedQuad> originalModelQuads;
 
     public CamoBakedModel(IBakedModel originalModel){
         this.originalModel = originalModel;
@@ -34,22 +35,17 @@ public class CamoBakedModel implements IBakedModel {
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long random){
         IBlockState camouflage = state instanceof IExtendedBlockState ? ((IExtendedBlockState)state).getValue(CamoBlock.CAMO_PROPERTY) : null;
 
+        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR){
-            if(this.originalModelQuads == null)
-                this.originalModelQuads = getAllQuads(this.originalModel, state, random);
-            return this.originalModelQuads;
+            if(state != null && layer != state.getBlock().getBlockLayer())
+                return Collections.emptyList();
+            return this.originalModel.getQuads(state, side, random);
         }
 
+        if(!camouflage.getBlock().canRenderInLayer(camouflage, layer))
+            return Collections.emptyList();
         IBakedModel model = ClientUtils.getBlockRenderer().getModelForState(camouflage);
-        return getAllQuads(model, camouflage, random);
-    }
-
-    private static List<BakedQuad> getAllQuads(IBakedModel model, IBlockState state, long random){
-        List<BakedQuad> quads = new ArrayList<>();
-        for(EnumFacing direction : EnumFacing.values())
-            quads.addAll(model.getQuads(state, direction, random));
-        quads.addAll(model.getQuads(state, null, random));
-        return quads;
+        return model.getQuads(camouflage, side, random);
     }
 
     @Override
