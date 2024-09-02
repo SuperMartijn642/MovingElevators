@@ -15,11 +15,11 @@ import java.util.Map;
  */
 public class WorldBlockCapture {
 
-    private final Level world;
+    private final Level level;
     private final Map<BlockPos,BlockPos> blocks = Maps.newHashMap();
 
-    public WorldBlockCapture(Level world){
-        this.world = world;
+    public WorldBlockCapture(Level level){
+        this.level = level;
     }
 
     public void putBlock(BlockPos capturePos, BlockPos worldPos){
@@ -28,12 +28,12 @@ public class WorldBlockCapture {
 
     public BlockState getBlockState(BlockPos pos){
         BlockPos worldPos = this.blocks.get(pos);
-        return worldPos == null ? Blocks.AIR.defaultBlockState() : this.world.getBlockState(worldPos);
+        return worldPos == null ? Blocks.AIR.defaultBlockState() : this.level.getBlockState(worldPos);
     }
 
     public BlockEntity getBlockEntity(BlockPos pos){
         BlockPos worldPos = this.blocks.get(pos);
-        return worldPos == null ? null : this.world.getBlockEntity(worldPos);
+        return worldPos == null ? null : this.level.getBlockEntity(worldPos);
     }
 
     public Iterable<BlockPos> getBlockLocations(){
@@ -50,7 +50,7 @@ public class WorldBlockCapture {
     }
 
     @Deprecated
-    public Level getWorld(){
-        return this.world;
+    public Level getLevel(){
+        return this.level;
     }
 }

@@ -32,8 +32,8 @@ import java.util.stream.Collectors;
  */
 public class ElevatorCage {
 
-    public static ElevatorCage createCageAndClear(Level world, BlockPos startPos, int xSize, int ySize, int zSize){
-        if(!canCreateCage(world, startPos, xSize, ySize, zSize))
+    public static ElevatorCage createCageAndClear(Level level, BlockPos startPos, int xSize, int ySize, int zSize){
+        if(!canCreateCage(level, startPos, xSize, ySize, zSize))
             return null;
 
         BlockState[][][] states = new BlockState[xSize][ySize][zSize];
@@ -45,13 +45,13 @@ public class ElevatorCage {
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
-                    if(canBlockBeIgnored(world, pos))
+                    if(canBlockBeIgnored(level, pos))
                         continue;
-                    states[x][y][z] = world.getBlockState(pos);
-                    VoxelShape blockShape = states[x][y][z].getCollisionShape(world, pos);
+                    states[x][y][z] = level.getBlockState(pos);
+                    VoxelShape blockShape = states[x][y][z].getCollisionShape(level, pos);
                     blockShape = blockShape.move(x, y, z);
                     shape = Shapes.joinUnoptimized(shape, blockShape, BooleanOp.OR);
-                    BlockEntity entity = world.getBlockEntity(pos);
+                    BlockEntity entity = level.getBlockEntity(pos);
                     if(entity != null){
                         CompoundTag tag = entity.saveWithFullMetadata();
                         tag.putInt("x", x);
@@ -82,12 +82,12 @@ public class ElevatorCage {
                     BlockPos pos = startPos.offset(x, y, z);
                     if(states[x][y][z] == null)
                         continue;
-                    BlockEntity entity = world.getBlockEntity(pos);
+                    BlockEntity entity = level.getBlockEntity(pos);
                     if(entity != null){
                         Clearable.tryClear(entity);
-                        world.removeBlockEntity(pos);
+                        level.removeBlockEntity(pos);
                     }
-                    world.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
+                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
                 }
             }
         }
@@ -98,26 +98,26 @@ public class ElevatorCage {
                     BlockPos pos = startPos.offset(x, y, z);
                     if(states[x][y][z] == null)
                         continue;
-                    world.markAndNotifyBlock(pos, world.getChunkAt(pos), states[x][y][z], world.getBlockState(pos), 1 | 2, 512);
+                    level.markAndNotifyBlock(pos, level.getChunkAt(pos), states[x][y][z], level.getBlockState(pos), 1 | 2, 512);
                 }
             }
         }
 
         shape.optimize();
 
-        return world.isClientSide ?
+        return level.isClientSide ?
             new ClientElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs()) :
             new ElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs());
     }
 
-    public static boolean canCreateCage(Level world, BlockPos startPos, int xSize, int ySize, int zSize){
+    public static boolean canCreateCage(Level level, BlockPos startPos, int xSize, int ySize, int zSize){
         boolean hasBlocks = false;
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
-                    if(canBlockBeIgnored(world, startPos.offset(x, y, z)))
+                    if(canBlockBeIgnored(level, startPos.offset(x, y, z)))
                         continue;
-                    if(!canBlockBeInCage(world, startPos.offset(x, y, z)))
+                    if(!canBlockBeInCage(level, startPos.offset(x, y, z)))
                         return false;
                     hasBlocks = true;
                 }
@@ -130,9 +130,9 @@ public class ElevatorCage {
         return level.isEmptyBlock(pos) || level.getBlockState(pos).is(Blocks.LIGHT);
     }
 
-    public static boolean canBlockBeInCage(Level world, BlockPos pos){
-        BlockState state = world.getBlockState(pos);
-        return state.getFluidState().isEmpty() && state.getDestroySpeed(world, pos) >= 0;
+    public static boolean canBlockBeInCage(Level level, BlockPos pos){
+        BlockState state = level.getBlockState(pos);
+        return state.getFluidState().isEmpty() && state.getDestroySpeed(level, pos) >= 0;
     }
 
     public final int xSize, ySize, zSize;
@@ -168,7 +168,7 @@ public class ElevatorCage {
         this.bounds = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public void place(Level world, BlockPos startPos){
+    public void place(Level level, BlockPos startPos){
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
@@ -176,19 +176,19 @@ public class ElevatorCage {
                     if(state == null)
                         continue;
                     BlockPos pos = startPos.offset(x, y, z);
-                    if(canBlockBeIgnored(world, pos) || world.getBlockState(pos).getDestroySpeed(world, pos) >= 0){
-                        if(!world.isEmptyBlock(pos))
-                            world.destroyBlock(pos, true);
-                        world.setBlock(pos, state, 2);
+                    if(canBlockBeIgnored(level, pos) || level.getBlockState(pos).getDestroySpeed(level, pos) >= 0){
+                        if(!level.isEmptyBlock(pos))
+                            level.destroyBlock(pos, true);
+                        level.setBlock(pos, state, 2);
                         if(this.blockEntityData[x][y][z] != null){
                             BlockEntity entity = BlockEntity.loadStatic(pos, state, this.blockEntityData[x][y][z]);
                             if(entity != null)
-                                world.setBlockEntity(entity);
+                                level.setBlockEntity(entity);
                         }
                     }else{
                         CompoundTag itemTag = this.blockEntityStacks[x][y][z];
                         ItemStack stack = itemTag == null ? new ItemStack(state.getBlock()) : ItemStack.of(itemTag);
-                        Containers.dropItemStack(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+                        Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
                     }
                 }
             }
@@ -198,7 +198,7 @@ public class ElevatorCage {
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
-                    BlockState state = world.getBlockState(pos);
+                    BlockState state = level.getBlockState(pos);
                     boolean[] updateDirections = new boolean[6];
                     if(x == 0)
                         updateDirections[4] = true;
@@ -216,26 +216,26 @@ public class ElevatorCage {
                         if(updateDirections[i]){
                             Direction direction = Direction.values()[i];
                             BlockPos neighbor = pos.relative(direction);
-                            BlockState neighborState = world.getBlockState(neighbor);
-                            BlockState updatedState = state.updateShape(direction, neighborState, world, pos, neighbor);
-                            Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
-                            world.neighborChanged(pos, neighborState.getBlock(), neighbor);
-                            updatedState = world.getBlockState(pos);
-                            world.neighborChanged(neighbor, updatedState.getBlock(), pos);
+                            BlockState neighborState = level.getBlockState(neighbor);
+                            BlockState updatedState = state.updateShape(direction, neighborState, level, pos, neighbor);
+                            Block.updateOrDestroy(state, updatedState, level, pos, 1 | 2, 512);
+                            level.neighborChanged(pos, neighborState.getBlock(), neighbor);
+                            updatedState = level.getBlockState(pos);
+                            level.neighborChanged(neighbor, updatedState.getBlock(), pos);
                         }
                     }
 
                     // Special case for buttons and pressure plates to prevent them getting stuck
-                    if(!world.isClientSide
+                    if(!level.isClientSide
                         && state.getBlock() instanceof ButtonBlock
                         && state.hasProperty(ButtonBlock.POWERED)
                         && state.getValue(ButtonBlock.POWERED))
-                        state.tick((ServerLevel)world, pos, world.random);
-                    if(!world.isClientSide
+                        state.tick((ServerLevel)level, pos, level.random);
+                    if(!level.isClientSide
                         && state.getBlock() instanceof PressurePlateBlock
                         && state.hasProperty(PressurePlateBlock.POWERED)
                         && state.getValue(PressurePlateBlock.POWERED))
-                        state.tick((ServerLevel)world, pos, world.random);
+                        state.tick((ServerLevel)level, pos, level.random);
                 }
             }
         }
