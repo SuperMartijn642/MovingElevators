@@ -216,9 +216,12 @@ public class ElevatorCage {
                         if(updateDirections[i]){
                             Direction direction = Direction.values()[i];
                             BlockPos neighbor = pos.relative(direction);
-                            BlockState updatedState = state.updateShape(direction, world.getBlockState(neighbor), world, pos, neighbor);
+                            BlockState neighborState = world.getBlockState(neighbor);
+                            BlockState updatedState = state.updateShape(direction, neighborState, world, pos, neighbor);
                             Block.updateOrDestroy(state, updatedState, world, pos, 1 | 2, 512);
-                            world.neighborChanged(pos.relative(direction), updatedState.getBlock(), pos);
+                            world.neighborChanged(pos, neighborState.getBlock(), neighbor);
+                            updatedState = world.getBlockState(pos);
+                            world.neighborChanged(neighbor, updatedState.getBlock(), pos);
                         }
                     }
 
