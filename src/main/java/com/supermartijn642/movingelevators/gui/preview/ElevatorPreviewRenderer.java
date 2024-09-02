@@ -111,7 +111,7 @@ public class ElevatorPreviewRenderer {
         for(BakedQuad bakedquad : quads){
             float red = 1, blue = 1, green = 1, alpha = 1;
             if(bakedquad.isTinted()){
-                int color = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getWorld(), pos, bakedquad.getTintIndex());
+                int color = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getLevel(), pos, bakedquad.getTintIndex());
                 red = (color >> 16 & 255) / 255f;
                 green = (color >> 8 & 255) / 255f;
                 blue = (color & 255) / 255f;
