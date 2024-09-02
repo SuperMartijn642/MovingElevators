@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
  */
 public class ElevatorCage {
 
-    public static ElevatorCage createCageAndClear(World world, BlockPos startPos, int xSize, int ySize, int zSize){
-        if(!canCreateCage(world, startPos, xSize, ySize, zSize))
+    public static ElevatorCage createCageAndClear(World level, BlockPos startPos, int xSize, int ySize, int zSize){
+        if(!canCreateCage(level, startPos, xSize, ySize, zSize))
             return null;
 
         IBlockState[][][] states = new IBlockState[xSize][ySize][zSize];
@@ -44,14 +44,14 @@ public class ElevatorCage {
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     BlockPos pos = startPos.add(x, y, z);
-                    if(canBlockBeIgnored(world, pos))
+                    if(canBlockBeIgnored(level, pos))
                         continue;
-                    states[x][y][z] = world.getBlockState(pos);
-                    AxisAlignedBB boundingBox = states[x][y][z].getCollisionBoundingBox(world, pos);
+                    states[x][y][z] = level.getBlockState(pos);
+                    AxisAlignedBB boundingBox = states[x][y][z].getCollisionBoundingBox(level, pos);
                     BlockShape blockShape = boundingBox == null ? BlockShape.empty() : BlockShape.create(boundingBox);
                     blockShape = blockShape.offset(x, y, z);
                     shape = BlockShape.or(shape, blockShape);
-                    TileEntity entity = world.getTileEntity(pos);
+                    TileEntity entity = level.getTileEntity(pos);
                     if(entity != null){
                         NBTTagCompound tag = entity.serializeNBT();
                         tag.setInteger("x", x);
@@ -82,10 +82,10 @@ public class ElevatorCage {
                     BlockPos pos = startPos.add(x, y, z);
                     if(states[x][y][z] == null)
                         continue;
-                    TileEntity entity = world.getTileEntity(pos);
+                    TileEntity entity = level.getTileEntity(pos);
                     if(entity != null)
-                        world.removeTileEntity(pos);
-                    world.setBlockState(pos, Blocks.AIR.getDefaultState(), 4 | 16);
+                        level.removeTileEntity(pos);
+                    level.setBlockState(pos, Blocks.AIR.getDefaultState(), 4 | 16);
                 }
             }
         }
@@ -96,7 +96,7 @@ public class ElevatorCage {
                     BlockPos pos = startPos.add(x, y, z);
                     if(states[x][y][z] == null)
                         continue;
-                    world.markAndNotifyBlock(pos, world.getChunkProvider().getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4), states[x][y][z], world.getBlockState(pos), 1 | 2);
+                    level.markAndNotifyBlock(pos, level.getChunkProvider().getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4), states[x][y][z], level.getBlockState(pos), 1 | 2);
                 }
             }
         }
@@ -104,7 +104,7 @@ public class ElevatorCage {
         // TODO reduce the number of bounding boxes
 //        shape.optimize();
 
-        return world.isRemote ?
+        return level.isRemote ?
             new ClientElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toBoxes()) :
             new ElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toBoxes());
     }
