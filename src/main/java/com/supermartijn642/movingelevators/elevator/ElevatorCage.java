@@ -267,7 +267,8 @@ public class ElevatorCage {
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
                     int index = x * this.ySize * this.zSize + y * this.zSize + z;
-                    stateIds[index] = Block.getId(this.blockStates[x][y][z]);
+                    BlockState state = this.blockStates[x][y][z];
+                    stateIds[index] = Block.getId(state == null || state.getBlock() == Blocks.AIR ? Blocks.AIR.defaultBlockState() : state);
                     if(this.blockEntityData[x][y][z] != null){
                         CompoundTag tag = new CompoundTag();
                         tag.putInt("x", x);
