@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
  */
 public class ElevatorCage {
 
-    public static ElevatorCage createCageAndClear(World world, BlockPos startPos, int xSize, int ySize, int zSize){
-        if(!canCreateCage(world, startPos, xSize, ySize, zSize))
+    public static ElevatorCage createCageAndClear(World level, BlockPos startPos, int xSize, int ySize, int zSize){
+        if(!canCreateCage(level, startPos, xSize, ySize, zSize))
             return null;
 
         BlockState[][][] states = new BlockState[xSize][ySize][zSize];
@@ -42,13 +42,13 @@ public class ElevatorCage {
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
-                    if(canBlockBeIgnored(world, pos))
+                    if(canBlockBeIgnored(level, pos))
                         continue;
-                    states[x][y][z] = world.getBlockState(pos);
-                    VoxelShape blockShape = states[x][y][z].getCollisionShape(world, pos);
+                    states[x][y][z] = level.getBlockState(pos);
+                    VoxelShape blockShape = states[x][y][z].getCollisionShape(level, pos);
                     blockShape = blockShape.move(x, y, z);
                     shape = VoxelShapes.joinUnoptimized(shape, blockShape, IBooleanFunction.OR);
-                    TileEntity entity = world.getBlockEntity(pos);
+                    TileEntity entity = level.getBlockEntity(pos);
                     if(entity != null){
                         CompoundNBT tag = entity.save(new CompoundNBT());
                         tag.putInt("x", x);
@@ -79,12 +79,12 @@ public class ElevatorCage {
                     BlockPos pos = startPos.offset(x, y, z);
                     if(states[x][y][z] == null)
                         continue;
-                    TileEntity entity = world.getBlockEntity(pos);
+                    TileEntity entity = level.getBlockEntity(pos);
                     if(entity != null){
                         IClearable.tryClear(entity);
-                        world.removeBlockEntity(pos);
+                        level.removeBlockEntity(pos);
                     }
-                    world.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
+                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
                 }
             }
         }
@@ -95,14 +95,14 @@ public class ElevatorCage {
                     BlockPos pos = startPos.offset(x, y, z);
                     if(states[x][y][z] == null)
                         continue;
-                    world.markAndNotifyBlock(pos, world.getChunkAt(pos), states[x][y][z], world.getBlockState(pos), 1 | 2);
+                    level.markAndNotifyBlock(pos, level.getChunkAt(pos), states[x][y][z], level.getBlockState(pos), 1 | 2);
                 }
             }
         }
 
         shape.optimize();
 
-        return world.isClientSide ?
+        return level.isClientSide ?
             new ClientElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs()) :
             new ElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs());
     }

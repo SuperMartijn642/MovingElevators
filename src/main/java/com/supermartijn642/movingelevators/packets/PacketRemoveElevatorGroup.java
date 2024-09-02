@@ -42,9 +42,9 @@ public class PacketRemoveElevatorGroup implements BasePacket {
 
     @Override
     public void handle(PacketContext context){
-        World world = ClientUtils.getWorld();
-        if(world == null)
+        World level = ClientUtils.getWorld();
+        if(level == null)
             return;
-        ElevatorGroupCapability.get(world).removeGroup(this.x, this.z, this.facing);
+        ElevatorGroupCapability.get(level).removeGroup(this.x, this.z, this.facing);
     }
 }
