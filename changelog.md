@@ -1,3 +1,8 @@
+### Moving Elevators 1.4.8
+- Improved compatibility with Embeddium, Iris, Oculus, Rubidium, and Sodium
+- Fixed elevator placing random blocks instead of air when mods shift vanilla block ids
+- Fixed some blocks like doors not being updated after being moved with the elevator
+
 ### Moving Elevators 1.4.7
 - Updated Russian and Ukrainian translations (thanks to dnrovs!)
 - Render distance for moving elevators is now based on actual render distance rather than fixed 300 blocks
