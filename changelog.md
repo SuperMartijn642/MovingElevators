@@ -1,3 +1,7 @@
+### Moving Elevators 1.4.8
+- Added compatibility for Vintagium
+- Fixed camouflage not looking correct for certain blocks
+
 ### Moving Elevators 1.4.7
 - Updated Russian and Ukrainian translations (thanks to dnrovs!)
 - Render distance for moving elevators is now based on actual render distance rather than fixed 300 blocks
