@@ -34,9 +34,9 @@ public class PacketAddElevatorGroup implements BasePacket {
 
     @Override
     public void handle(PacketContext context){
-        Level world = ClientUtils.getWorld();
-        if(world == null)
+        Level level = ClientUtils.getWorld();
+        if(level == null)
             return;
-        ElevatorGroupCapability.get(world).readGroup(this.groupData);
+        ElevatorGroupCapability.get(level).readGroup(this.groupData);
     }
 }
