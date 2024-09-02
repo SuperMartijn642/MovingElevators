@@ -218,7 +218,7 @@ public class ElevatorCage {
                             EnumFacing direction = EnumFacing.values()[i];
                             BlockPos neighbor = pos.offset(direction);
                             state.neighborChanged(level, pos, state.getBlock(), neighbor);
-                            level.neighborChanged(pos.offset(direction), state.getBlock(), pos);
+                            level.neighborChanged(neighbor, state.getBlock(), pos);
                         }
                     }
 
