@@ -50,10 +50,10 @@ public class PacketSyncElevatorMovement implements BasePacket {
 
     @Override
     public void handle(PacketContext context){
-        Level world = ClientUtils.getWorld();
-        if(world == null)
+        Level level = ClientUtils.getWorld();
+        if(level == null)
             return;
-        ElevatorGroupCapability groups = ElevatorGroupCapability.get(world);
+        ElevatorGroupCapability groups = ElevatorGroupCapability.get(level);
         if(groups == null)
             return;
         ElevatorGroup group = groups.get(this.x, this.z, this.facing);
