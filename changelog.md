@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.8a
+- Fixed camouflage showing missing model when ConnectedTexturesMod is installed
+
 ### Moving Elevators 1.4.8
 - Added compatibility for Vintagium
 - Fixed camouflage not looking correct for certain blocks
