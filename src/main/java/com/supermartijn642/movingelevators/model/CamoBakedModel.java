@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.model;
 
 import com.supermartijn642.core.ClientUtils;
+import com.supermartijn642.core.util.Pair;
 import com.supermartijn642.movingelevators.blocks.CamoBlock;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -13,7 +14,6 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
@@ -33,7 +33,8 @@ public class CamoBakedModel implements IBakedModel {
 
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long random){
-        IBlockState camouflage = state instanceof IExtendedBlockState ? ((IExtendedBlockState)state).getValue(CamoBlock.CAMO_PROPERTY) : null;
+        Pair<IBlockState,IBlockState> data = state instanceof IExtendedBlockState ? ((IExtendedBlockState)state).getValue(CamoBlock.CAMO_PROPERTY) : null;
+        IBlockState camouflage = data == null ? null : data.left();
 
         BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR){
@@ -42,10 +43,11 @@ public class CamoBakedModel implements IBakedModel {
             return this.originalModel.getQuads(state, side, random);
         }
 
-        if(!camouflage.getBlock().canRenderInLayer(camouflage, layer))
+        IBlockState camouflageExtended = data.right();
+        if(!camouflageExtended.getBlock().canRenderInLayer(camouflageExtended, layer))
             return Collections.emptyList();
         IBakedModel model = ClientUtils.getBlockRenderer().getModelForState(camouflage);
-        return model.getQuads(camouflage, side, random);
+        return model.getQuads(camouflageExtended, side, random);
     }
 
     @Override
@@ -74,7 +76,7 @@ public class CamoBakedModel implements IBakedModel {
     }
 
     @Override
-    public Pair<? extends IBakedModel,Matrix4f> handlePerspective(ItemCameraTransforms.TransformType transformType){
+    public org.apache.commons.lang3.tuple.Pair<? extends IBakedModel,Matrix4f> handlePerspective(ItemCameraTransforms.TransformType transformType){
         return this.originalModel.handlePerspective(transformType);
     }
 }

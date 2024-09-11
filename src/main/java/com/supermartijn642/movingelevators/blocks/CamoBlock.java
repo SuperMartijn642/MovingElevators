@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators.blocks;
 import com.supermartijn642.core.block.BaseBlock;
 import com.supermartijn642.core.block.BlockProperties;
 import com.supermartijn642.core.block.EntityHoldingBlock;
+import com.supermartijn642.core.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.properties.IProperty;
@@ -32,24 +33,25 @@ import java.util.function.Supplier;
  */
 public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
 
-    public static final IUnlistedProperty<IBlockState> CAMO_PROPERTY = new IUnlistedProperty<IBlockState>() {
+    public static final IUnlistedProperty<Pair<IBlockState,IBlockState>> CAMO_PROPERTY = new IUnlistedProperty<Pair<IBlockState,IBlockState>>() {
         @Override
         public String getName(){
             return "camo_data";
         }
 
         @Override
-        public boolean isValid(IBlockState value){
+        public boolean isValid(Pair<IBlockState,IBlockState> value){
             return true;
         }
 
         @Override
-        public Class<IBlockState> getType(){
-            return IBlockState.class;
+        public Class<Pair<IBlockState,IBlockState>> getType(){
+            //noinspection unchecked
+            return (Class<Pair<IBlockState,IBlockState>>)(Class<?>)Pair.class;
         }
 
         @Override
-        public String valueToString(IBlockState value){
+        public String valueToString(Pair<IBlockState,IBlockState> value){
             return value.toString();
         }
     };
@@ -151,9 +153,10 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
         TileEntity entity = level.getTileEntity(pos);
         if(entity instanceof CamoBlockEntity){
             IBlockState camoState = ((CamoBlockEntity)entity).getCamoState();
+            IBlockState extendedCamoState = camoState;
             if(camoState != null)
-                camoState = camoState.getBlock().getExtendedState(camoState, level, pos);
-            return ((IExtendedBlockState)state).withProperty(CAMO_PROPERTY, camoState);
+                extendedCamoState = camoState.getBlock().getExtendedState(camoState, level, pos);
+            return ((IExtendedBlockState)state).withProperty(CAMO_PROPERTY, Pair.of(camoState, extendedCamoState));
         }
         return state;
     }
