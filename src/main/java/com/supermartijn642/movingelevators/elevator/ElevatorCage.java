@@ -89,6 +89,18 @@ public class ElevatorCage {
                         Clearable.tryClear(entity);
                         level.removeBlockEntity(pos);
                     }
+
+                    // Special handling for piston blocks
+                    if (states[x][y][z].is(Blocks.PISTON_HEAD)) {
+                        // We want to ensure the piston body is always destroyed before the base
+                        // Destroying the face first will make the body drop an item when it gets updated
+                        BlockState face = states[x][y][z];
+                        // The piston body is in the opposite direction the face is facing
+                        Direction baseDir = face.getValue(BlockStateProperties.FACING).getOpposite();
+                        BlockPos basePos = pos.offset(baseDir.getNormal());
+                        level.setBlock(basePos, Blocks.AIR.defaultBlockState(), Block.UPDATE_INVISIBLE | Block.UPDATE_KNOWN_SHAPE);
+                    }
+
                     level.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
                 }
             }
