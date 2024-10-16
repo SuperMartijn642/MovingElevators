@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -79,11 +80,14 @@ public class ElevatorCage {
         }
 
         for(int x = 0; x < xSize; x++){
-            for(int y = 0; y < ySize; y++){
+            // Update from the top down to prevent redstone running along the Z axis from dropping an item
+            for(int y = ySize - 1; y >= 0; y--){
                 for(int z = 0; z < zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
+
                     if(states[x][y][z] == null)
                         continue;
+
                     BlockEntity entity = level.getBlockEntity(pos);
                     if(entity != null){
                         Clearable.tryClear(entity);
@@ -182,6 +186,14 @@ public class ElevatorCage {
                         if(!level.isEmptyBlock(pos))
                             level.destroyBlock(pos, true);
                         level.setBlock(pos, state, 2);
+
+                        // Update redstone, otherwise it will directionally be left unpowered
+                        // (depending on whether the source powering it was placed in a previous or some future iter)
+                        if (state.hasProperty(BlockStateProperties.POWER)
+                            || state.hasProperty(BlockStateProperties.LIT)
+                            || state.is(Blocks.REDSTONE_BLOCK))
+                            level.markAndNotifyBlock(pos, level.getChunkAt(pos), state, level.getBlockState(pos), Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS, 512);
+
                         if(this.blockEntityData[x][y][z] != null){
                             BlockEntity entity = BlockEntity.loadStatic(pos, state, this.blockEntityData[x][y][z], level.registryAccess());
                             if(entity != null)
