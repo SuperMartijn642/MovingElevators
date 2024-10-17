@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -186,6 +187,13 @@ public class ElevatorCage {
                             BlockEntity entity = BlockEntity.loadStatic(pos, state, this.blockEntityData[x][y][z], level.registryAccess());
                             if(entity != null)
                                 level.setBlockEntity(entity);
+                        }
+                        // Specially handle observers, so they'll pulse as if they were moved by a piston
+                        if (state.is(Blocks.OBSERVER)) {
+                            Direction observerDir = state.getValue(BlockStateProperties.FACING);
+                            BlockPos observerPos = pos.offset(observerDir.getNormal());
+                            // Update the block the observer is facing (may be air) to get a pulse
+                            level.markAndNotifyBlock(observerPos, level.getChunkAt(observerPos), state, level.getBlockState(observerPos), Block.UPDATE_NEIGHBORS | Block.UPDATE_CLIENTS, 512);
                         }
                     }else{
                         Tag itemTag = this.blockEntityStacks[x][y][z];
