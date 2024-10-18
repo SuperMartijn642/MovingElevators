@@ -86,7 +86,18 @@ public class ElevatorCage {
                         IClearable.tryClear(entity);
                         level.removeBlockEntity(pos);
                     }
-                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
+                    // Suppress any block updates
+                    Chunk chunk = level.getChunkAt(pos);
+                    //noinspection ConstantValue
+                    if(chunk != null){
+                        ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(true);
+                        try{
+                            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
+                        }finally{
+                            ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(false);
+                        }
+                    }else
+                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
                 }
             }
         }
