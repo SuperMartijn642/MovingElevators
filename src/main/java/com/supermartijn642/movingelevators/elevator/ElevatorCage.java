@@ -15,7 +15,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -107,9 +106,11 @@ public class ElevatorCage {
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     BlockPos pos = startPos.add(x, y, z);
-                    if(states[x][y][z] == null)
+                    IBlockState state = states[x][y][z];
+                    if(state == null)
                         continue;
-                    level.markAndNotifyBlock(pos, level.getChunkProvider().getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4), states[x][y][z], level.getBlockState(pos), 1 | 2);
+                    state.getBlock().breakBlock(level, pos, state);
+                    level.markAndNotifyBlock(pos, level.getChunkFromBlockCoords(pos), states[x][y][z], level.getBlockState(pos), 1 | 2);
                 }
             }
         }
@@ -183,6 +184,7 @@ public class ElevatorCage {
     }
 
     public void place(World level, BlockPos startPos){
+        IBlockState[][][] oldStates = new IBlockState[this.xSize][this.ySize][this.zSize];
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
@@ -190,7 +192,9 @@ public class ElevatorCage {
                     if(state == null)
                         continue;
                     BlockPos pos = startPos.add(x, y, z);
-                    if(canBlockBeIgnored(level, pos) || level.getBlockState(pos).getBlockHardness(level, pos) >= 0){
+                    IBlockState currentState = level.getBlockState(pos);
+                    if(canBlockBeIgnored(level, pos) || currentState.getBlockHardness(level, pos) >= 0){
+                        oldStates[x][y][z] = currentState;
                         if(!level.isAirBlock(pos))
                             level.destroyBlock(pos, true);
                         // Suppress any block updates
@@ -222,34 +226,21 @@ public class ElevatorCage {
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
+                    IBlockState previousState = oldStates[x][y][z];
+                    if(previousState == null)
+                        continue;
                     BlockPos pos = startPos.add(x, y, z);
                     IBlockState state = level.getBlockState(pos);
 
                     // Update the block itself
-                    level.setBlockState(pos, state, 2 | 16);
+                    state.getBlock().onBlockAdded(level, pos, state);
 
                     // Update neighboring blocks that are not part of the elevator cage
-                    boolean[] updateDirections = new boolean[6];
-                    if(x == 0)
-                        updateDirections[4] = true;
-                    if(x == this.xSize - 1)
-                        updateDirections[5] = true;
-                    if(y == 0)
-                        updateDirections[0] = true;
-                    if(y == this.ySize - 1)
-                        updateDirections[1] = true;
-                    if(z == 0)
-                        updateDirections[2] = true;
-                    if(z == this.zSize - 1)
-                        updateDirections[3] = true;
-                    for(int i = 0; i < updateDirections.length; i++){
-                        if(updateDirections[i]){
-                            EnumFacing direction = EnumFacing.values()[i];
-                            BlockPos neighbor = pos.offset(direction);
-                            state.neighborChanged(level, pos, state.getBlock(), neighbor);
-                            level.neighborChanged(neighbor, state.getBlock(), pos);
-                        }
-                    }
+                    boolean isOnTheBoundary = x == 0 || x == this.xSize - 1
+                        || y == 0 || y == this.ySize - 1
+                        || z == 0 || z == this.zSize - 1;
+                    int flags = isOnTheBoundary ? 3 : 2 | 4 | 16;
+                    level.markAndNotifyBlock(pos, level.getChunkFromBlockCoords(pos), previousState, state, flags);
 
                     // Special case for buttons and pressure plates to prevent them getting stuck
                     if(!level.isRemote
