@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.block.*;
 import net.minecraft.inventory.IClearable;
 import net.minecraft.inventory.InventoryHelper;
@@ -16,6 +17,7 @@ import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
 
@@ -176,7 +178,18 @@ public class ElevatorCage {
                     if(canBlockBeIgnored(level, pos) || level.getBlockState(pos).getDestroySpeed(level, pos) >= 0){
                         if(!level.isEmptyBlock(pos))
                             level.destroyBlock(pos, true);
-                        level.setBlock(pos, state, 2);
+                        // Suppress any block updates
+                        Chunk chunk = level.getChunkAt(pos);
+                        //noinspection ConstantValue
+                        if(chunk != null){
+                            ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(true);
+                            try{
+                                level.setBlock(pos, state, 4 | 16);
+                            }finally{
+                                ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(false);
+                            }
+                        }else
+                            level.setBlock(pos, state, 4 | 16);
                         if(this.blockEntityData[x][y][z] != null){
                             TileEntity entity = TileEntity.loadStatic(state, this.blockEntityData[x][y][z]);
                             if(entity != null)
@@ -196,6 +209,11 @@ public class ElevatorCage {
                 for(int z = 0; z < this.zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
                     BlockState state = level.getBlockState(pos);
+
+                    // Update the block itself
+                    level.setBlock(pos, state, 2 | 16);
+
+                    // Update neighboring blocks that are not part of the elevator cage
                     boolean[] updateDirections = new boolean[6];
                     if(x == 0)
                         updateDirections[4] = true;
