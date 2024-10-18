@@ -2,6 +2,7 @@ package com.supermartijn642.movingelevators.elevator;
 
 import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -257,6 +258,24 @@ public class ElevatorCage {
                         && state.hasProperty(PressurePlateBlock.POWERED)
                         && state.getValue(PressurePlateBlock.POWERED))
                         state.tick((ServerLevel)level, pos, level.random);
+
+                    // Redstone wire only updates indirect neighbors when its power changes, not when it gets placed with a certain power
+                    // Hence, special case for redstone wire
+                    if(state.is(Blocks.REDSTONE_WIRE)){
+                        boolean[] updateDirections = new boolean[6];
+                        updateDirections[4] = x == 0;
+                        updateDirections[5] = x == this.xSize - 1;
+                        updateDirections[0] = y == 0;
+                        updateDirections[1] = y == this.ySize - 1;
+                        updateDirections[2] = z == 0;
+                        updateDirections[3] = z == this.zSize - 1;
+                        for(int i = 0; i < updateDirections.length; i++){
+                            if(updateDirections[i]){
+                                Direction direction = Direction.values()[i];
+                                level.updateNeighborsAt(pos.relative(direction), Blocks.REDSTONE_WIRE);
+                            }
+                        }
+                    }
                 }
             }
         }
