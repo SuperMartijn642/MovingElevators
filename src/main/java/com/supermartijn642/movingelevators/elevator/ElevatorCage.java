@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -179,7 +181,18 @@ public class ElevatorCage {
                     if(canBlockBeIgnored(level, pos) || level.getBlockState(pos).getDestroySpeed(level, pos) >= 0){
                         if(!level.isEmptyBlock(pos))
                             level.destroyBlock(pos, true);
-                        level.setBlock(pos, state, 2);
+                        // Suppress any block updates
+                        LevelChunk chunk = level.getChunkAt(pos);
+                        //noinspection ConstantValue
+                        if(chunk != null){
+                            ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(true);
+                            try{
+                                level.setBlock(pos, state, Block.UPDATE_NONE | Block.UPDATE_KNOWN_SHAPE);
+                            }finally{
+                                ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(false);
+                            }
+                        }else
+                            level.setBlock(pos, state, Block.UPDATE_NONE | Block.UPDATE_KNOWN_SHAPE);
                         if(this.blockEntityData[x][y][z] != null){
                             BlockEntity entity = BlockEntity.loadStatic(pos, state, this.blockEntityData[x][y][z]);
                             if(entity != null)
@@ -199,6 +212,11 @@ public class ElevatorCage {
                 for(int z = 0; z < this.zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
                     BlockState state = level.getBlockState(pos);
+
+                    // Update the block itself
+                    level.setBlock(pos, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+
+                    // Update neighboring blocks that are not part of the elevator cage
                     boolean[] updateDirections = new boolean[6];
                     if(x == 0)
                         updateDirections[4] = true;
