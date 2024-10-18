@@ -28,10 +28,21 @@ public class LevelChunkMixin implements MovingElevatorsLevelChunk {
         method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;",
         at = @At(
             value = "INVOKE",
+            target = "Lnet/minecraft/world/level/block/state/BlockState;onRemove(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)V"
+        )
+    )
+    public boolean suppressOnRemove(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean fromPiston) {
+        return !this.suppressBlockUpdates;
+    }
+
+    @WrapWithCondition(
+        method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;",
+        at = @At(
+            value = "INVOKE",
             target = "Lnet/minecraft/world/level/block/state/BlockState;onPlace(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)V"
         )
     )
-    public boolean setBlockState(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean fromPiston) {
+    public boolean suppressOnPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean fromPiston) {
         return !this.suppressBlockUpdates;
     }
 }
