@@ -10,7 +10,6 @@ import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
@@ -106,9 +105,12 @@ public class ElevatorCage {
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     BlockPos pos = startPos.offset(x, y, z);
+                    BlockState state = states[x][y][z];
                     if(states[x][y][z] == null)
                         continue;
-                    level.markAndNotifyBlock(pos, level.getChunkAt(pos), states[x][y][z], level.getBlockState(pos), 1 | 2, 512);
+                    BlockState newState = level.getBlockState(pos);
+                    state.onRemove(level, pos, newState, false);
+                    level.markAndNotifyBlock(pos, level.getChunkAt(pos), states[x][y][z], newState, 1 | 2, 512);
                 }
             }
         }
@@ -179,6 +181,7 @@ public class ElevatorCage {
     }
 
     public void place(World level, BlockPos startPos){
+        BlockState[][][] oldStates = new BlockState[this.xSize][this.ySize][this.zSize];
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
@@ -186,7 +189,9 @@ public class ElevatorCage {
                     if(state == null)
                         continue;
                     BlockPos pos = startPos.offset(x, y, z);
-                    if(canBlockBeIgnored(level, pos) || level.getBlockState(pos).getDestroySpeed(level, pos) >= 0){
+                    BlockState currentState = level.getBlockState(pos);
+                    if(canBlockBeIgnored(level, pos) || currentState.getDestroySpeed(level, pos) >= 0){
+                        oldStates[x][y][z] = currentState;
                         if(!level.isEmptyBlock(pos))
                             level.destroyBlock(pos, true);
                         // Suppress any block updates
@@ -218,38 +223,21 @@ public class ElevatorCage {
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
+                    BlockState previousState = oldStates[x][y][z];
+                    if(previousState == null)
+                        continue;
                     BlockPos pos = startPos.offset(x, y, z);
                     BlockState state = level.getBlockState(pos);
 
                     // Update the block itself
-                    level.setBlock(pos, state, 2 | 16);
+                    state.onPlace(level, pos, previousState, true);
 
                     // Update neighboring blocks that are not part of the elevator cage
-                    boolean[] updateDirections = new boolean[6];
-                    if(x == 0)
-                        updateDirections[4] = true;
-                    if(x == this.xSize - 1)
-                        updateDirections[5] = true;
-                    if(y == 0)
-                        updateDirections[0] = true;
-                    if(y == this.ySize - 1)
-                        updateDirections[1] = true;
-                    if(z == 0)
-                        updateDirections[2] = true;
-                    if(z == this.zSize - 1)
-                        updateDirections[3] = true;
-                    for(int i = 0; i < updateDirections.length; i++){
-                        if(updateDirections[i]){
-                            Direction direction = Direction.values()[i];
-                            BlockPos neighbor = pos.relative(direction);
-                            BlockState neighborState = level.getBlockState(neighbor);
-                            BlockState updatedState = state.updateShape(direction, neighborState, level, pos, neighbor);
-                            Block.updateOrDestroy(state, updatedState, level, pos, 1 | 2, 512);
-                            level.neighborChanged(pos, neighborState.getBlock(), neighbor);
-                            updatedState = level.getBlockState(pos);
-                            level.neighborChanged(neighbor, updatedState.getBlock(), pos);
-                        }
-                    }
+                    boolean isOnTheBoundary = x == 0 || x == this.xSize - 1
+                        || y == 0 || y == this.ySize - 1
+                        || z == 0 || z == this.zSize - 1;
+                    int flags = isOnTheBoundary ? 3 : 2 | 4 | 16;
+                    level.markAndNotifyBlock(pos, level.getChunkAt(pos), previousState, state, flags, 512);
 
                     // Special case for buttons and pressure plates to prevent them getting stuck
                     if(!level.isClientSide
