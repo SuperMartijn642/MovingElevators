@@ -2,6 +2,7 @@ package com.supermartijn642.movingelevators.elevator;
 
 import com.google.common.collect.Streams;
 import com.supermartijn642.core.block.BlockShape;
+import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockButton;
 import net.minecraft.block.BlockPressurePlate;
@@ -18,6 +19,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.IFluidBlock;
 
@@ -85,7 +87,18 @@ public class ElevatorCage {
                     TileEntity entity = level.getTileEntity(pos);
                     if(entity != null)
                         level.removeTileEntity(pos);
-                    level.setBlockState(pos, Blocks.AIR.getDefaultState(), 4 | 16);
+                    // Suppress any block updates
+                    Chunk chunk = level.getChunkFromBlockCoords(pos);
+                    //noinspection ConstantValue
+                    if(chunk != null){
+                        ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(true);
+                        try{
+                            level.setBlockState(pos, Blocks.AIR.getDefaultState(), 4 | 16);
+                        }finally{
+                            ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(false);
+                        }
+                    }else
+                        level.setBlockState(pos, Blocks.AIR.getDefaultState(), 4 | 16);
                 }
             }
         }
@@ -180,7 +193,18 @@ public class ElevatorCage {
                     if(canBlockBeIgnored(level, pos) || level.getBlockState(pos).getBlockHardness(level, pos) >= 0){
                         if(!level.isAirBlock(pos))
                             level.destroyBlock(pos, true);
-                        level.setBlockState(pos, state, 2);
+                        // Suppress any block updates
+                        Chunk chunk = level.getChunkFromBlockCoords(pos);
+                        //noinspection ConstantValue
+                        if(chunk != null){
+                            ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(true);
+                            try{
+                                level.setBlockState(pos, state, 4 | 16);
+                            }finally{
+                                ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(false);
+                            }
+                        }else
+                            level.setBlockState(pos, state, 4 | 16);
                         if(this.blockEntityData[x][y][z] != null){
                             TileEntity entity = TileEntity.create(level, this.blockEntityData[x][y][z]);
                             if(entity != null)
@@ -200,6 +224,11 @@ public class ElevatorCage {
                 for(int z = 0; z < this.zSize; z++){
                     BlockPos pos = startPos.add(x, y, z);
                     IBlockState state = level.getBlockState(pos);
+
+                    // Update the block itself
+                    level.setBlockState(pos, state, 2 | 16);
+
+                    // Update neighboring blocks that are not part of the elevator cage
                     boolean[] updateDirections = new boolean[6];
                     if(x == 0)
                         updateDirections[4] = true;
