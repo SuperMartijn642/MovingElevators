@@ -92,7 +92,18 @@ public class ElevatorCage {
                         Clearable.tryClear(entity);
                         level.removeBlockEntity(pos);
                     }
-                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), 4 | 16);
+                    // Suppress any block updates
+                    LevelChunk chunk = level.getChunkAt(pos);
+                    //noinspection ConstantValue
+                    if(chunk != null){
+                        ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(true);
+                        try{
+                            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE | Block.UPDATE_KNOWN_SHAPE);
+                        }finally{
+                            ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(false);
+                        }
+                    }else
+                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE | Block.UPDATE_KNOWN_SHAPE);
                 }
             }
         }
