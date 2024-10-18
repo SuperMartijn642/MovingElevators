@@ -15,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -251,6 +252,24 @@ public class ElevatorCage {
                         && state.getBlock() instanceof BlockPressurePlate
                         && state.getValue(BlockPressurePlate.POWERED))
                         state.getBlock().updateTick(level, pos, state, level.rand);
+
+                    // Redstone wire only updates indirect neighbors when its power changes, not when it gets placed with a certain power
+                    // Hence, special case for redstone wire
+                    if(state.getBlock() == Blocks.REDSTONE_WIRE){
+                        boolean[] updateDirections = new boolean[6];
+                        updateDirections[4] = x == 0;
+                        updateDirections[5] = x == this.xSize - 1;
+                        updateDirections[0] = y == 0;
+                        updateDirections[1] = y == this.ySize - 1;
+                        updateDirections[2] = z == 0;
+                        updateDirections[3] = z == this.zSize - 1;
+                        for(int i = 0; i < updateDirections.length; i++){
+                            if(updateDirections[i]){
+                                EnumFacing direction = EnumFacing.values()[i];
+                                level.notifyNeighborsOfStateChange(pos.offset(direction), Blocks.REDSTONE_WIRE, false);
+                            }
+                        }
+                    }
                 }
             }
         }
