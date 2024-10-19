@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.9
+- Fixed issues with block updates when removing/placing elevator cabin
+
 ### Moving Elevators 1.4.8a
 - Fixed camouflage showing missing model when ConnectedTexturesMod is installed
 
