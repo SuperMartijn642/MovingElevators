@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.9
+- Fixed issues with block updates when removing/placing elevator cabin
+
 ### Moving Elevators 1.4.8
 - Improved compatibility with Embeddium, Iris, Oculus, Rubidium, and Sodium
 - Fixed elevator placing random blocks instead of air when mods shift vanilla block ids
