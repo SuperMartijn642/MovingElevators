@@ -43,7 +43,6 @@ public class CheckBoxWidget extends AbstractButtonWidget {
 
     @Override
     public void render(WidgetRenderContext context, int mouseX, int mouseY){
-        ScreenUtils.bindTexture(CHECKMARK_BOX_TEXTURE);
-        ScreenUtils.drawTexture(context.poseStack(), this.x, this.y, this.width + 1, this.height, this.isChecked.get() ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
+        ScreenUtils.drawTexture(CHECKMARK_BOX_TEXTURE, context.poseStack(), this.x, this.y, this.width + 1, this.height, this.isChecked.get() ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
     }
 }

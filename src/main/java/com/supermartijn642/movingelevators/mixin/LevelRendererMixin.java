@@ -1,11 +1,11 @@
 package com.supermartijn642.movingelevators.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.supermartijn642.movingelevators.MovingElevators;
+import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.RenderType;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,48 +29,22 @@ public class LevelRendererMixin {
     private RenderBuffers renderBuffers;
 
     @Inject(
-        method = "renderLevel",
-        at = @At("HEAD")
-    )
-    public void renderLevelHead(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
-        // Apply the model-view matrix to the matrix stack
-        if(!MovingElevators.isIrisLoaded){
-            POSE_STACK.pushPose();
-            POSE_STACK.mulPose(modelView);
-        }
-    }
-
-    @Inject(
-        method = "renderLevel",
+        method = "method_62214(Lnet/minecraft/client/renderer/FogParameters;Lnet/minecraft/client/DeltaTracker;Lnet/minecraft/client/Camera;Lnet/minecraft/util/profiling/ProfilerFiller;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;ZLnet/minecraft/client/renderer/culling/Frustum;Lcom/mojang/blaze3d/resource/ResourceHandle;)V",
         at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;visibleSections:Lit/unimi/dsi/fastutil/objects/ObjectArrayList;",
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderBlockEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/Camera;F)V",
             shift = At.Shift.BEFORE
         )
     )
-    public void renderLevelBlockEntities(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, deltaTracker.getGameTimeDeltaPartialTick(false), this.renderBuffers.bufferSource());
-    }
-
-    @Inject(
-        method = "renderLevel",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/RenderBuffers;bufferSource()Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;",
-            shift = At.Shift.AFTER
-        )
-    )
-    public void afterModelViewMatrix(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
-        // At some point the model-view matrix gets updated, so we can undo applying it to the matrix stack
-        if(!MovingElevators.isIrisLoaded)
-            POSE_STACK.popPose();
+    private void renderLevelBlockEntities(CallbackInfo ci){
+        ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, ClientUtils.getPartialTicks(), this.renderBuffers.bufferSource());
     }
 
     @Inject(
         method = "renderSectionLayer",
         at = @At("HEAD")
     )
-    public void renderChunkLayer(RenderType renderType, double cameraX, double cameraY, double cameraZ, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
+    private void renderChunkLayer(RenderType renderType, double cameraX, double cameraY, double cameraZ, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
         ElevatorGroupRenderer.renderBlocks(POSE_STACK, renderType, this.renderBuffers.bufferSource());
     }
 }

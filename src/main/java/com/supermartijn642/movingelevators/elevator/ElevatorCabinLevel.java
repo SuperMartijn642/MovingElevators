@@ -3,20 +3,24 @@ package com.supermartijn642.movingelevators.elevator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.world.TickRateManager;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.alchemy.PotionBrewing;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeAccess;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -48,7 +52,7 @@ public class ElevatorCabinLevel extends Level {
     private BlockPos minPos, maxPos;
 
     protected ElevatorCabinLevel(Level clientLevel){
-        super(null, clientLevel.dimension(), clientLevel.registryAccess(), clientLevel.dimensionTypeRegistration(), null, true, false, 0, 512);
+        super(null, clientLevel.dimension(), clientLevel.registryAccess(), clientLevel.dimensionTypeRegistration(), true, false, 0, 512);
         this.level = clientLevel;
     }
 
@@ -98,6 +102,10 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
+    public void explode(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionDamageCalculator explosionDamageCalculator, double d, double e, double f, float g, boolean bl, ExplosionInteraction explosionInteraction, ParticleOptions particleOptions, ParticleOptions particleOptions2, Holder<SoundEvent> holder){
+    }
+
+    @Override
     public String gatherChunkSourceStats(){
         return "";
     }
@@ -133,8 +141,8 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public RecipeManager getRecipeManager(){
-        return this.level.getRecipeManager();
+    public RecipeAccess recipeAccess(){
+        return this.level.recipeAccess();
     }
 
     @Override
@@ -174,6 +182,11 @@ public class ElevatorCabinLevel extends Level {
     @Override
     public PotionBrewing potionBrewing(){
         return null;
+    }
+
+    @Override
+    public FuelValues fuelValues(){
+        return this.level.fuelValues();
     }
 
     @Override
@@ -250,6 +263,11 @@ public class ElevatorCabinLevel extends Level {
     @Override
     public Holder<Biome> getUncachedNoiseBiome(int i, int j, int k){
         return this.level.getUncachedNoiseBiome(i, j, k);
+    }
+
+    @Override
+    public int getSeaLevel(){
+        return this.level.getSeaLevel();
     }
 
     @Override

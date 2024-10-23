@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  */
 public class ControllerBlock extends ElevatorInputBlock {
 
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
 
     public ControllerBlock(BlockProperties properties){
         super(properties, ControllerBlockEntity::new);
@@ -68,6 +68,7 @@ public class ControllerBlock extends ElevatorInputBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){
+        super.createBlockStateDefinition(builder);
         builder.add(FACING);
     }
 

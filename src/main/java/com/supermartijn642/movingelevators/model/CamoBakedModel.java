@@ -4,8 +4,8 @@ import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.movingelevators.blocks.CamoBlockEntity;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.minecraft.client.renderer.block.model.BakedOverrides;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -92,8 +92,8 @@ public class CamoBakedModel implements BakedModel, FabricBakedModel {
     }
 
     @Override
-    public ItemOverrides getOverrides(){
-        return ItemOverrides.EMPTY;
+    public BakedOverrides overrides(){
+        return BakedOverrides.EMPTY;
     }
 
     @Override
