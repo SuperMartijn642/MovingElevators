@@ -49,14 +49,13 @@ public class SliderWidget extends BaseWidget {
         if(this.dragging)
             this.value = Math.min(this.max, Math.max(this.min, Math.round((float)(mouseX - this.x) / this.width * this.range) + this.min));
 
-        ScreenUtils.bindTexture(SLIDER_TEXTURE);
         // Background
-        ScreenUtils.drawTexture(context.poseStack(), this.x, this.y, 1, this.height, 0, 0, 1 / 18f, 1);
-        ScreenUtils.drawTexture(context.poseStack(), this.x + 1, this.y, this.width - 2, this.height, 1 / 18f, 0, 1 / 18f, 1);
-        ScreenUtils.drawTexture(context.poseStack(), this.x + this.width - 1, this.y, 1, this.height, 2 / 18f, 0, 1 / 18f, 1);
+        ScreenUtils.drawTexture(SLIDER_TEXTURE, context.poseStack(), this.x, this.y, 1, this.height, 0, 0, 1 / 18f, 1);
+        ScreenUtils.drawTexture(SLIDER_TEXTURE, context.poseStack(), this.x + 1, this.y, this.width - 2, this.height, 1 / 18f, 0, 1 / 18f, 1);
+        ScreenUtils.drawTexture(SLIDER_TEXTURE, context.poseStack(), this.x + this.width - 1, this.y, 1, this.height, 2 / 18f, 0, 1 / 18f, 1);
         // Slider
         float percentage = (float)(this.value - this.min) / this.range;
-        ScreenUtils.drawTexture(context.poseStack(), this.x + percentage * (this.width - 5), this.y, 5, this.height, this.active ? this.isFocused() || this.dragging ? 8 / 18f : 3 / 18f : 13 / 18f, 0, 5 / 18f, 1);
+        ScreenUtils.drawTexture(SLIDER_TEXTURE, context.poseStack(), this.x + percentage * (this.width - 5), this.y, 5, this.height, this.active ? this.isFocused() || this.dragging ? 8 / 18f : 3 / 18f : 13 / 18f, 0, 5 / 18f, 1);
         // Text
         Component text = this.text.apply(this.value);
         if(text != null)

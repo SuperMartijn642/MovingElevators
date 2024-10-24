@@ -78,8 +78,7 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
     @Override
     protected void renderBackground(WidgetRenderContext context, int mouseX, int mouseY, ControllerBlockEntity object){
         // Background
-        ScreenUtils.bindTexture(BACKGROUND);
-        ScreenUtils.drawTexture(context.poseStack(), 0, 0, this.width(), this.height());
+        ScreenUtils.drawTexture(BACKGROUND, context.poseStack(), 0, 0, this.width(), this.height());
 
         super.renderBackground(context, mouseX, mouseY, object);
     }
@@ -87,10 +86,9 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
     @Override
     protected void render(WidgetRenderContext context, int mouseX, int mouseY, ControllerBlockEntity blockEntity){
         // Size icons
-        ScreenUtils.bindTexture(SIZE_ICONS);
-        ScreenUtils.drawTexture(context.poseStack(), 190, 31, 11, 11, 0, 0, 1, 1 / 3f);
-        ScreenUtils.drawTexture(context.poseStack(), 190, 47, 11, 11, 0, 1 / 3f, 1, 1 / 3f);
-        ScreenUtils.drawTexture(context.poseStack(), 190, 63, 11, 11, 0, 2 / 3f, 1, 1 / 3f);
+        ScreenUtils.drawTexture(SIZE_ICONS, context.poseStack(), 190, 31, 11, 11, 0, 0, 1, 1 / 3f);
+        ScreenUtils.drawTexture(SIZE_ICONS, context.poseStack(), 190, 47, 11, 11, 0, 1 / 3f, 1, 1 / 3f);
+        ScreenUtils.drawTexture(SIZE_ICONS, context.poseStack(), 190, 63, 11, 11, 0, 2 / 3f, 1, 1 / 3f);
 
         // Size values
         ScreenUtils.drawCenteredString(context.poseStack(), TextComponents.number(blockEntity.getGroup().getCageWidth()).get(), 224, 34);

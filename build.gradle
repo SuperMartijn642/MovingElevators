@@ -2,7 +2,7 @@ plugins {
     id "eclipse"
     id "idea"
     id "java-library"
-    id "net.neoforged.gradle.userdev" version "7.0.154"
+    id "net.neoforged.gradle.userdev" version "7.0.165"
     id "me.modmuss50.mod-publish-plugin" version "0.5.2"
 }
 
@@ -34,9 +34,10 @@ dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
 
     // Core library
-    implementation "com.supermartijn642.core:supermartijn642corelib:1.1.17c-neoforge-mc1.21" // TODO
+//    implementation "curse.maven:supermartijn642s-core-lib-454372:${core_library_file}"
+    implementation "a:supermartijn642corelib:1.1.17-neoforge-mc1.21.3"
     // Config library
-    implementation "com.supermartijn642.config:supermartijn642configlib:1.1.8-neoforge-mc1.21" // TODO
+    implementation "curse.maven:supermartijn642s-config-lib-438332:${config_library_file}"
 
     // Embeddium
     compileOnly "curse.maven:embeddium-908741:${embeddium_file}"

@@ -35,9 +35,9 @@ public class ElevatorPreviewRenderer {
         double span = Math.sqrt(bounds.getXsize() * bounds.getXsize() + bounds.getYsize() * bounds.getYsize() + bounds.getZsize() * bounds.getZsize());
         scale /= span;
 
+        RenderUtils.getMainBufferSource().endLastBatch();
         RenderSystem.getModelViewStack().pushMatrix();
         RenderSystem.getModelViewStack().scale(1, -1, 1);
-        RenderSystem.applyModelViewMatrix();
 
         PoseStack poseStack = new PoseStack();
         poseStack.translate(x, -y, 350);
@@ -63,7 +63,6 @@ public class ElevatorPreviewRenderer {
             RenderUtils.renderBox(poseStack, previewBox, 0, 0.7f, 0, 0.8f, true);
 
         RenderSystem.getModelViewStack().popMatrix();
-        RenderSystem.applyModelViewMatrix();
     }
 
     private static void renderBlock(WorldBlockCapture capture, BlockPos pos, PoseStack poseStack, MultiBufferSource renderTypeBuffer){

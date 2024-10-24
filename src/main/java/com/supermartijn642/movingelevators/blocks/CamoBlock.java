@@ -6,7 +6,6 @@ import com.supermartijn642.core.block.BlockShape;
 import com.supermartijn642.core.block.EntityHoldingBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -18,7 +17,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -31,11 +31,14 @@ import java.util.function.BiFunction;
  */
 public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
 
+    private static final IntegerProperty OPACITY = IntegerProperty.create("opacity", 0, 15);
+
     private final BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier;
 
     public CamoBlock(BlockProperties properties, BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier){
         super(false, properties.dynamicShape());
         this.entitySupplier = entitySupplier;
+        this.registerDefaultState(this.defaultBlockState().setValue(OPACITY, 15));
     }
 
     @Override
@@ -54,15 +57,20 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     protected boolean onRightClick(BlockState state, Level level, CamoBlockEntity blockEntity, BlockPos pos, Player player, InteractionHand hand, Direction hitSide, Vec3 hitLocation){
         if(player.isShiftKeyDown() && player.getItemInHand(hand).isEmpty()){
             blockEntity.setCamoState(null);
+            if(state.getValue(OPACITY) != 15)
+                level.setBlock(pos, state.setValue(OPACITY, 15), Block.UPDATE_ALL);
             return true;
         }else if(!player.isShiftKeyDown() && blockEntity.canBeCamoStack(player.getItemInHand(hand))){
             Item item = player.getItemInHand(hand).getItem();
             if(item instanceof BlockItem){
                 Block block = ((BlockItem)item).getBlock();
-                BlockState state1 = block.getStateForPlacement(new BlockPlaceContext(new UseOnContext(player, hand, new BlockHitResult(hitLocation, hitSide, pos, false))));
-                if(state1 == null)
-                    state1 = block.defaultBlockState();
-                blockEntity.setCamoState(state1);
+                BlockState camoState = block.getStateForPlacement(new BlockPlaceContext(new UseOnContext(player, hand, new BlockHitResult(hitLocation, hitSide, pos, false))));
+                if(camoState == null)
+                    camoState = block.defaultBlockState();
+                blockEntity.setCamoState(camoState);
+                int opacity = Math.max(0, Math.min(15, camoState.getLightBlock()));
+                if(opacity != state.getValue(OPACITY))
+                    level.setBlock(pos, state.setValue(OPACITY, opacity), Block.UPDATE_ALL);
             }
             return true;
         }
@@ -93,24 +101,23 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter reader, BlockPos pos){
-        BlockEntity blockEntity = reader.getBlockEntity(pos);
-        return blockEntity instanceof CamoBlockEntity && ((CamoBlockEntity)blockEntity).hasCamoState() ? ((CamoBlockEntity)blockEntity).getCamoState().propagatesSkylightDown(reader, pos) : super.propagatesSkylightDown(state, reader, pos);
+    protected boolean propagatesSkylightDown(BlockState state){
+        return state.getValue(OPACITY) == 0;
     }
 
     @Override
-    public VoxelShape getOcclusionShape(BlockState state, BlockGetter reader, BlockPos pos){
+    public VoxelShape getOcclusionShape(BlockState state){
         return BlockShape.empty().getUnderlying();
     }
 
     @Override
-    public int getLightBlock(BlockState state, BlockGetter reader, BlockPos pos){
-        BlockEntity entity;
-        if(reader instanceof Level){
-            LevelChunk chunk = ((Level)reader).getChunkSource().getChunkNow(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
-            entity = chunk == null ? reader.getBlockEntity(pos) : chunk.getBlockEntity(pos);
-        }else
-            entity = reader.getBlockEntity(pos);
-        return entity instanceof CamoBlockEntity && ((CamoBlockEntity)entity).hasCamoState() ? ((CamoBlockEntity)entity).getCamoState().getLightBlock(reader, pos) : reader.getMaxLightLevel();
+    public int getLightBlock(BlockState state){
+        return state.getValue(OPACITY);
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){
+        super.createBlockStateDefinition(builder);
+        builder.add(OPACITY);
     }
 }

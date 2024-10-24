@@ -6,15 +6,9 @@
     "ABA"
   ],
   "key": {
-    "A": {
-      "tag": "c:ingots/iron"
-    },
-    "B": {
-      "tag": "c:dusts/redstone"
-    },
-    "C": {
-      "tag": "c:glass_blocks"
-    }
+    "A": "#c:ingots/iron",
+    "B": "#c:dusts/redstone",
+    "C": "#c:glass_blocks"
   },
   "result": {
     "id": "movingelevators:display_block"

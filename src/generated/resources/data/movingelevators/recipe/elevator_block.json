@@ -6,18 +6,10 @@
     "ADA"
   ],
   "key": {
-    "A": {
-      "tag": "c:ingots/iron"
-    },
-    "B": {
-      "tag": "c:dusts/redstone"
-    },
-    "C": {
-      "item": "minecraft:observer"
-    },
-    "D": {
-      "item": "minecraft:piston"
-    }
+    "A": "#c:ingots/iron",
+    "B": "#c:dusts/redstone",
+    "C": "minecraft:observer",
+    "D": "minecraft:piston"
   },
   "result": {
     "id": "movingelevators:elevator_block"

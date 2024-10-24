@@ -31,7 +31,6 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
     public boolean setCamoState(BlockState state){
         this.camoState = state == null ? Blocks.AIR.defaultBlockState() : state;
         this.dataChanged();
-        this.level.getLightEngine().checkBlock(this.worldPosition);
         this.requestModelDataUpdate();
         return true;
     }

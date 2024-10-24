@@ -10,6 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +41,7 @@ public class ElevatorInputBlock extends CamoBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving){
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean isMoving){
         BlockEntity entity = level.getBlockEntity(pos);
         if(entity instanceof ElevatorInputBlockEntity)
             ((ElevatorInputBlockEntity)entity).redstone = level.hasNeighborSignal(pos) || level.hasNeighborSignal(pos.above());

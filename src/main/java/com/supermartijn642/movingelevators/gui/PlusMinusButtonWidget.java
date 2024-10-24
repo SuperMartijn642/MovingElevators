@@ -42,7 +42,6 @@ public class PlusMinusButtonWidget extends AbstractButtonWidget {
     @Override
     public void render(WidgetRenderContext context, int mouseX, int mouseY){
         this.active = this.isActive.get();
-        ScreenUtils.bindTexture(PLUS_MINUS_BUTTONS);
-        ScreenUtils.drawTexture(context.poseStack(), this.x, this.y, this.width, this.height, this.isPlus ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
+        ScreenUtils.drawTexture(PLUS_MINUS_BUTTONS, context.poseStack(), this.x, this.y, this.width, this.height, this.isPlus ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
     }
 }

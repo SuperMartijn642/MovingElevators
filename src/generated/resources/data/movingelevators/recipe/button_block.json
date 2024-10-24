@@ -6,15 +6,9 @@
     "AAA"
   ],
   "key": {
-    "A": {
-      "tag": "c:ingots/iron"
-    },
-    "B": {
-      "tag": "c:dusts/redstone"
-    },
-    "C": {
-      "tag": "c:ender_pearls"
-    }
+    "A": "#c:ingots/iron",
+    "B": "#c:dusts/redstone",
+    "C": "#c:ender_pearls"
   },
   "result": {
     "id": "movingelevators:button_block"
