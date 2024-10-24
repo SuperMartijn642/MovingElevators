@@ -1,6 +1,5 @@
 package com.supermartijn642.movingelevators.mixin;
 
-import com.supermartijn642.core.CommonUtils;
 import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -34,7 +33,6 @@ public class LevelChunkMixin implements MovingElevatorsLevelChunk {
         )
     )
     public void suppressOnRemove(Block oldBlock, World world, BlockPos pos, IBlockState newState){
-        CommonUtils.getLogger("movingelevators").error("TRIGGERED!!!!");
         if(!this.suppressBlockUpdates)
             oldBlock.breakBlock(world, pos, newState);
     }
