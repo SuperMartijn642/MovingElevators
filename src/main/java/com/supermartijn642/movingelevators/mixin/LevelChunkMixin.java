@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.mixin;
 
+import com.supermartijn642.core.CommonUtils;
 import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -26,19 +27,20 @@ public class LevelChunkMixin implements MovingElevatorsLevelChunk {
     }
 
     @Redirect(
-        method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;",
+        method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Lnet/minecraft/block/state/IBlockState;",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/Block;breakBlock(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)V"
         )
     )
     public void suppressOnRemove(Block oldBlock, World world, BlockPos pos, IBlockState newState){
+        CommonUtils.getLogger("movingelevators").error("TRIGGERED!!!!");
         if(!this.suppressBlockUpdates)
             oldBlock.breakBlock(world, pos, newState);
     }
 
     @Redirect(
-        method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)Lnet/minecraft/world/level/block/state/BlockState;",
+        method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Lnet/minecraft/block/state/IBlockState;",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/Block;onBlockAdded(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)V"
