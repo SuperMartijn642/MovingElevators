@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.9a
+- Fixed crash on startup
+
 ### Moving Elevators 1.4.9
 - Fixed issues with block updates when removing/placing elevator cabin
 
