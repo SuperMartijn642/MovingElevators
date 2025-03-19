@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.profiler.IProfiler;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.tags.NetworkTagManager;
 import net.minecraft.tileentity.TileEntity;
@@ -217,6 +218,11 @@ public class ElevatorCabinLevel extends World {
     @Override
     public float getTimeOfDay(float f){
         return this.level.getTimeOfDay(f);
+    }
+
+    @Override
+    public IProfiler getProfiler(){
+        return this.level.getProfiler();
     }
 
     @Override
