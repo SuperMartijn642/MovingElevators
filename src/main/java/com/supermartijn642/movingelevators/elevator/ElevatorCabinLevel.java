@@ -6,6 +6,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -32,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Created 21/04/2023 by SuperMartijn642
@@ -266,6 +268,16 @@ public class ElevatorCabinLevel extends Level {
     @Override
     public float getTimeOfDay(float f){
         return this.level.getTimeOfDay(f);
+    }
+
+    @Override
+    public ProfilerFiller getProfiler(){
+        return this.level.getProfiler();
+    }
+
+    @Override
+    public Supplier<ProfilerFiller> getProfilerSupplier(){
+        return this.level.getProfilerSupplier();
     }
 
     @Override
