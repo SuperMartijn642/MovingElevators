@@ -22,10 +22,10 @@ public class LivingEntityMixin implements MovingElevatorsLivingEntity {
         at = @At("HEAD"),
         cancellable = true
     )
-    private void causeFallDamage(float f, float g, DamageSource damageSource, CallbackInfoReturnable<Boolean> ci) {
+    private void causeFallDamage(float f, float g, DamageSource damageSource, CallbackInfoReturnable<Boolean> ci){
         //noinspection DataFlowIssue
         LivingEntity entity = (LivingEntity)(Object)this;
-        if(ElevatorFallDamageHandler.onFallDamage(entity))
+        if(ElevatorFallDamageHandler.shouldCancelFallDamage(entity))
             ci.setReturnValue(false);
     }
 
