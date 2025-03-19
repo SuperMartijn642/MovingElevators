@@ -17,6 +17,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -57,6 +59,8 @@ public class ElevatorGroupRenderer {
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         GlStateManager.pushMatrix();
+        BlockRenderLayer oldLayer = MinecraftForgeClient.getRenderLayer();
+        ForgeHooksClient.setRenderLayer(renderType);
         float partialTicks = ClientUtils.getPartialTicks();
         Entity renderViewEntity = ClientUtils.getMinecraft().getRenderViewEntity();
         double d3 = renderViewEntity.lastTickPosX + (renderViewEntity.posX - renderViewEntity.lastTickPosX) * partialTicks;
@@ -76,6 +80,7 @@ public class ElevatorGroupRenderer {
         if(buffer != null)
             Tessellator.getInstance().draw();
         GlStateManager.popMatrix();
+        ForgeHooksClient.setRenderLayer(oldLayer);
     }
 
     public static void renderBlockEntities(float partialTicks){

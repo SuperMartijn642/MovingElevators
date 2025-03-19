@@ -151,11 +151,9 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     @Override
     public IBlockState getExtendedState(IBlockState state, IBlockAccess level, BlockPos pos){
         TileEntity entity = level.getTileEntity(pos);
-        if(entity instanceof CamoBlockEntity){
+        if(entity instanceof CamoBlockEntity && ((CamoBlockEntity)entity).hasCamoState()){
             IBlockState camoState = ((CamoBlockEntity)entity).getCamoState();
-            IBlockState extendedCamoState = camoState;
-            if(camoState != null)
-                extendedCamoState = camoState.getBlock().getExtendedState(camoState, level, pos);
+            IBlockState extendedCamoState = camoState.getBlock().getExtendedState(camoState, level, pos);
             return ((IExtendedBlockState)state).withProperty(CAMO_PROPERTY, Pair.of(camoState, extendedCamoState));
         }
         return state;
