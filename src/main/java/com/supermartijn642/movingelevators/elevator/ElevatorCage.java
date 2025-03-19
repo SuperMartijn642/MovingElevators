@@ -286,6 +286,8 @@ public class ElevatorCage {
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
+                    if(this.blockStates[x][y][z] == null)
+                        continue;
                     if(this.blockEntityStacks[x][y][z] != null)
                         drops.add(ItemStack.parse(provider, this.blockEntityStacks[x][y][z]).orElse(new ItemStack(this.blockStates[x][y][z].getBlock())));
                     else
