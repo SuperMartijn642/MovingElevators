@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.profiler.IProfiler;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.tags.ITagCollectionSupplier;
 import net.minecraft.tileentity.TileEntity;
@@ -25,6 +26,7 @@ import net.minecraft.world.storage.MapData;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Created 21/04/2023 by SuperMartijn642
@@ -215,6 +217,16 @@ public class ElevatorCabinLevel extends World {
     @Override
     public float getTimeOfDay(float f){
         return this.level.getTimeOfDay(f);
+    }
+
+    @Override
+    public IProfiler getProfiler(){
+        return this.level.getProfiler();
+    }
+
+    @Override
+    public Supplier<IProfiler> getProfilerSupplier(){
+        return this.level.getProfilerSupplier();
     }
 
     @Override
