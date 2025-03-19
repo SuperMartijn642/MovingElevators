@@ -3,6 +3,8 @@ package com.supermartijn642.movingelevators.packets;
 import com.supermartijn642.core.network.BasePacket;
 import com.supermartijn642.core.network.PacketContext;
 import com.supermartijn642.movingelevators.elevator.ElevatorFallDamageHandler;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
 
@@ -27,6 +29,10 @@ public class PacketOnElevator implements BasePacket {
         PlayerEntity player = context.getSendingPlayer();
         if(player == null)
             return;
-        ElevatorFallDamageHandler.resetElevatorTime(player);
+        Entity vehicle = player.getRootVehicle();
+        if(vehicle instanceof LivingEntity)
+            ElevatorFallDamageHandler.resetElevatorTime((LivingEntity)vehicle);
+        else
+            ElevatorFallDamageHandler.resetElevatorTime(player);
     }
 }
