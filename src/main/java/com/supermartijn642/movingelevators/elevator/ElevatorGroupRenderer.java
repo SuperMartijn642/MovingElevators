@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -59,6 +61,8 @@ public class ElevatorGroupRenderer {
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         poseStack.pushPose();
+        RenderType oldLayer = MinecraftForgeClient.getRenderLayer();
+        ForgeHooksClient.setRenderLayer(renderType);
         Vec3 camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
         VertexConsumer buffer = null;
@@ -70,6 +74,7 @@ public class ElevatorGroupRenderer {
             }
         }
         poseStack.popPose();
+        ForgeHooksClient.setRenderLayer(oldLayer);
 
         // For some reason this is needed ¯\(o_o)/¯
         if(buffer != null && renderType == RenderType.translucent())
