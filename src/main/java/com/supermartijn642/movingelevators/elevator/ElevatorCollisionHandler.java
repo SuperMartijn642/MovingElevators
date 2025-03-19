@@ -4,6 +4,7 @@ import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.packets.PacketOnElevator;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
@@ -85,11 +86,14 @@ public class ElevatorCollisionHandler {
                 entity.motionY = 0;
 
                 entity.onGround = true;
-                entity.fall(entity.fallDistance, 1);
+                if(!(entity instanceof EntityLivingBase) || !ElevatorFallDamageHandler.shouldCancelFallDamage((EntityLivingBase)entity))
+                    entity.fall(entity.fallDistance, 1);
                 entity.fallDistance = 0;
-                if(entity instanceof EntityPlayer){
-                    ElevatorFallDamageHandler.resetElevatorTime((EntityPlayer)entity);
-                    if(entity.world.isRemote)
+                EntityPlayer controllingPlayer = entity instanceof EntityPlayer ? (EntityPlayer)entity :
+                        entity.getControllingPassenger() instanceof EntityPlayer ? (EntityPlayer)entity.getControllingPassenger() : null;
+                if(entity instanceof EntityLivingBase && controllingPlayer != null){
+                    ElevatorFallDamageHandler.resetElevatorTime((EntityLivingBase)entity);
+                    if(controllingPlayer.isUser())
                         MovingElevators.CHANNEL.sendToServer(new PacketOnElevator());
                 }
             }

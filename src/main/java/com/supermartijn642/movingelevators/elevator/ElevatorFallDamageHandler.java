@@ -1,6 +1,6 @@
 package com.supermartijn642.movingelevators.elevator;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -21,19 +21,25 @@ public class ElevatorFallDamageHandler {
 
     @SubscribeEvent
     public static void onFallDamage(LivingFallEvent e){
-        NBTTagCompound compound = e.getEntityLiving().getEntityData();
+        if(shouldCancelFallDamage(e.getEntityLiving()))
+            e.setCanceled(true);
+    }
+
+    public static boolean shouldCancelFallDamage(EntityLivingBase entity){
+        NBTTagCompound compound = entity.getEntityData();
         if(compound.hasKey("elevatorTime")){
-            if(e.getEntity().ticksExisted - compound.getLong("elevatorTime") < 20 * 5)
-                e.setCanceled(true);
+            if(entity.ticksExisted - compound.getLong("elevatorTime") < 20 * 5)
+                return true;
             else
                 compound.removeTag("elevatorTime");
         }
+        return false;
     }
 
-    public static void resetElevatorTime(EntityPlayer player){
-        player.getEntityData().setLong("elevatorTime", player.ticksExisted);
-        if(player instanceof EntityPlayerMP)
-            resetFloatingTicks((EntityPlayerMP)player);
+    public static void resetElevatorTime(EntityLivingBase entity){
+        entity.getEntityData().setLong("elevatorTime", entity.ticksExisted);
+        if(entity instanceof EntityPlayerMP)
+            resetFloatingTicks((EntityPlayerMP)entity);
     }
 
     public static void resetFloatingTicks(EntityPlayerMP player){
