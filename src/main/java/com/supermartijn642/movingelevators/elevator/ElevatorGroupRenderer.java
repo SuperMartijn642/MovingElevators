@@ -19,6 +19,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -61,6 +63,8 @@ public class ElevatorGroupRenderer {
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         GlStateManager.pushMatrix();
+        BlockRenderLayer oldLayer = MinecraftForgeClient.getRenderLayer();
+        ForgeHooksClient.setRenderLayer(renderType);
         Vec3d camera = RenderUtils.getCameraPosition();
         GlStateManager.translated(-camera.x, -camera.y, -camera.z);
         BufferBuilder buffer = null;
@@ -76,6 +80,7 @@ public class ElevatorGroupRenderer {
         if(buffer != null)
             Tessellator.getInstance().end();
         GlStateManager.popMatrix();
+        ForgeHooksClient.setRenderLayer(oldLayer);
     }
 
     public static void renderBlockEntities(float partialTicks){
