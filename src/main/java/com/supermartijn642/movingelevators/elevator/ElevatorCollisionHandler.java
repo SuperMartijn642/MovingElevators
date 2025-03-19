@@ -3,7 +3,7 @@ package com.supermartijn642.movingelevators.elevator;
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.packets.PacketOnElevator;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
@@ -85,11 +85,12 @@ public class ElevatorCollisionHandler {
                 entity.setDeltaMovement(entity.getDeltaMovement().x, 0, entity.getDeltaMovement().z);
 
                 entity.setOnGround(true);
-                entity.causeFallDamage(entity.fallDistance, 1, entity.damageSources().fall());
+                if(!(entity instanceof LivingEntity) || !ElevatorFallDamageHandler.shouldCancelFallDamage((LivingEntity)entity))
+                    entity.causeFallDamage(entity.fallDistance, 1, entity.damageSources().fall());
                 entity.fallDistance = 0;
-                if(entity instanceof Player){
-                    ElevatorFallDamageHandler.resetElevatorTime((Player)entity);
-                    if(entity.level().isClientSide)
+                if(entity instanceof LivingEntity && entity.isControlledByClient()){
+                    ElevatorFallDamageHandler.resetElevatorTime((LivingEntity)entity);
+                    if(entity.isControlledByOrIsLocalPlayer())
                         MovingElevators.CHANNEL.sendToServer(new PacketOnElevator());
                 }
             }
