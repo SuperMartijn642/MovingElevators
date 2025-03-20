@@ -51,7 +51,7 @@ public class CamoBakedModel implements BakedModel, FabricBakedModel {
             this.originalModel.emitBlockQuads(emitter, blockView, state, pos, randomSupplier, cullTest);
         else{
             BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(camoState);
-            model.emitBlockQuads(emitter, blockView, state, pos, randomSupplier, cullTest);
+            model.emitBlockQuads(emitter, blockView, camoState, pos, randomSupplier, cullTest);
         }
     }
 
