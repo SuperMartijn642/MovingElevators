@@ -70,7 +70,10 @@ public class CamoBakedModel implements IDynamicBakedModel {
 
     @Override
     public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data){
-        return ChunkRenderTypeSet.of(RenderType.translucent());
+        BlockState camouflage = data.get(CAMO_PROPERTY);
+        if(camouflage == null || camouflage.getBlock() == Blocks.AIR)
+            return ChunkRenderTypeSet.of(RenderType.translucent());
+        return ClientUtils.getBlockRenderer().getBlockModel(camouflage).getRenderTypes(camouflage, rand, ModelData.EMPTY);
     }
 
     @Override
