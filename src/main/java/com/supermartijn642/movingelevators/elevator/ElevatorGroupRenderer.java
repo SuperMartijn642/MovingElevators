@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
@@ -58,13 +59,13 @@ public class ElevatorGroupRenderer {
         Vec3 camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
         VertexConsumer buffer = null;
-        boolean rendered =false;
+        boolean rendered = false;
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving() && isWithinRenderDistance(group)){
                 if(buffer == null)
                     buffer = bufferSource.getBuffer(renderType);
                 renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
-                rendered =true;
+                rendered = true;
             }
         }
         poseStack.popPose();
@@ -97,6 +98,7 @@ public class ElevatorGroupRenderer {
         cage.loadRenderInfo(anchorPos, group);
         Level level = ClientElevatorCage.getFakeLevel();
 
+        BlockRenderDispatcher blockRenderer = ClientUtils.getBlockRenderer();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
@@ -110,7 +112,7 @@ public class ElevatorGroupRenderer {
                     BlockState state = cage.blockStates[x][y][z];
                     if(state.getRenderShape() == RenderShape.MODEL && ItemBlockRenderTypes.getChunkRenderType(state) == renderType){
                         pos.set(anchorPos.getX() + x, anchorPos.getY() + y, anchorPos.getZ() + z);
-                        ClientUtils.getBlockRenderer().renderBatched(state, pos, level, poseStack, buffer, true, level.random);
+                        blockRenderer.renderBatched(state, pos, level, poseStack, buffer, true, blockRenderer.getBlockModel(state).collectParts(level.random));
                     }
                     poseStack.popPose();
                 }

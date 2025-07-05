@@ -1,13 +1,12 @@
 package com.supermartijn642.movingelevators.model;
 
 import com.supermartijn642.core.ClientUtils;
+import com.supermartijn642.core.util.Pair;
 import com.supermartijn642.movingelevators.blocks.CamoBlockEntity;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -18,75 +17,58 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 /**
  * Created 1/20/2021 by SuperMartijn642
  */
-public class CamoBakedModel implements BakedModel, FabricBakedModel {
+public class CamoBakedModel implements BlockStateModel {
 
-    private final BakedModel originalModel;
+    private final BlockStateModel originalModel;
 
-    public CamoBakedModel(BakedModel originalModel){
+    public CamoBakedModel(BlockStateModel originalModel){
         this.originalModel = originalModel;
     }
 
     @Override
-    public boolean isVanillaAdapter(){
-        return false;
+    public void emitQuads(QuadEmitter emitter, BlockAndTintGetter blockView, BlockPos pos, BlockState state, RandomSource random, Predicate<@Nullable Direction> cullTest){
+        BlockState camoState = getCamoState(blockView, state, pos);
+        BlockStateModel model = camoState == null ? this.originalModel : ClientUtils.getBlockRenderer().getBlockModel(camoState);
+        model.emitQuads(emitter, blockView, pos, state, random, cullTest);
     }
 
     @Override
-    public void emitBlockQuads(QuadEmitter emitter, BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, Predicate<@Nullable Direction> cullTest){
-        BlockState camoState = null;
+    public TextureAtlasSprite particleSprite(BlockAndTintGetter blockView, BlockPos pos, BlockState state){
+        BlockState camoState = getCamoState(blockView, state, pos);
+        BlockStateModel model = camoState == null ? this.originalModel : ClientUtils.getBlockRenderer().getBlockModel(camoState);
+        return model.particleSprite(blockView, pos, state);
+    }
 
-        // This is stupid, but oh well ¯\(o_o)/¯
+    @Override
+    public @Nullable Object createGeometryKey(BlockAndTintGetter blockView, BlockPos pos, BlockState state, RandomSource random){
+        return Pair.of(this, getCamoState(blockView, state, pos));
+    }
+
+    private static BlockState getCamoState(BlockAndTintGetter blockView, BlockState state, BlockPos pos){
         if(state != null && pos != null && blockView.getBlockState(pos) == state){
             BlockEntity entity = blockView.getBlockEntity(pos);
             if(entity instanceof CamoBlockEntity && ((CamoBlockEntity)entity).hasCamoState())
-                camoState = ((CamoBlockEntity)entity).getCamoState();
+                return ((CamoBlockEntity)entity).getCamoState();
         }
-
-        if(camoState == null)
-            this.originalModel.emitBlockQuads(emitter, blockView, state, pos, randomSupplier, cullTest);
-        else{
-            BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(camoState);
-            model.emitBlockQuads(emitter, blockView, camoState, pos, randomSupplier, cullTest);
-        }
+        return null;
     }
 
     @Override
-    public void emitItemQuads(QuadEmitter emitter, Supplier<RandomSource> randomSupplier){
-        this.originalModel.emitItemQuads(emitter, randomSupplier);
+    public List<BlockModelPart> collectParts(RandomSource random){
+        return this.originalModel.collectParts(random);
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction direction, RandomSource random){
-        return this.originalModel.getQuads(blockState, direction, random);
+    public void collectParts(RandomSource random, List<BlockModelPart> parts){
+        this.originalModel.collectParts(random, parts);
     }
 
     @Override
-    public boolean useAmbientOcclusion(){
-        return this.originalModel.useAmbientOcclusion();
-    }
-
-    @Override
-    public boolean isGui3d(){
-        return this.originalModel.isGui3d();
-    }
-
-    @Override
-    public boolean usesBlockLight(){
-        return this.originalModel.usesBlockLight();
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleIcon(){
-        return this.originalModel.getParticleIcon();
-    }
-
-    @Override
-    public ItemTransforms getTransforms(){
-        return this.originalModel.getTransforms();
+    public TextureAtlasSprite particleIcon(){
+        return this.originalModel.particleIcon();
     }
 }

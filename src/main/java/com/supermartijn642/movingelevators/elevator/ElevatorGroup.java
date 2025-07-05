@@ -14,15 +14,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
 
@@ -580,7 +574,7 @@ public class ElevatorGroup {
         compound.putInt("cageSizeX", this.cageSizeX);
         compound.putInt("cageSizeY", this.cageSizeY);
         compound.putInt("cageSizeZ", this.cageSizeZ);
-        compound.putIntArray("floors", this.floors);
+        compound.putIntArray("floors", this.floors.stream().mapToInt(Integer::intValue).toArray());
         ListTag floorDataTag = new ListTag();
         for(FloorData floorDatum : this.floorData)
             floorDataTag.add(floorDatum.write());
@@ -589,55 +583,26 @@ public class ElevatorGroup {
     }
 
     public void read(CompoundTag compound){
-        if(compound.contains("moving")){ // old version stuff
-            this.isMoving = compound.getBoolean("moving");
-            int size = compound.getInt("size");
-            if(this.isMoving){
-                this.targetY = compound.getInt("targetY");
-                this.lastY = compound.getDouble("lastY");
-                this.currentY = compound.getDouble("currentY");
-                BlockState[][][] blockStates = new BlockState[size][1][size];
-                VoxelShape shape = Shapes.empty();
-                for(int x = 0; x < size; x++){
-                    for(int z = 0; z < size; z++){
-                        BlockState state = Block.stateById(compound.getInt("platform" + x + "," + z));
-                        if(state.getBlock() != Blocks.AIR){
-                            blockStates[x][0][z] = state;
-                            shape = Shapes.joinUnoptimized(shape, state.getCollisionShape(this.level, this.getPos((int)this.currentY)), BooleanOp.OR);
-                        }
-                    }
-                }
-                shape.optimize();
-                this.cage = this.level.isClientSide ?
-                    new ClientElevatorCage(size, 1, size, blockStates, new CompoundTag[size][1][size], new CompoundTag[size][1][size], shape.toAabbs()) :
-                    new ElevatorCage(size, 1, size, blockStates, new CompoundTag[size][1][size], new CompoundTag[size][1][size], shape.toAabbs());
-            }
-            this.targetSpeed = compound.getDouble("speed");
-            this.speed = this.targetSpeed;
-            this.cageSizeX = this.cageSizeZ = size;
-            this.cageSizeY = 1;
-        }else{
-            this.isMoving = compound.getBoolean("isMoving");
-            if(this.isMoving){
-                this.targetY = compound.getInt("targetY");
-                this.lastY = compound.getDouble("lastY");
-                this.currentY = compound.getDouble("currentY");
-                this.cage = ElevatorCage.read(compound.getCompound("cage"), this.level.isClientSide);
-            }
-            this.targetSpeed = compound.getDouble("targetSpeed");
-            this.speed = compound.getDouble("speed");
-            this.cageSideOffset = compound.getInt("cageSideOffset");
-            this.cageDepthOffset = compound.getInt("cageDepthOffset");
-            this.cageHeightOffset = compound.getInt("cageHeightOffset");
-            this.cageSizeX = compound.getInt("cageSizeX");
-            this.cageSizeY = compound.getInt("cageSizeY");
-            this.cageSizeZ = compound.getInt("cageSizeZ");
+        this.isMoving = compound.getBooleanOr("isMoving", false);
+        if(this.isMoving){
+            this.targetY = compound.getIntOr("targetY", 0);
+            this.lastY = compound.getDoubleOr("lastY", 0);
+            this.currentY = compound.getDoubleOr("currentY", 0);
+            this.cage = ElevatorCage.read(compound.getCompoundOrEmpty("cage"), this.level.isClientSide);
         }
+        this.targetSpeed = compound.getDoubleOr("targetSpeed", 0.2);
+        this.speed = compound.getDoubleOr("speed", 0);
+        this.cageSideOffset = compound.getIntOr("cageSideOffset", 0);
+        this.cageDepthOffset = compound.getIntOr("cageDepthOffset", 0);
+        this.cageHeightOffset = compound.getIntOr("cageHeightOffset", -1);
+        this.cageSizeX = compound.getIntOr("cageSizeX", 3);
+        this.cageSizeY = compound.getIntOr("cageSizeY", 4);
+        this.cageSizeZ = compound.getIntOr("cageSizeZ", 3);
         this.floors.clear();
-        for(int y : compound.getIntArray("floors"))
+        for(int y : compound.getIntArray("floors").orElseGet(() -> new int[0]))
             this.floors.add(y);
         this.floorData.clear();
-        ListTag floorDataTag = (ListTag)compound.get("floorData");
+        ListTag floorDataTag = compound.getListOrEmpty("floorData");
         for(Tag data : floorDataTag)
             this.floorData.add(FloorData.read((CompoundTag)data));
     }
@@ -722,7 +687,7 @@ public class ElevatorGroup {
         }
 
         public static FloorData read(CompoundTag tag){
-            return new FloorData(tag.contains("name") ? tag.getString("name") : null, DyeColor.byId(tag.getInt("color")));
+            return new FloorData(tag.getStringOr("name", null), tag.getInt("color").map(DyeColor::byId).orElse(DyeColor.GRAY));
         }
     }
 }

@@ -112,7 +112,7 @@ public class DisplayBlock extends CamoBlock {
     }
 
     @Override
-    protected void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
+    public void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
         info.accept(TextComponents.translation("movingelevators.elevator_display.tooltip").color(ChatFormatting.AQUA).get());
     }
 }

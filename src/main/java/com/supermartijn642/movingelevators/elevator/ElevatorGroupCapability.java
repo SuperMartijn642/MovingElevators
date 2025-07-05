@@ -150,8 +150,8 @@ public class ElevatorGroupCapability {
         if(tag instanceof CompoundTag){
             CompoundTag compound = (CompoundTag)tag;
             this.groups.clear();
-            for(String key : compound.getAllKeys())
-                this.readGroup(compound.getCompound(key));
+            for(String key : compound.keySet())
+                compound.getCompound(key).ifPresent(this::readGroup);
         }
     }
 
@@ -164,9 +164,9 @@ public class ElevatorGroupCapability {
 
     public void readGroup(CompoundTag tag){
         if(tag.contains("group") && tag.contains("pos")){
-            ElevatorGroupPosition pos = ElevatorGroupPosition.read(tag.getCompound("pos"));
+            ElevatorGroupPosition pos = ElevatorGroupPosition.read(tag.getCompoundOrEmpty("pos"));
             ElevatorGroup group = new ElevatorGroup(this.level, pos.x, pos.z, pos.facing);
-            group.read(tag.getCompound("group"));
+            group.read(tag.getCompoundOrEmpty("group"));
             this.groups.put(pos, group);
             this.groupsPerChunk.put(pos.chunkPos(), group);
         }
@@ -220,7 +220,7 @@ public class ElevatorGroupCapability {
         }
 
         public static ElevatorGroupPosition read(CompoundTag tag){
-            return new ElevatorGroupPosition(tag.getInt("x"), tag.getInt("z"), Direction.from2DDataValue(tag.getInt("facing")));
+            return new ElevatorGroupPosition(tag.getIntOr("x", 0), tag.getIntOr("z", 0), tag.getInt("facing").map(Direction::from2DDataValue).orElse(Direction.NORTH));
         }
     }
 

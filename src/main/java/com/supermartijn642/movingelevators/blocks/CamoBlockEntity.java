@@ -61,6 +61,6 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
 
     @Override
     protected void readData(CompoundTag compound){
-        this.camoState = Block.stateById(compound.getInt("camoState"));
+        this.camoState = Block.stateById(compound.getIntOr("camoState", 0));
     }
 }

@@ -7,7 +7,6 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -96,9 +95,9 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
     @Override
     protected void readData(CompoundTag compound){
         super.readData(compound);
-        this.facing = Direction.from3DDataValue(compound.getInt("facing"));
-        this.controllerPos = new BlockPos(compound.getInt("controllerX"), compound.getInt("controllerY"), compound.getInt("controllerZ"));
-        this.controllerFacing = compound.contains("controllerFacing", Tag.TAG_INT) ? Direction.from2DDataValue(compound.getInt("controllerFacing")) : null;
+        this.facing = compound.getInt("facing").map(Direction::from3DDataValue).orElse(Direction.NORTH);
+        this.controllerPos = new BlockPos(compound.getIntOr("controllerX", 0), compound.getIntOr("controllerY", 0), compound.getIntOr("controllerZ", 0));
+        this.controllerFacing = compound.getInt("controllerFacing").map(Direction::from2DDataValue).orElse(null);
         this.isInCabin = false;
     }
 
