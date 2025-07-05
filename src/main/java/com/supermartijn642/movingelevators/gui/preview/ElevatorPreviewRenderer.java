@@ -3,26 +3,23 @@ package com.supermartijn642.movingelevators.gui.preview;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
-
-import java.util.List;
 
 /**
  * Created 25/12/2021 by SuperMartijn642
@@ -54,7 +51,6 @@ public class ElevatorPreviewRenderer {
             renderBlock(capture, pos, poseStack, renderTypeBuffer);
         renderTypeBuffer.endBatch();
 
-        RenderSystem.enableDepthTest();
         if(doShading)
             Lighting.setupForFlatItems();
 
@@ -71,9 +67,10 @@ public class ElevatorPreviewRenderer {
 
         BlockState state = capture.getBlockState(pos);
         if(state.getBlock() != Blocks.AIR){
-            BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
+            BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
             RenderType renderType = ItemBlockRenderTypes.getRenderType(state);
-            renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType));
+            int tint = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getLevel(), pos, 0);
+            ModelBlockRenderer.renderModel(poseStack.last(), renderTypeBuffer.getBuffer(renderType), model, ARGB.redFloat(tint), ARGB.greenFloat(tint), ARGB.blueFloat(tint), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
         }
 
         BlockEntity blockEntity = capture.getBlockEntity(pos);
@@ -81,32 +78,5 @@ public class ElevatorPreviewRenderer {
             ClientUtils.getMinecraft().getBlockEntityRenderDispatcher().render(blockEntity, ClientUtils.getPartialTicks(), poseStack, renderTypeBuffer);
 
         poseStack.popPose();
-    }
-
-    private static void renderModel(BakedModel model, WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer){
-        RandomSource random = RandomSource.create();
-
-        for(Direction direction : Direction.values()){
-            random.setSeed(42L);
-            renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, direction, random));
-        }
-
-        random.setSeed(42L);
-        renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, null, random));
-    }
-
-    private static void renderQuads(WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer, List<BakedQuad> quads){
-        PoseStack.Pose matrix = poseStack.last();
-
-        for(BakedQuad bakedquad : quads){
-            float red = 1, blue = 1, green = 1, alpha = 1;
-            if(bakedquad.isTinted()){
-                int color = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getLevel(), pos, bakedquad.getTintIndex());
-                red = (color >> 16 & 255) / 255f;
-                green = (color >> 8 & 255) / 255f;
-                blue = (color & 255) / 255f;
-            }
-            buffer.putBulkData(matrix, bakedquad, red, green, blue, 1, 15728880, OverlayTexture.NO_OVERLAY);
-        }
     }
 }
