@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelData;
 
 import java.util.List;
 
@@ -69,6 +69,6 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
 
     @Override
     protected void readData(CompoundTag compound){
-        this.camoState = Block.stateById(compound.getInt("camoState"));
+        this.camoState = Block.stateById(compound.getIntOr("camoState", 0));
     }
 }

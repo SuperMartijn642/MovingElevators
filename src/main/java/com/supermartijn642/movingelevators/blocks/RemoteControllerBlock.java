@@ -80,7 +80,7 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
     }
 
     @Override
-    protected void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
+    public void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
         Target target = stack.get(TARGET);
         if(target == null)
             info.accept(TextComponents.translation("movingelevators.remote_controller.tooltip").color(ChatFormatting.AQUA).get());

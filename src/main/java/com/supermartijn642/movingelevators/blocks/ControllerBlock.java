@@ -89,17 +89,7 @@ public class ControllerBlock extends ElevatorInputBlock {
     }
 
     @Override
-    protected void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
+    public void appendItemInformation(ItemStack stack, Consumer<Component> info, boolean advanced){
         info.accept(TextComponents.translation("movingelevators.elevator_controller.tooltip").color(ChatFormatting.AQUA).get());
-    }
-
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean p_60519_){
-        if(state.hasBlockEntity() && (!state.is(newState.getBlock()) || !newState.hasBlockEntity())){
-            BlockEntity entity = level.getBlockEntity(pos);
-            if(entity instanceof ControllerBlockEntity)
-                ((ControllerBlockEntity)entity).onRemove();
-        }
-        super.onRemove(state, level, pos, newState, p_60519_);
     }
 }

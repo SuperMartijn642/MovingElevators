@@ -26,7 +26,7 @@ import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 /**
  * Created 3/28/2020 by SuperMartijn642
  */
-@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class MovingElevatorsClient {
 
     public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays");
@@ -75,13 +75,9 @@ public class MovingElevatorsClient {
         return name == null ? TextComponents.translation("movingelevators.floor_name", TextComponents.number(floor).get()).format() : name;
     }
 
-    @EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
-    public static class ForgeEventListeners {
-
-        @SubscribeEvent
-        public static void onClientTick(ClientTickEvent.Post e){
-            if(!ClientUtils.getMinecraft().isPaused() && ClientUtils.getWorld() != null)
-                ElevatorGroupCapability.tickWorldCapability(ClientUtils.getWorld());
-        }
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post e){
+        if(!ClientUtils.getMinecraft().isPaused() && ClientUtils.getWorld() != null)
+            ElevatorGroupCapability.tickWorldCapability(ClientUtils.getWorld());
     }
 }

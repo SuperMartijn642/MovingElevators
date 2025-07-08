@@ -74,7 +74,7 @@ public abstract class ElevatorInputBlockEntity extends CamoBlockEntity implement
     @Override
     protected void readData(CompoundTag compound){
         super.readData(compound);
-        this.redstone = compound.getBoolean("redstone");
+        this.redstone = compound.getBooleanOr("redstone", false);
         this.lastRedstone = this.redstone;
     }
 }

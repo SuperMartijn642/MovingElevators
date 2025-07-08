@@ -10,7 +10,7 @@ import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 /**
  * Created 4/30/2020 by SuperMartijn642
  */
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber
 public class ElevatorFallDamageHandler {
 
     @SubscribeEvent
@@ -22,7 +22,8 @@ public class ElevatorFallDamageHandler {
     public static boolean shouldCancelFallDamage(LivingEntity entity){
         CompoundTag compound = entity.getPersistentData();
         if(compound.contains("elevatorTime")){
-            if(entity.tickCount - compound.getLong("elevatorTime") < 20 * 5)
+            //noinspection OptionalGetWithoutIsPresent
+            if(entity.tickCount - compound.getLong("elevatorTime").get() < 20 * 5)
                 return true;
             else
                 compound.remove("elevatorTime");

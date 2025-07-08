@@ -1,121 +1,70 @@
 package com.supermartijn642.movingelevators.model;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.ChunkRenderTypeSet;
-import net.neoforged.neoforge.client.model.IDynamicBakedModel;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
-import net.neoforged.neoforge.common.util.TriState;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
+import net.neoforged.neoforge.model.data.ModelProperty;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created 1/20/2021 by SuperMartijn642
  */
-public class CamoBakedModel implements IDynamicBakedModel {
+public class CamoBakedModel implements DynamicBlockStateModel {
 
     public static final ModelProperty<BlockState> CAMO_PROPERTY = new ModelProperty<>();
 
-    private final BakedModel originalModel;
-    private List<BakedQuad> originalModelQuads;
+    private final BlockStateModel originalModel;
 
-    public CamoBakedModel(BakedModel originalModel){
+    public CamoBakedModel(BlockStateModel originalModel){
         this.originalModel = originalModel;
     }
 
     @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource random, ModelData modelData, RenderType renderType){
-        BlockState camouflage = modelData.get(CAMO_PROPERTY);
+    public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockModelPart> parts){
+        BlockState camouflage = level.getModelData(pos).get(CAMO_PROPERTY);
 
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR){
-            if(this.originalModelQuads == null)
-                this.originalModelQuads = getAllQuads(this.originalModel, state, random);
-            return this.originalModelQuads;
+            this.originalModel.collectParts(level, pos, state, random, parts);
+            return;
         }
 
-        BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(camouflage);
-        return getAllQuads(model, camouflage, random);
-    }
-
-    private static List<BakedQuad> getAllQuads(BakedModel model, BlockState state, RandomSource random){
-        List<BakedQuad> quads = new ArrayList<>();
-        for(Direction direction : Direction.values())
-            quads.addAll(model.getQuads(state, direction, random, ModelData.EMPTY, null));
-        quads.addAll(model.getQuads(state, null, random, ModelData.EMPTY, null));
-        return quads;
+        BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(camouflage);
+        model.collectParts(level, pos, camouflage, random, parts);
     }
 
     @Override
-    public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData entityData){
-        BlockEntity entity = level.getBlockEntity(pos);
-        return entity == null ? ModelData.EMPTY : entity.getModelData();
-    }
+    public @Nullable Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random){
+        BlockState camouflage = level.getModelData(pos).get(CAMO_PROPERTY);
 
-    @Override
-    public TriState useAmbientOcclusion(BlockState state, ModelData data, RenderType renderType){
-        BlockState camouflage = data.get(CAMO_PROPERTY);
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR)
-            return this.originalModel.useAmbientOcclusion(state, data, renderType);
-        BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(camouflage);
-        return model.useAmbientOcclusion(state, ModelData.EMPTY, renderType);
+            return this.originalModel.createGeometryKey(level, pos, state, random);
+
+        BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(camouflage);
+        return model.createGeometryKey(level, pos, camouflage, random);
     }
 
     @Override
-    public TextureAtlasSprite getParticleIcon(ModelData data){
-        return this.originalModel.getParticleIcon(data);
-    }
+    public TextureAtlasSprite particleIcon(BlockAndTintGetter level, BlockPos pos, BlockState state){
+        BlockState camouflage = level.getModelData(pos).get(CAMO_PROPERTY);
 
-    @Override
-    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data){
-        BlockState camouflage = data.get(CAMO_PROPERTY);
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR)
-            return ChunkRenderTypeSet.of(RenderType.translucent());
-        return ClientUtils.getBlockRenderer().getBlockModel(camouflage).getRenderTypes(camouflage, rand, ModelData.EMPTY);
+            return this.originalModel.particleIcon(level, pos, state);
+
+        BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(camouflage);
+        return model.particleIcon(level, pos, camouflage);
     }
 
     @Override
-    public boolean useAmbientOcclusion(){
-        return this.originalModel.useAmbientOcclusion();
-    }
-
-    @Override
-    public boolean isGui3d(){
-        return this.originalModel.isGui3d();
-    }
-
-    @Override
-    public boolean usesBlockLight(){
-        return this.originalModel.usesBlockLight();
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleIcon(){
-        return this.originalModel.getParticleIcon();
-    }
-
-    @Override
-    public ItemTransforms getTransforms(){
-        return this.originalModel.getTransforms();
-    }
-
-    @Override
-    public void applyTransform(ItemDisplayContext transformType, PoseStack poseStack, boolean applyLeftHandTransform){
-        this.originalModel.applyTransform(transformType, poseStack, applyLeftHandTransform);
+    public TextureAtlasSprite particleIcon(){
+        return this.originalModel.particleIcon();
     }
 }

@@ -1,14 +1,15 @@
 package com.supermartijn642.movingelevators.elevator;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
 import com.supermartijn642.core.render.RenderWorldEvent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
@@ -16,8 +17,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.common.NeoForge;
+
+import java.util.List;
 
 /**
  * Created 11/8/2020 by SuperMartijn642
@@ -59,14 +61,11 @@ public class ElevatorGroupRenderer {
         poseStack.pushPose();
         Vec3 camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
-        VertexConsumer buffer = null;
-        boolean rendered =false;
+        boolean rendered = false;
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving() && isWithinRenderDistance(group)){
-                if(buffer == null)
-                    buffer = bufferSource.getBuffer(renderType);
-                renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
-                rendered =true;
+                renderGroupBlocks(poseStack, group, renderType, bufferSource, ClientUtils.getPartialTicks());
+                rendered = true;
             }
         }
         poseStack.popPose();
@@ -90,7 +89,7 @@ public class ElevatorGroupRenderer {
         poseStack.popPose();
     }
 
-    public static void renderGroupBlocks(PoseStack poseStack, ElevatorGroup group, RenderType renderType, VertexConsumer buffer, float partialTicks){
+    public static void renderGroupBlocks(PoseStack poseStack, ElevatorGroup group, RenderType renderType, MultiBufferSource bufferSource, float partialTicks){
         ClientElevatorCage cage = (ClientElevatorCage)group.getCage();
         double lastY = group.getLastY(), currentY = group.getCurrentY();
         double renderY = lastY + (currentY - lastY) * partialTicks;
@@ -99,6 +98,7 @@ public class ElevatorGroupRenderer {
         cage.loadRenderInfo(anchorPos, group);
         Level level = ClientElevatorCage.getFakeLevel();
 
+        BlockRenderDispatcher blockRenderer = ClientUtils.getBlockRenderer();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
@@ -111,13 +111,10 @@ public class ElevatorGroupRenderer {
 
                     BlockState state = cage.blockStates[x][y][z];
                     if(state.getRenderShape() == RenderShape.MODEL){
-                        BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
-                        ModelData modelData = cage.blockEntities[x][y][z] == null ? ModelData.EMPTY : cage.blockEntities[x][y][z].getModelData();
-                        modelData = model.getModelData(level, pos, state, modelData);
-                        if(model.getRenderTypes(state, level.random, modelData).contains(renderType)){
-                            pos.set(anchorPos.getX() + x, anchorPos.getY() + y, anchorPos.getZ() + z);
-                            ClientUtils.getBlockRenderer().renderBatched(state, pos, level, poseStack, buffer, true, level.random, modelData, renderType);
-                        }
+                        BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
+                        pos.set(anchorPos.getX() + x, anchorPos.getY() + y, anchorPos.getZ() + z);
+                        List<BlockModelPart> parts = model.collectParts(level, pos, state, level.random);
+                        blockRenderer.renderBatched(state, pos, level, poseStack, bufferSource::getBuffer, true, parts);
                     }
                     poseStack.popPose();
                 }

@@ -49,7 +49,9 @@ public class ClientElevatorCage extends ElevatorCage {
                         continue;
 
                     CompoundTag entityData = this.blockEntityData[x][y][z];
-                    String identifier = entityData.getString("id");
+                    String identifier = entityData.getStringOr("id", null);
+                    if(identifier == null)
+                        continue;
                     BlockEntityType<?> entityType = Registries.BLOCK_ENTITY_TYPES.getValue(ResourceLocation.parse(identifier));
                     if(entityType != null){
                         BlockState state = this.blockStates[x][y][z];
