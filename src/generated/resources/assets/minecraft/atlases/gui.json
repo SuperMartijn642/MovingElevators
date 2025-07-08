@@ -1,0 +1,28 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:gui/gui_background"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:gui/slider"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:gui/size_icons2"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:gui/plus_minus_buttons"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:gui/arrow_buttons"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "movingelevators:gui/checkmark_box"
+    }
+  ]
+}

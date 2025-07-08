@@ -1,13 +1,18 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.mojang.datafixers.util.Pair;
+import com.supermartijn642.movingelevators.MovingElevators;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +24,7 @@ import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -27,6 +33,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +50,7 @@ public class ElevatorCage {
         Tag[][][] entityItemStacks = new CompoundTag[xSize][ySize][zSize];
         VoxelShape shape = Shapes.empty();
 
+        RegistryOps<Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
@@ -62,12 +70,15 @@ public class ElevatorCage {
                         entities[x][y][z] = tag;
                         // Create an item to drop in case the block can't be placed back
                         ItemStack stack = new ItemStack(states[x][y][z].getBlock());
-                        CompoundTag entityItemData = entity.saveCustomOnly(level.registryAccess());
-                        //noinspection deprecation
-                        entity.removeComponentsFromTag(entityItemData);
-                        BlockItem.setBlockEntityData(stack, entity.getType(), entityItemData);
+                        try(ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(entity.problemPath(), MovingElevators.LOGGER)){
+                            TagValueOutput entityItemData = TagValueOutput.createWithContext(scopedCollector, level.registryAccess());
+                            entity.saveCustomOnly(entityItemData);
+                            //noinspection deprecation
+                            entity.removeComponentsFromTag(entityItemData);
+                            BlockItem.setBlockEntityData(stack, entity.getType(), entityItemData);
+                        }
                         stack.applyComponents(entity.collectComponents());
-                        entityItemStacks[x][y][z] = stack.save(level.registryAccess());
+                        entityItemStacks[x][y][z] = ItemStack.CODEC.encodeStart(ops, stack).getOrThrow();
                     }
                 }
             }
@@ -167,6 +178,7 @@ public class ElevatorCage {
     }
 
     public void place(Level level, BlockPos startPos){
+        RegistryOps<Tag> ops = level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
         BlockState[][][] oldStates = new BlockState[this.xSize][this.ySize][this.zSize];
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
@@ -189,7 +201,7 @@ public class ElevatorCage {
                     }else{
                         Tag itemTag = this.blockEntityStacks[x][y][z];
                         ItemStack stack = itemTag == null ? new ItemStack(state.getBlock())
-                            : ItemStack.parse(level.registryAccess(), itemTag).orElse(new ItemStack(state.getBlock()));
+                            : ItemStack.CODEC.decode(ops, itemTag).result().map(Pair::getFirst).orElseGet(() -> new ItemStack(state.getBlock()));
                         Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
                     }
                 }
@@ -250,14 +262,17 @@ public class ElevatorCage {
     }
 
     public List<ItemStack> getDrops(HolderLookup.Provider provider){
+        RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
         List<ItemStack> drops = new ArrayList<>();
         for(int x = 0; x < this.xSize; x++){
             for(int y = 0; y < this.ySize; y++){
                 for(int z = 0; z < this.zSize; z++){
                     if(this.blockStates[x][y][z] == null)
                         continue;
-                    if(this.blockEntityStacks[x][y][z] != null)
-                        drops.add(ItemStack.parse(provider, this.blockEntityStacks[x][y][z]).orElse(new ItemStack(this.blockStates[x][y][z].getBlock())));
+                    Optional<ItemStack> entityStack = Optional.ofNullable(this.blockEntityStacks[x][y][z])
+                        .flatMap(t -> ItemStack.CODEC.decode(ops, t).result()).map(Pair::getFirst);
+                    if(entityStack.isPresent())
+                        drops.add(entityStack.get());
                     else
                         drops.add(new ItemStack(this.blockStates[x][y][z].getBlock()));
                 }

@@ -1,6 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
-import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import net.minecraft.network.chat.Component;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  */
 public class LeftRightArrowWidget extends AbstractButtonWidget {
 
-    private static final ResourceLocation ARROW_BUTTONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/arrow_buttons.png");
+    public static final ResourceLocation ARROW_BUTTONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/arrow_buttons");
 
     private final boolean isLeft;
     private final Component hoverText;
@@ -40,8 +40,8 @@ public class LeftRightArrowWidget extends AbstractButtonWidget {
     }
 
     @Override
-    public void render(WidgetRenderContext context, int mouseX, int mouseY){
+    public void render(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
         this.active = this.isActive.get();
-        ScreenUtils.drawTexture(ARROW_BUTTONS, context.poseStack(), this.x, this.y, this.width, this.height, this.isLeft ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
+        graphics.submitSprite(ARROW_BUTTONS, this.x, this.y, this.width, this.height, p -> p.uv(this.isLeft ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f));
     }
 }

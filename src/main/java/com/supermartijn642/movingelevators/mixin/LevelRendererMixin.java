@@ -5,8 +5,7 @@ import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.client.renderer.RenderType;
-import org.joml.Matrix4f;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,7 +28,7 @@ public class LevelRendererMixin {
     private RenderBuffers renderBuffers;
 
     @Inject(
-        method = "method_62214(Lnet/minecraft/client/renderer/FogParameters;Lnet/minecraft/client/DeltaTracker;Lnet/minecraft/client/Camera;Lnet/minecraft/util/profiling/ProfilerFiller;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;Lcom/mojang/blaze3d/resource/ResourceHandle;ZLnet/minecraft/client/renderer/culling/Frustum;Lcom/mojang/blaze3d/resource/ResourceHandle;)V",
+        method = "method_62214",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/LevelRenderer;renderBlockEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/Camera;F)V",
@@ -41,10 +40,41 @@ public class LevelRendererMixin {
     }
 
     @Inject(
-        method = "renderSectionLayer",
-        at = @At("HEAD")
+        method = "method_62214",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;)V",
+            shift = At.Shift.BEFORE,
+            ordinal = 0
+        )
     )
-    private void renderChunkLayer(RenderType renderType, double cameraX, double cameraY, double cameraZ, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(POSE_STACK, renderType, this.renderBuffers.bufferSource());
+    private void renderOpaqueLayer(CallbackInfo ci){
+        ElevatorGroupRenderer.renderBlocks(POSE_STACK, ChunkSectionLayerGroup.OPAQUE, this.renderBuffers.bufferSource());
+    }
+
+    @Inject(
+        method = "method_62214",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;)V",
+            shift = At.Shift.BEFORE,
+            ordinal = 1
+        )
+    )
+    private void renderTranslucentLayer(CallbackInfo ci){
+        ElevatorGroupRenderer.renderBlocks(POSE_STACK, ChunkSectionLayerGroup.TRANSLUCENT, this.renderBuffers.bufferSource());
+    }
+
+    @Inject(
+        method = "method_62214",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;)V",
+            shift = At.Shift.BEFORE,
+            ordinal = 2
+        )
+    )
+    private void renderTripwireLayer(CallbackInfo ci){
+        ElevatorGroupRenderer.renderBlocks(POSE_STACK, ChunkSectionLayerGroup.TRIPWIRE, this.renderBuffers.bufferSource());
     }
 }
