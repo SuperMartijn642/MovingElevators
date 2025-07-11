@@ -3,16 +3,16 @@ package com.supermartijn642.movingelevators.gui.preview;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -22,12 +22,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 
-import java.util.List;
-
 /**
  * Created 25/12/2021 by SuperMartijn642
  */
 public class ElevatorPreviewRenderer {
+
+    private static final RandomSource RANDOM = RandomSource.create();
 
     public static void renderPreview(WorldBlockCapture capture, AABB cabinBox, AABB previewBox, double x, double y, double scale, float yaw, float pitch, boolean doShading){
         AABB bounds = capture.getBounds();
@@ -54,7 +54,6 @@ public class ElevatorPreviewRenderer {
             renderBlock(capture, pos, poseStack, renderTypeBuffer);
         renderTypeBuffer.endBatch();
 
-        RenderSystem.enableDepthTest();
         if(doShading)
             Lighting.setupForFlatItems();
 
@@ -71,12 +70,16 @@ public class ElevatorPreviewRenderer {
 
         BlockState state = capture.getBlockState(pos);
         if(state.getBlock() != Blocks.AIR){
-            BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
-            ModelData modelData = ModelData.EMPTY; // TODO proper model data
-            RandomSource random = RandomSource.create(42L);
-            for(RenderType renderType : model.getRenderTypes(state, random, modelData)){
-                renderModel(model, capture, state, pos, poseStack, renderTypeBuffer.getBuffer(renderType), modelData, renderType);
-                random.setSeed(42L);
+            BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
+            ModelData modelData = capture.getLevel().getModelDataManager().getAt(pos);
+            if(modelData == null)
+                modelData = ModelData.EMPTY;
+            model.getModelData(capture.getLevel(), pos, state, modelData);
+            RANDOM.setSeed(42);
+            int tint = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getLevel(), pos, 0);
+            for(RenderType renderType : model.getRenderTypes(state, RANDOM, modelData)){
+                RANDOM.setSeed(42);
+                ModelBlockRenderer.renderModel(poseStack.last(), renderTypeBuffer.getBuffer(renderType), model, ARGB.redFloat(tint), ARGB.greenFloat(tint), ARGB.blueFloat(tint), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, modelData, renderType);
             }
         }
 
@@ -85,32 +88,5 @@ public class ElevatorPreviewRenderer {
             ClientUtils.getMinecraft().getBlockEntityRenderDispatcher().render(blockEntity, ClientUtils.getPartialTicks(), poseStack, renderTypeBuffer);
 
         poseStack.popPose();
-    }
-
-    private static void renderModel(BakedModel model, WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer, ModelData modelData, RenderType renderType){
-        RandomSource random = RandomSource.create();
-
-        for(Direction direction : Direction.values()){
-            random.setSeed(42L);
-            renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, direction, random, modelData, renderType));
-        }
-
-        random.setSeed(42L);
-        renderQuads(capture, state, pos, poseStack, buffer, model.getQuads(state, null, random, modelData, renderType));
-    }
-
-    private static void renderQuads(WorldBlockCapture capture, BlockState state, BlockPos pos, PoseStack poseStack, VertexConsumer buffer, List<BakedQuad> quads){
-        PoseStack.Pose matrix = poseStack.last();
-
-        for(BakedQuad bakedquad : quads){
-            float red = 1, blue = 1, green = 1, alpha = 1;
-            if(bakedquad.isTinted()){
-                int color = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getLevel(), pos, bakedquad.getTintIndex());
-                red = (color >> 16 & 255) / 255f;
-                green = (color >> 8 & 255) / 255f;
-                blue = (color & 255) / 255f;
-            }
-            buffer.putBulkData(matrix, bakedquad, red, green, blue, alpha, 15728880, OverlayTexture.NO_OVERLAY, false);
-        }
     }
 }

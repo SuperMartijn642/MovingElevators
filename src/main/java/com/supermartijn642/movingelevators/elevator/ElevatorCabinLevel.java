@@ -92,15 +92,17 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
+    public void playSeededSound(@Nullable Entity entity, double x, double y, double z, Holder<SoundEvent> sound, SoundSource source, float pitch, float volume, long l){
+
+    }
+
+    @Override
+    public void playSeededSound(@Nullable Entity entity, Entity entity2, Holder<SoundEvent> sound, SoundSource source, float pitch, float volume, long l){
+
+    }
+
+    @Override
     public void sendBlockUpdated(BlockPos pos, BlockState state, BlockState newState, int flags){
-    }
-
-    @Override
-    public void playSeededSound(@Nullable Player player, double x, double y, double z, Holder<SoundEvent> sound, SoundSource source, float pitch, float volume, long l){
-    }
-
-    @Override
-    public void playSeededSound(@Nullable Player player, Entity entity, Holder<SoundEvent> sound, SoundSource source, float pitch, float volume, long l){
     }
 
     @Override
@@ -127,15 +129,6 @@ public class ElevatorCabinLevel extends Level {
     @Override
     public MapItemSavedData getMapData(MapId id){
         return this.level.getMapData(id);
-    }
-
-    @Override
-    public void setMapData(MapId id, MapItemSavedData savedData){
-    }
-
-    @Override
-    public MapId getFreeMapId(){
-        return new MapId(0);
     }
 
     @Override
@@ -250,7 +243,7 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public void levelEvent(@Nullable Player player, int i, BlockPos pos, int j){
+    public void levelEvent(@Nullable Entity entity, int i, BlockPos blockPos, int j){
     }
 
     @Override

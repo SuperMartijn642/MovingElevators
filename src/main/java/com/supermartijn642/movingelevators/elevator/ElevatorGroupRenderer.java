@@ -8,7 +8,9 @@ import com.supermartijn642.core.render.RenderWorldEvent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
@@ -18,6 +20,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.MinecraftForge;
+
+import java.util.List;
 
 /**
  * Created 11/8/2020 by SuperMartijn642
@@ -60,13 +64,13 @@ public class ElevatorGroupRenderer {
         Vec3 camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
         VertexConsumer buffer = null;
-        boolean rendered =false;
+        boolean rendered = false;
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving() && isWithinRenderDistance(group)){
                 if(buffer == null)
                     buffer = bufferSource.getBuffer(renderType);
                 renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
-                rendered =true;
+                rendered = true;
             }
         }
         poseStack.popPose();
@@ -99,6 +103,7 @@ public class ElevatorGroupRenderer {
         cage.loadRenderInfo(anchorPos, group);
         Level level = ClientElevatorCage.getFakeLevel();
 
+        BlockRenderDispatcher blockRenderer = ClientUtils.getBlockRenderer();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
@@ -111,12 +116,13 @@ public class ElevatorGroupRenderer {
 
                     BlockState state = cage.blockStates[x][y][z];
                     if(state.getRenderShape() == RenderShape.MODEL){
-                        BakedModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
+                        BlockStateModel model = blockRenderer.getBlockModel(state);
                         ModelData modelData = cage.blockEntities[x][y][z] == null ? ModelData.EMPTY : cage.blockEntities[x][y][z].getModelData();
                         modelData = model.getModelData(level, pos, state, modelData);
                         if(model.getRenderTypes(state, level.random, modelData).contains(renderType)){
                             pos.set(anchorPos.getX() + x, anchorPos.getY() + y, anchorPos.getZ() + z);
-                            ClientUtils.getBlockRenderer().renderBatched(state, pos, level, poseStack, buffer, true, level.random, modelData, renderType);
+                            List<BlockModelPart> parts = model.collectParts(level.random, modelData, renderType);
+                            blockRenderer.renderBatched(state, pos, level, poseStack, buffer, true, parts);
                         }
                     }
                     poseStack.popPose();

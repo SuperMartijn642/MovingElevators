@@ -1,6 +1,5 @@
 package com.supermartijn642.movingelevators.elevator;
 
-import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -8,7 +7,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Clearable;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +17,6 @@ import net.minecraft.world.level.block.ButtonBlock;
 import net.minecraft.world.level.block.PressurePlateBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -80,37 +77,24 @@ public class ElevatorCage {
                     BlockPos pos = startPos.offset(x, y, z);
                     if(states[x][y][z] == null)
                         continue;
-                    BlockEntity entity = level.getBlockEntity(pos);
-                    if(entity != null){
-                        Clearable.tryClear(entity);
-                        level.removeBlockEntity(pos);
-                    }
-                    // Suppress any block updates
-                    LevelChunk chunk = level.getChunkAt(pos);
-                    //noinspection ConstantValue
-                    if(chunk != null){
-                        ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(true);
-                        try{
-                            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE | Block.UPDATE_KNOWN_SHAPE);
-                        }finally{
-                            ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(false);
-                        }
-                    }else
-                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE | Block.UPDATE_KNOWN_SHAPE);
+                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
                 }
             }
         }
 
-        for(int x = 0; x < xSize; x++){
-            for(int y = 0; y < ySize; y++){
-                for(int z = 0; z < zSize; z++){
-                    BlockPos pos = startPos.offset(x, y, z);
-                    BlockState state = states[x][y][z];
-                    if(states[x][y][z] == null)
-                        continue;
-                    BlockState newState = level.getBlockState(pos);
-                    state.onRemove(level, pos, newState, false);
-                    level.markAndNotifyBlock(pos, level.getChunkAt(pos), states[x][y][z], newState, 1 | 2, 512);
+        if(level instanceof ServerLevel){
+            for(int x = 0; x < xSize; x++){
+                for(int y = 0; y < ySize; y++){
+                    for(int z = 0; z < zSize; z++){
+                        BlockPos pos = startPos.offset(x, y, z);
+                        BlockState state = states[x][y][z];
+                        if(states[x][y][z] == null)
+                            continue;
+                        BlockState newState = level.getBlockState(pos);
+                        state.affectNeighborsAfterRemoval((ServerLevel)level, pos, false);
+                        newState.onPlace(level, pos, state, false);
+                        level.markAndNotifyBlock(pos, level.getChunkAt(pos), states[x][y][z], newState, 1 | 2, 512);
+                    }
                 }
             }
         }
@@ -194,18 +178,7 @@ public class ElevatorCage {
                         oldStates[x][y][z] = currentState;
                         if(!level.isEmptyBlock(pos))
                             level.destroyBlock(pos, true);
-                        // Suppress any block updates
-                        LevelChunk chunk = level.getChunkAt(pos);
-                        //noinspection ConstantValue
-                        if(chunk != null){
-                            ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(true);
-                            try{
-                                level.setBlock(pos, state, Block.UPDATE_NONE | Block.UPDATE_KNOWN_SHAPE);
-                            }finally{
-                                ((MovingElevatorsLevelChunk)chunk).movingElevatorsSuppressBlockUpdates(false);
-                            }
-                        }else
-                            level.setBlock(pos, state, Block.UPDATE_NONE | Block.UPDATE_KNOWN_SHAPE);
+                        level.setBlock(pos, state, Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
                         if(this.blockEntityData[x][y][z] != null){
                             BlockEntity entity = BlockEntity.loadStatic(pos, state, this.blockEntityData[x][y][z], level.registryAccess());
                             if(entity != null)
@@ -325,10 +298,10 @@ public class ElevatorCage {
     }
 
     public static ElevatorCage read(CompoundTag compound, boolean isClientSide){
-        int xSize = compound.getInt("xSize");
-        int ySize = compound.getInt("ySize");
-        int zSize = compound.getInt("zSize");
-        int[] stateIds = compound.getIntArray("blockStates");
+        int xSize = compound.getIntOr("xSize", 0);
+        int ySize = compound.getIntOr("ySize", 0);
+        int zSize = compound.getIntOr("zSize", 0);
+        int[] stateIds = compound.getIntArray("blockStates").orElseGet(() -> new int[0]);
         BlockState[][][] blockStates = new BlockState[xSize][ySize][zSize];
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
@@ -341,17 +314,15 @@ public class ElevatorCage {
         }
         CompoundTag[][][] entityTags = new CompoundTag[xSize][ySize][zSize];
         CompoundTag[][][] stackTags = new CompoundTag[xSize][ySize][zSize];
-        if(compound.contains("entityData", Tag.TAG_LIST)){
-            ListTag entityData = compound.getList("entityData", Tag.TAG_COMPOUND);
-            for(Tag tag : entityData){
-                int x = ((CompoundTag)tag).getInt("x");
-                int y = ((CompoundTag)tag).getInt("y");
-                int z = ((CompoundTag)tag).getInt("z");
-                entityTags[x][y][z] = ((CompoundTag)tag).getCompound("data");
-                stackTags[x][y][z] = ((CompoundTag)tag).getCompound("stack");
-            }
+        ListTag entityData = compound.getListOrEmpty("entityData");
+        for(Tag tag : entityData){
+            int x = ((CompoundTag)tag).getIntOr("x", 0);
+            int y = ((CompoundTag)tag).getIntOr("y", 0);
+            int z = ((CompoundTag)tag).getIntOr("z", 0);
+            entityTags[x][y][z] = ((CompoundTag)tag).getCompoundOrEmpty("data");
+            stackTags[x][y][z] = ((CompoundTag)tag).getCompoundOrEmpty("stack");
         }
-        ListTag collisionBoxList = compound.getList("collisionBoxes", 10);
+        ListTag collisionBoxList = compound.getListOrEmpty("collisionBoxes");
         List<AABB> collisionBoxes = collisionBoxList.stream()
             .map(CompoundTag.class::cast)
             .map(ElevatorCage::readBox)
@@ -374,12 +345,12 @@ public class ElevatorCage {
 
     private static AABB readBox(CompoundTag compound){
         return new AABB(
-            compound.getDouble("x1"),
-            compound.getDouble("y1"),
-            compound.getDouble("z1"),
-            compound.getDouble("x2"),
-            compound.getDouble("y2"),
-            compound.getDouble("z2")
+            compound.getDoubleOr("x1", 0),
+            compound.getDoubleOr("y1", 0),
+            compound.getDoubleOr("z1", 0),
+            compound.getDoubleOr("x2", 1),
+            compound.getDoubleOr("y2", 1),
+            compound.getDoubleOr("z2", 1)
         );
     }
 }

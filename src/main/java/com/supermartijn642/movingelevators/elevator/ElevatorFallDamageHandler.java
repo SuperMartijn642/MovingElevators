@@ -22,7 +22,8 @@ public class ElevatorFallDamageHandler {
     public static boolean shouldCancelFallDamage(LivingEntity entity){
         CompoundTag compound = entity.getPersistentData();
         if(compound.contains("elevatorTime")){
-            if(entity.tickCount - compound.getLong("elevatorTime") < 20 * 5)
+            //noinspection OptionalGetWithoutIsPresent
+            if(entity.tickCount - compound.getLong("elevatorTime").get() < 20 * 5)
                 return true;
             else
                 compound.remove("elevatorTime");

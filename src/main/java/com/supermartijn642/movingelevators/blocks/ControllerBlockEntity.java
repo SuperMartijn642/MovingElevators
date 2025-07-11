@@ -6,7 +6,6 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -46,7 +45,6 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     @Override
     protected CompoundTag writeData(){
         CompoundTag compound = super.writeData();
-        compound.putBoolean("hasName", this.name != null);
         if(this.name != null)
             compound.putString("name", this.name);
         compound.putInt("color", this.color.getId());
@@ -59,13 +57,14 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     @Override
     protected void readData(CompoundTag compound){
         super.readData(compound);
-        this.name = compound.getBoolean("hasName") ? compound.getString("name") : null;
-        this.color = DyeColor.byId(compound.getInt("color"));
-        this.showButtons = !compound.contains("showButtons", Tag.TAG_BYTE) || compound.getBoolean("showButtons");
-        this.facing = compound.contains("facing", Tag.TAG_INT) ? Direction.from2DDataValue(compound.getInt("facing")) : null;
+        this.name = compound.getStringOr("name", null);
+        this.color = compound.getInt("color").map(DyeColor::byId).orElse(DyeColor.GRAY);
+        this.showButtons = compound.getBooleanOr("showButtons", true);
+        this.facing = compound.getInt("facing").map(Direction::from2DDataValue).orElse(null);
     }
 
-    public void onRemove(){
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state){
         if(!this.level.isClientSide)
             ElevatorGroupCapability.get(this.level).remove(this);
     }
