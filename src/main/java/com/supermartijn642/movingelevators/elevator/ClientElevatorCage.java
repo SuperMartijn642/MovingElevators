@@ -2,14 +2,17 @@ package com.supermartijn642.movingelevators.elevator;
 
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.registry.Registries;
+import com.supermartijn642.movingelevators.MovingElevators;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -58,7 +61,9 @@ public class ClientElevatorCage extends ElevatorCage {
                         BlockPos pos = new BlockPos(renderPos.getX() + x, renderPos.getY() + y, renderPos.getZ() + z);
                         BlockEntity entity = entityType.create(pos, state);
                         if(entity != null){
-                            entity.loadWithComponents(entityData, group.level.registryAccess());
+                            try(ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(entity.problemPath(), MovingElevators.LOGGER)){
+                                entity.loadWithComponents(TagValueInput.create(scopedCollector, group.level.registryAccess(), entityData));
+                            }
                             entity.setLevel(level);
                             this.blockEntities[x][y][z] = entity;
                         }

@@ -1,6 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
-import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import com.supermartijn642.core.util.Holder;
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  */
 public class CheckBoxWidget extends AbstractButtonWidget {
 
-    private static final ResourceLocation CHECKMARK_BOX_TEXTURE = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/checkmark_box.png");
+    public static final ResourceLocation CHECKMARK_BOX_TEXTURE = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/checkmark_box");
 
     private final Function<Boolean,Component> hoverText;
     private final Supplier<Boolean> isChecked;
@@ -42,7 +42,7 @@ public class CheckBoxWidget extends AbstractButtonWidget {
     }
 
     @Override
-    public void render(WidgetRenderContext context, int mouseX, int mouseY){
-        ScreenUtils.drawTexture(CHECKMARK_BOX_TEXTURE, context.poseStack(), this.x, this.y, this.width + 1, this.height, this.isChecked.get() ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f);
+    public void render(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
+        graphics.submitSprite(CHECKMARK_BOX_TEXTURE, this.x, this.y, this.width + 1, this.height, p -> p.uv(this.isChecked.get() ? 0 : 1 / 2f, this.active ? this.isFocused() ? 1 / 3f : 0 : 2 / 3f, 1 / 2f, 1 / 3f));
     }
 }

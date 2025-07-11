@@ -6,10 +6,11 @@ import com.supermartijn642.core.render.RenderUtils;
 import com.supermartijn642.core.render.RenderWorldEvent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
@@ -17,9 +18,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.common.NeoForge;
 
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created 11/8/2020 by SuperMartijn642
@@ -55,25 +60,19 @@ public class ElevatorGroupRenderer {
         e.getPoseStack().popPose();
     }
 
-    public static void renderBlocks(PoseStack poseStack, RenderType renderType, MultiBufferSource bufferSource){
+    public static void renderBlocks(PoseStack poseStack, ChunkSectionLayerGroup layers, MultiBufferSource bufferSource){
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         poseStack.pushPose();
         Vec3 camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
-        boolean rendered = false;
+        Set<ChunkSectionLayer> layersSet = EnumSet.noneOf(ChunkSectionLayer.class);
+        layersSet.addAll(Arrays.asList(layers.layers()));
         for(ElevatorGroup group : groups.getGroups()){
-            if(group.isMoving() && isWithinRenderDistance(group)){
-                renderGroupBlocks(poseStack, group, renderType, bufferSource, ClientUtils.getPartialTicks());
-                rendered = true;
-            }
+            if(group.isMoving() && isWithinRenderDistance(group))
+                renderGroupBlocks(poseStack, group, layersSet, bufferSource, ClientUtils.getPartialTicks());
         }
         poseStack.popPose();
-
-        if(rendered
-            && renderType != RenderType.translucent()
-            && bufferSource instanceof MultiBufferSource.BufferSource) // Make sure blocks get rendered before the model view matrix gets updated
-            ((MultiBufferSource.BufferSource)bufferSource).endBatch(renderType);
     }
 
     public static void renderBlockEntities(PoseStack poseStack, float partialTicks, MultiBufferSource bufferSource){
@@ -89,7 +88,7 @@ public class ElevatorGroupRenderer {
         poseStack.popPose();
     }
 
-    public static void renderGroupBlocks(PoseStack poseStack, ElevatorGroup group, RenderType renderType, MultiBufferSource bufferSource, float partialTicks){
+    public static void renderGroupBlocks(PoseStack poseStack, ElevatorGroup group, Set<ChunkSectionLayer> layers, MultiBufferSource bufferSource, float partialTicks){
         ClientElevatorCage cage = (ClientElevatorCage)group.getCage();
         double lastY = group.getLastY(), currentY = group.getCurrentY();
         double renderY = lastY + (currentY - lastY) * partialTicks;
@@ -114,7 +113,7 @@ public class ElevatorGroupRenderer {
                         BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
                         pos.set(anchorPos.getX() + x, anchorPos.getY() + y, anchorPos.getZ() + z);
                         List<BlockModelPart> parts = model.collectParts(level, pos, state, level.random);
-                        blockRenderer.renderBatched(state, pos, level, poseStack, bufferSource::getBuffer, true, parts);
+                        blockRenderer.renderBatched(state, pos, level, poseStack, layer -> bufferSource.getBuffer(RenderTypeHelper.getMovingBlockRenderType(layer)), true, parts);
                     }
                     poseStack.popPose();
                 }

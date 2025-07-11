@@ -6,9 +6,10 @@ import com.supermartijn642.movingelevators.elevator.ElevatorCabinLevel;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -65,16 +66,15 @@ public abstract class ElevatorInputBlockEntity extends CamoBlockEntity implement
     }
 
     @Override
-    protected CompoundTag writeData(){
-        CompoundTag compound = super.writeData();
-        compound.putBoolean("redstone", this.lastRedstone);
-        return compound;
+    protected void writeData(ValueOutput output){
+        super.writeData(output);
+        output.putBoolean("redstone", this.lastRedstone);
     }
 
     @Override
-    protected void readData(CompoundTag compound){
-        super.readData(compound);
-        this.redstone = compound.getBooleanOr("redstone", false);
+    protected void readData(ValueInput input){
+        super.readData(input);
+        this.redstone = input.getBooleanOr("redstone", false);
         this.lastRedstone = this.redstone;
     }
 }

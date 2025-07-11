@@ -2,7 +2,7 @@ package com.supermartijn642.movingelevators.gui;
 
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.TextComponents;
-import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.BlockEntityBaseWidget;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.movingelevators.MovingElevators;
@@ -24,8 +24,8 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
 
     public static final int MAX_NAME_LENGTH = 11;
 
-    private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/gui_background.png");
-    private static final ResourceLocation SIZE_ICONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/size_icons2.png");
+    public static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/gui_background");
+    public static final ResourceLocation SIZE_ICONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/size_icons2");
 
     public ElevatorScreen(BlockPos entityPos){
         super(0, 0, 280, 118, ClientUtils.getWorld(), entityPos);
@@ -76,48 +76,48 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
     }
 
     @Override
-    protected void renderBackground(WidgetRenderContext context, int mouseX, int mouseY, ControllerBlockEntity object){
+    protected void renderBackground(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY, ControllerBlockEntity object){
         // Background
-        ScreenUtils.drawTexture(BACKGROUND, context.poseStack(), 0, 0, this.width(), this.height());
+        graphics.submitSprite(BACKGROUND, 0, 0, this.width(), this.height());
 
-        super.renderBackground(context, mouseX, mouseY, object);
+        super.renderBackground(context, graphics, mouseX, mouseY, object);
     }
 
+    @SuppressWarnings("Convert2MethodRef")
     @Override
-    protected void render(WidgetRenderContext context, int mouseX, int mouseY, ControllerBlockEntity blockEntity){
+    protected void render(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY, ControllerBlockEntity blockEntity){
         // Size icons
-        ScreenUtils.drawTexture(SIZE_ICONS, context.poseStack(), 190, 31, 11, 11, 0, 0, 1, 1 / 3f);
-        ScreenUtils.drawTexture(SIZE_ICONS, context.poseStack(), 190, 47, 11, 11, 0, 1 / 3f, 1, 1 / 3f);
-        ScreenUtils.drawTexture(SIZE_ICONS, context.poseStack(), 190, 63, 11, 11, 0, 2 / 3f, 1, 1 / 3f);
-
+        graphics.submitSprite(SIZE_ICONS, 190, 31, 11, 11, p -> p.uv(0, 0, 1, 1 / 3f));
+        graphics.submitSprite(SIZE_ICONS, 190, 47, 11, 11, p -> p.uv(0, 1 / 3f, 1, 1 / 3f));
+        graphics.submitSprite(SIZE_ICONS, 190, 63, 11, 11, p -> p.uv(0, 2 / 3f, 1, 1 / 3f));
         // Size values
-        ScreenUtils.drawCenteredString(context.poseStack(), TextComponents.number(blockEntity.getGroup().getCageWidth()).get(), 224, 34);
-        ScreenUtils.drawCenteredString(context.poseStack(), TextComponents.number(blockEntity.getGroup().getCageSideOffset()).get(), 261, 34);
-        ScreenUtils.drawCenteredString(context.poseStack(), TextComponents.number(blockEntity.getGroup().getCageDepth()).get(), 224, 50);
-        ScreenUtils.drawCenteredString(context.poseStack(), TextComponents.number(blockEntity.getGroup().getCageDepthOffset()).get(), 261, 50);
-        ScreenUtils.drawCenteredString(context.poseStack(), TextComponents.number(blockEntity.getGroup().getCageHeight()).get(), 224, 66);
-        ScreenUtils.drawCenteredString(context.poseStack(), TextComponents.number(blockEntity.getGroup().getCageHeightOffset()).get(), 261, 66);
+        graphics.submitText(TextComponents.number(blockEntity.getGroup().getCageWidth()).get(), 224, 34, p -> p.centerHorizontally());
+        graphics.submitText(TextComponents.number(blockEntity.getGroup().getCageSideOffset()).get(), 261, 34, p -> p.centerHorizontally());
+        graphics.submitText(TextComponents.number(blockEntity.getGroup().getCageDepth()).get(), 224, 50, p -> p.centerHorizontally());
+        graphics.submitText(TextComponents.number(blockEntity.getGroup().getCageDepthOffset()).get(), 261, 50, p -> p.centerHorizontally());
+        graphics.submitText(TextComponents.number(blockEntity.getGroup().getCageHeight()).get(), 224, 66, p -> p.centerHorizontally());
+        graphics.submitText(TextComponents.number(blockEntity.getGroup().getCageHeightOffset()).get(), 261, 66, p -> p.centerHorizontally());
 
         // Text
-        ScreenUtils.drawCenteredString(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.current_floor").get(), 47, 3, ScreenUtils.ACTIVE_TEXT_COLOR);
-        ScreenUtils.drawCenteredString(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.elevator").get(), 232, 3, ScreenUtils.ACTIVE_TEXT_COLOR);
-        ScreenUtils.drawString(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.floor_name").get(), 6, 18);
-        ScreenUtils.drawString(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.show_buttons").get(), 6, 47);
-        ScreenUtils.drawString(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.cabin_size").get(), 190, 18);
-        ScreenUtils.drawString(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.elevator_speed").get(), 190, 79);
+        graphics.submitText(TextComponents.translation("movingelevators.elevator_screen.current_floor").get(), 47, 3, p -> p.activeColor().centerHorizontally());
+        graphics.submitText(TextComponents.translation("movingelevators.elevator_screen.elevator").get(), 232, 3, p -> p.activeColor().centerHorizontally());
+        graphics.submitText(TextComponents.translation("movingelevators.elevator_screen.floor_name").get(), 6, 18);
+        graphics.submitText(TextComponents.translation("movingelevators.elevator_screen.show_buttons").get(), 6, 47);
+        graphics.submitText(TextComponents.translation("movingelevators.elevator_screen.cabin_size").get(), 190, 18);
+        graphics.submitText(TextComponents.translation("movingelevators.elevator_screen.elevator_speed").get(), 190, 79);
 
-        super.render(context, mouseX, mouseY, blockEntity);
+        super.render(context, graphics, mouseX, mouseY, blockEntity);
     }
 
     @Override
-    protected void renderTooltips(WidgetRenderContext context, int mouseX, int mouseY, @NotNull ControllerBlockEntity blockEntity){
+    protected void renderTooltips(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY, @NotNull ControllerBlockEntity blockEntity){
         if(mouseX >= 190 && mouseX <= 190 + 11 && mouseY >= 31 && mouseY <= 31 + 11)
-            ScreenUtils.drawTooltip(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.cabin_width").get(), mouseX, mouseY);
+            graphics.submitTooltipForTopStratum(c -> c.text(TextComponents.translation("movingelevators.elevator_screen.cabin_width").get()), mouseX, mouseY);
         else if(mouseX >= 190 && mouseX <= 190 + 11 && mouseY >= 47 && mouseY <= 47 + 11)
-            ScreenUtils.drawTooltip(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.cabin_depth").get(), mouseX, mouseY);
+            graphics.submitTooltipForTopStratum(c -> c.text(TextComponents.translation("movingelevators.elevator_screen.cabin_depth").get()), mouseX, mouseY);
         else if(mouseX >= 190 && mouseX <= 190 + 11 && mouseY >= 63 && mouseY <= 63 + 11)
-            ScreenUtils.drawTooltip(context.poseStack(), TextComponents.translation("movingelevators.elevator_screen.cabin_height").get(), mouseX, mouseY);
+            graphics.submitTooltipForTopStratum(c -> c.text(TextComponents.translation("movingelevators.elevator_screen.cabin_height").get()), mouseX, mouseY);
 
-        super.renderTooltips(context, mouseX, mouseY, blockEntity);
+        super.renderTooltips(context, graphics, mouseX, mouseY, blockEntity);
     }
 }

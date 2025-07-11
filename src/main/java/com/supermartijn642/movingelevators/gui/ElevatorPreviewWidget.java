@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
+import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.movingelevators.blocks.ControllerBlockEntity;
@@ -42,11 +43,11 @@ public class ElevatorPreviewWidget extends BaseWidget {
     }
 
     @Override
-    public void render(WidgetRenderContext context, int mouseX, int mouseY){
+    public void render(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
         // Update the rotation
         if(this.dragging){
-            this.yaw += (mouseX - this.mouseStartX) / 100d * 360;
-            this.pitch += (mouseY - this.mouseStartY) / 100d * 360;
+            this.yaw += (float)((mouseX - this.mouseStartX) / 100d * 360);
+            this.pitch += (float)((mouseY - this.mouseStartY) / 100d * 360);
             this.mouseStartX = mouseX;
             this.mouseStartY = mouseY;
         }
@@ -72,7 +73,7 @@ public class ElevatorPreviewWidget extends BaseWidget {
         AABB cabinBox = new AABB(anchorPos.getX(), anchorPos.getY(), anchorPos.getZ(), anchorPos.getX() + group.getCageSizeX(), anchorPos.getY() + group.getCageSizeY(), anchorPos.getZ() + group.getCageSizeZ()).inflate(0.1);
         BlockPos previewSizeIncrease = this.previewSizeIncrease.get();
         BlockPos previewOffset = this.previewOffset.get();
-        AABB previewBox = null;
+        AABB previewBox;
         if(!previewSizeIncrease.equals(BlockPos.ZERO) || !previewOffset.equals(BlockPos.ZERO)){
             int cabinWidth = group.getCageWidth() + previewSizeIncrease.getX(), cabinDepth = group.getCageDepth() + previewSizeIncrease.getZ(), cabinHeight = group.getCageHeight() + previewSizeIncrease.getY();
             int sideOffset = group.getCageSideOffset() + previewOffset.getX(), depthOffset = group.getCageDepthOffset() + previewOffset.getZ(), heightOffset = group.getCageHeightOffset() + previewOffset.getY();
@@ -98,10 +99,15 @@ public class ElevatorPreviewWidget extends BaseWidget {
             }
             anchorY += heightOffset;
             previewBox = new AABB(anchorX, anchorY, anchorZ, anchorX + (group.facing.getAxis() == Direction.Axis.X ? cabinDepth : cabinWidth), anchorY + cabinHeight, anchorZ + (group.facing.getAxis() == Direction.Axis.Z ? cabinDepth : cabinWidth)).inflate(0.1);
-        }
+        }else
+            previewBox = null;
 
         // Render the preview
-        ElevatorPreviewRenderer.renderPreview(capture, cabinBox, previewBox, this.x + this.width / 2f, this.y + this.height / 2f, Math.min(this.width, this.height), this.yaw + group.facing.toYRot(), this.pitch, false);
+        graphics.nextStratum();
+        graphics.submitCustomRendering(
+            this.x, this.y, this.width, this.height,
+            poseStack -> ElevatorPreviewRenderer.renderPreview(poseStack, capture, cabinBox, previewBox, this.width / 2f, this.height / 2f, Math.min(this.width, this.height), this.yaw + group.facing.toYRot(), this.pitch)
+        );
     }
 
     @Override
