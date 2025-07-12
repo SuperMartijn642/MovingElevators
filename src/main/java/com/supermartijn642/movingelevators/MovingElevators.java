@@ -20,6 +20,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.slf4j.Logger;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -31,6 +33,7 @@ import java.util.function.Supplier;
 public class MovingElevators {
 
     public static final Set<String> CAMOUFLAGE_MOD_BLACKLIST = Sets.newHashSet("movingelevators");
+    public static final Logger LOGGER = CommonUtils.getLogger("movingelevators");
     public static final PacketChannel CHANNEL = PacketChannel.create("movingelevators");
 
     @RegistryEntryAcceptor(namespace = "movingelevators", identifier = "elevator_block", registry = RegistryEntryAcceptor.Registry.BLOCKS)
@@ -50,7 +53,7 @@ public class MovingElevators {
 
     public static final CreativeItemGroup GROUP = CreativeItemGroup.create("movingelevators", () -> elevator_block.asItem());
 
-    public MovingElevators(){
+    public MovingElevators(FMLJavaModLoadingContext context){
         CHANNEL.registerMessage(PacketAddElevatorGroup.class, PacketAddElevatorGroup::new, true);
         CHANNEL.registerMessage(PacketDecreaseCabinDepth.class, PacketDecreaseCabinDepth::new, true);
         CHANNEL.registerMessage(PacketDecreaseCabinDepthOffset.class, PacketDecreaseCabinDepthOffset::new, true);
@@ -78,7 +81,7 @@ public class MovingElevators {
 
         register();
         if(CommonUtils.getEnvironmentSide().isClient())
-            MovingElevatorsClient.register();
+            MovingElevatorsClient.register(context);
         registerGenerators();
     }
 
@@ -106,6 +109,7 @@ public class MovingElevators {
     private static void registerGenerators(){
         GeneratorRegistrationHandler handler = GeneratorRegistrationHandler.get("movingelevators");
         handler.addGenerator(MovingElevatorsModelGenerator::new);
+        handler.addGenerator(MovingElevatorsAtlasSourceGenerator::new);
         handler.addGenerator(MovingElevatorsBlockStateGenerator::new);
         handler.addGenerator(MovingElevatorsItemInfoGenerator::new);
         handler.addGenerator(MovingElevatorsLanguageGenerator::new);

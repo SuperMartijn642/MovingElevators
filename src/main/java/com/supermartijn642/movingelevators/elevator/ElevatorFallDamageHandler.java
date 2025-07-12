@@ -4,19 +4,18 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /**
  * Created 4/30/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber
 public class ElevatorFallDamageHandler {
 
     @SubscribeEvent
-    public static void onFallDamage(LivingFallEvent e){
-        if(shouldCancelFallDamage(e.getEntity()))
-            e.setCanceled(true);
+    public static boolean onFallDamage(LivingFallEvent e){
+        return shouldCancelFallDamage(e.getEntity());
     }
 
     public static boolean shouldCancelFallDamage(LivingEntity entity){

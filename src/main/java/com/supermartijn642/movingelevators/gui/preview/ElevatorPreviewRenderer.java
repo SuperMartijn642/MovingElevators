@@ -1,15 +1,13 @@
 package com.supermartijn642.movingelevators.gui.preview;
 
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ARGB;
@@ -19,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.RenderTypeHelper;
 import net.minecraftforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 
@@ -29,39 +28,25 @@ public class ElevatorPreviewRenderer {
 
     private static final RandomSource RANDOM = RandomSource.create();
 
-    public static void renderPreview(WorldBlockCapture capture, AABB cabinBox, AABB previewBox, double x, double y, double scale, float yaw, float pitch, boolean doShading){
+    public static void renderPreview(PoseStack poseStack, WorldBlockCapture capture, AABB cabinBox, AABB previewBox, double x, double y, double scale, float yaw, float pitch){
         AABB bounds = capture.getBounds();
         Vec3 center = bounds.getCenter();
         double span = Math.sqrt(bounds.getXsize() * bounds.getXsize() + bounds.getYsize() * bounds.getYsize() + bounds.getZsize() * bounds.getZsize());
         scale /= span;
 
-        RenderUtils.getMainBufferSource().endLastBatch();
-        RenderSystem.getModelViewStack().pushMatrix();
-        RenderSystem.getModelViewStack().scale(1, -1, 1);
-
-        PoseStack poseStack = new PoseStack();
-        poseStack.translate(x, -y, 350);
-        poseStack.scale((float)scale, (float)scale, (float)scale);
+        poseStack.translate(x, y, 0);
+        poseStack.scale((float)scale, (float)-scale, (float)-scale);
         poseStack.mulPose(new Quaternionf().setAngleAxis(pitch / 180 * Math.PI, 1, 0, 0));
         poseStack.mulPose(new Quaternionf().setAngleAxis(yaw / 180 * Math.PI, 0, 1, 0));
         poseStack.translate(-center.x, -center.y, -center.z);
 
-        if(doShading)
-            Lighting.setupFor3DItems();
-
         MultiBufferSource.BufferSource renderTypeBuffer = RenderUtils.getMainBufferSource();
         for(BlockPos pos : capture.getBlockLocations())
             renderBlock(capture, pos, poseStack, renderTypeBuffer);
-        renderTypeBuffer.endBatch();
-
-        if(doShading)
-            Lighting.setupForFlatItems();
 
         RenderUtils.renderBox(poseStack, cabinBox, 1, 1, 1, 0.8f, true);
         if(previewBox != null)
             RenderUtils.renderBox(poseStack, previewBox, 0, 0.7f, 0, 0.8f, true);
-
-        RenderSystem.getModelViewStack().popMatrix();
     }
 
     private static void renderBlock(WorldBlockCapture capture, BlockPos pos, PoseStack poseStack, MultiBufferSource renderTypeBuffer){
@@ -77,9 +62,9 @@ public class ElevatorPreviewRenderer {
             model.getModelData(capture.getLevel(), pos, state, modelData);
             RANDOM.setSeed(42);
             int tint = ClientUtils.getMinecraft().getBlockColors().getColor(state, capture.getLevel(), pos, 0);
-            for(RenderType renderType : model.getRenderTypes(state, RANDOM, modelData)){
+            for(ChunkSectionLayer layer : model.getRenderTypes(state, RANDOM, modelData)){
                 RANDOM.setSeed(42);
-                ModelBlockRenderer.renderModel(poseStack.last(), renderTypeBuffer.getBuffer(renderType), model, ARGB.redFloat(tint), ARGB.greenFloat(tint), ARGB.blueFloat(tint), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, modelData, renderType);
+                ModelBlockRenderer.renderModel(poseStack.last(), renderTypeBuffer.getBuffer(RenderTypeHelper.getEntityRenderType(layer)), model, ARGB.redFloat(tint), ARGB.greenFloat(tint), ARGB.blueFloat(tint), LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, modelData, layer);
             }
         }
 

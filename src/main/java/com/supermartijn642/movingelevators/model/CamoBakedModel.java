@@ -1,9 +1,9 @@
 package com.supermartijn642.movingelevators.model;
 
 import com.supermartijn642.core.ClientUtils;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
@@ -11,12 +11,12 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -33,7 +33,7 @@ public class CamoBakedModel implements BlockStateModel {
     }
 
     @Override
-    public void collectParts(RandomSource random, List<BlockModelPart> parts, ModelData modelData, @Nullable RenderType renderType){
+    public void collectParts(RandomSource random, List<BlockModelPart> parts, ModelData modelData, @Nullable ChunkSectionLayer renderType){
         BlockState camouflage = modelData.get(CAMO_PROPERTY);
 
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR){
@@ -57,7 +57,7 @@ public class CamoBakedModel implements BlockStateModel {
     }
 
     @Override
-    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data){
+    public Collection<ChunkSectionLayer> getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data){
         BlockState camouflage = data.get(CAMO_PROPERTY);
         if(camouflage == null || camouflage.getBlock() == Blocks.AIR)
             return this.originalModel.getRenderTypes(state, rand, data);

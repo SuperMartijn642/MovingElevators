@@ -19,7 +19,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -33,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Created 11/7/2020 by SuperMartijn642
@@ -49,17 +47,17 @@ public class ElevatorGroupCapability {
     }
 
     public static void registerEventListeners(){
-        MinecraftForge.EVENT_BUS.addListener((Consumer<TickEvent.LevelTickEvent.Post>)event -> {
+        TickEvent.LevelTickEvent.Post.BUS.addListener(event -> {
             if(!event.level.isClientSide)
                 tickWorldCapability(event.level);
         });
-        MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerChangedDimensionEvent>)event -> onJoinWorld(event.getEntity(), event.getEntity().level()));
-        MinecraftForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerLoggedInEvent>)event -> onJoin(event.getEntity()));
-        MinecraftForge.EVENT_BUS.addGenericListener(Level.class, ElevatorGroupCapability::attachCapabilities);
-        MinecraftForge.EVENT_BUS.addListener((Consumer<ChunkEvent.Load>)event -> onLoadChunk(event.getChunk(), event.getLevel()));
+        PlayerEvent.PlayerChangedDimensionEvent.BUS.addListener(event -> onJoinWorld(event.getEntity(), event.getEntity().level()));
+        PlayerEvent.PlayerLoggedInEvent.BUS.addListener(event -> onJoin(event.getEntity()));
+        AttachCapabilitiesEvent.Levels.BUS.addListener(ElevatorGroupCapability::attachCapabilities);
+        ChunkEvent.Load.BUS.addListener(event -> onLoadChunk(event.getChunk(), event.getLevel()));
     }
 
-    public static void attachCapabilities(AttachCapabilitiesEvent<Level> e){
+    public static void attachCapabilities(AttachCapabilitiesEvent.Levels e){
         Level level = e.getObject();
 
         LazyOptional<ElevatorGroupCapability> capability = LazyOptional.of(() -> new ElevatorGroupCapability(level));

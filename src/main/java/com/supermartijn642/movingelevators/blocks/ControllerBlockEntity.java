@@ -5,9 +5,10 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Created 3/29/2020 by SuperMartijn642
@@ -43,24 +44,23 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
     }
 
     @Override
-    protected CompoundTag writeData(){
-        CompoundTag compound = super.writeData();
+    protected void writeData(ValueOutput output){
+        super.writeData(output);
         if(this.name != null)
-            compound.putString("name", this.name);
-        compound.putInt("color", this.color.getId());
-        compound.putBoolean("showButtons", this.showButtons);
+            output.putString("name", this.name);
+        output.putInt("color", this.color.getId());
+        output.putBoolean("showButtons", this.showButtons);
         if(this.facing != null)
-            compound.putInt("facing", this.facing.get2DDataValue());
-        return compound;
+            output.putInt("facing", this.facing.get2DDataValue());
     }
 
     @Override
-    protected void readData(CompoundTag compound){
-        super.readData(compound);
-        this.name = compound.getStringOr("name", null);
-        this.color = compound.getInt("color").map(DyeColor::byId).orElse(DyeColor.GRAY);
-        this.showButtons = compound.getBooleanOr("showButtons", true);
-        this.facing = compound.getInt("facing").map(Direction::from2DDataValue).orElse(null);
+    protected void readData(ValueInput input){
+        super.readData(input);
+        this.name = input.getStringOr("name", null);
+        this.color = input.getInt("color").map(DyeColor::byId).orElse(DyeColor.GRAY);
+        this.showButtons = input.getBooleanOr("showButtons", true);
+        this.facing = input.getInt("facing").map(Direction::from2DDataValue).orElse(null);
     }
 
     @Override

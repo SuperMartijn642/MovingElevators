@@ -6,10 +6,11 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -80,24 +81,23 @@ public class RemoteControllerBlockEntity extends ElevatorInputBlockEntity {
     }
 
     @Override
-    protected CompoundTag writeData(){
-        CompoundTag compound = super.writeData();
-        compound.putInt("facing", this.facing.get3DDataValue());
-        compound.putInt("controllerX", this.controllerPos.getX());
-        compound.putInt("controllerY", this.controllerPos.getY());
-        compound.putInt("controllerZ", this.controllerPos.getZ());
+    protected void writeData(ValueOutput output){
+        super.writeData(output);
+        output.putInt("facing", this.facing.get3DDataValue());
+        output.putInt("controllerX", this.controllerPos.getX());
+        output.putInt("controllerY", this.controllerPos.getY());
+        output.putInt("controllerZ", this.controllerPos.getZ());
         if(this.controllerFacing != null)
-            compound.putInt("controllerFacing", this.controllerFacing.get2DDataValue());
+            output.putInt("controllerFacing", this.controllerFacing.get2DDataValue());
         this.groupCheckCounter = 2;
-        return compound;
     }
 
     @Override
-    protected void readData(CompoundTag compound){
-        super.readData(compound);
-        this.facing = compound.getInt("facing").map(Direction::from3DDataValue).orElse(Direction.NORTH);
-        this.controllerPos = new BlockPos(compound.getIntOr("controllerX", 0), compound.getIntOr("controllerY", 0), compound.getIntOr("controllerZ", 0));
-        this.controllerFacing = compound.getInt("controllerFacing").map(Direction::from2DDataValue).orElse(null);
+    protected void readData(ValueInput input){
+        super.readData(input);
+        this.facing = input.getInt("facing").map(Direction::from3DDataValue).orElse(Direction.NORTH);
+        this.controllerPos = new BlockPos(input.getIntOr("controllerX", 0), input.getIntOr("controllerY", 0), input.getIntOr("controllerZ", 0));
+        this.controllerFacing = input.getInt("controllerFacing").map(Direction::from2DDataValue).orElse(null);
         this.isInCabin = false;
     }
 

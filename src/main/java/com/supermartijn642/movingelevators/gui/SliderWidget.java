@@ -1,6 +1,6 @@
 package com.supermartijn642.movingelevators.gui;
 
-import com.supermartijn642.core.gui.ScreenUtils;
+import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import net.minecraft.network.chat.Component;
@@ -14,7 +14,7 @@ import java.util.function.Function;
  */
 public class SliderWidget extends BaseWidget {
 
-    private static final ResourceLocation SLIDER_TEXTURE = ResourceLocation.fromNamespaceAndPath("movingelevators", "textures/gui/slider.png");
+    public static final ResourceLocation SLIDER_TEXTURE = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/slider");
 
     private final int min, max, range;
     private int value, lastValue;
@@ -45,21 +45,21 @@ public class SliderWidget extends BaseWidget {
     }
 
     @Override
-    public void render(WidgetRenderContext context, int mouseX, int mouseY){
+    public void render(WidgetRenderContext context, GuiGraphicsHelper graphics, int mouseX, int mouseY){
         if(this.dragging)
             this.value = Math.min(this.max, Math.max(this.min, Math.round((float)(mouseX - this.x) / this.width * this.range) + this.min));
 
         // Background
-        ScreenUtils.drawTexture(SLIDER_TEXTURE, context.poseStack(), this.x, this.y, 1, this.height, 0, 0, 1 / 18f, 1);
-        ScreenUtils.drawTexture(SLIDER_TEXTURE, context.poseStack(), this.x + 1, this.y, this.width - 2, this.height, 1 / 18f, 0, 1 / 18f, 1);
-        ScreenUtils.drawTexture(SLIDER_TEXTURE, context.poseStack(), this.x + this.width - 1, this.y, 1, this.height, 2 / 18f, 0, 1 / 18f, 1);
+        graphics.submitSprite(SLIDER_TEXTURE, this.x, this.y, 1, this.height, p -> p.uv(0, 0, 1 / 18f, 1));
+        graphics.submitSprite(SLIDER_TEXTURE, this.x + 1, this.y, this.width - 2, this.height, p -> p.uv(1 / 18f, 0, 1 / 18f, 1));
+        graphics.submitSprite(SLIDER_TEXTURE, this.x + this.width - 1, this.y, 1, this.height, p -> p.uv(2 / 18f, 0, 1 / 18f, 1));
         // Slider
         float percentage = (float)(this.value - this.min) / this.range;
-        ScreenUtils.drawTexture(SLIDER_TEXTURE, context.poseStack(), this.x + percentage * (this.width - 5), this.y, 5, this.height, this.active ? this.isFocused() || this.dragging ? 8 / 18f : 3 / 18f : 13 / 18f, 0, 5 / 18f, 1);
+        graphics.submitSprite(SLIDER_TEXTURE, this.x + percentage * (this.width - 5), this.y, 5, this.height, p -> p.uv(this.active ? this.isFocused() || this.dragging ? 8 / 18f : 3 / 18f : 13 / 18f, 0, 5 / 18f, 1));
         // Text
         Component text = this.text.apply(this.value);
         if(text != null)
-            ScreenUtils.drawCenteredStringWithShadow(context.poseStack(), text, this.x + this.width / 2f, this.y + 2, ScreenUtils.ACTIVE_TEXT_COLOR);
+            graphics.submitText(text, this.x + this.width / 2f, this.y + 2, p -> p.activeColor().shadow().centerHorizontally());
     }
 
     @Override

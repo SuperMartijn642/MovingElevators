@@ -20,19 +20,23 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.IModBusEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /**
  * Created 3/28/2020 by SuperMartijn642
  */
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "movingelevators")
 public class MovingElevatorsClient {
 
     public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays");
     public static TextureAtlasSprite OVERLAY_SPRITE;
 
-    public static void register(){
+    public static void register(FMLJavaModLoadingContext context){
+        RegisterColorHandlersEvent.Block.getBus(context.getModBusGroup()).addListener(MovingElevatorsClient::setup);
+        IModBusEvent.getBus(context.getModBusGroup(), TextureStitchEvent.Post.class).addListener(MovingElevatorsClient::onTextureStitchPost);
         ElevatorGroupRenderer.registerEventListeners();
 
         ClientRegistrationHandler handler = ClientRegistrationHandler.get("movingelevators");
@@ -48,7 +52,6 @@ public class MovingElevatorsClient {
         handler.registerBlockModelOverwrite(() -> MovingElevators.button_block, CamoBakedModel::new);
     }
 
-    @SubscribeEvent
     public static void setup(RegisterColorHandlersEvent.Block e){
         e.register(
             (state, blockAndTintGetter, pos, p_92570_) -> {
@@ -61,7 +64,6 @@ public class MovingElevatorsClient {
         );
     }
 
-    @SubscribeEvent
     public static void onTextureStitchPost(TextureStitchEvent.Post e){
         if(e.getAtlas().location().equals(TextureAtlases.getBlocks()))
             OVERLAY_SPRITE = e.getAtlas().getSprite(OVERLAY_TEXTURE_LOCATION);
@@ -75,13 +77,9 @@ public class MovingElevatorsClient {
         return name == null ? TextComponents.translation("movingelevators.floor_name", TextComponents.number(floor).get()).format() : name;
     }
 
-    @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
-    public static class ForgeEventListeners {
-
-        @SubscribeEvent
-        public static void onClientTick(TickEvent.ClientTickEvent.Post e){
-            if(!ClientUtils.getMinecraft().isPaused() && ClientUtils.getWorld() != null)
-                ElevatorGroupCapability.tickWorldCapability(ClientUtils.getWorld());
-        }
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent.Post e){
+        if(!ClientUtils.getMinecraft().isPaused() && ClientUtils.getWorld() != null)
+            ElevatorGroupCapability.tickWorldCapability(ClientUtils.getWorld());
     }
 }
