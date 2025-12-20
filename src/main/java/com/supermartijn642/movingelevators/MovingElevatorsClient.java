@@ -14,6 +14,7 @@ import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,7 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  */
 public class MovingElevatorsClient implements ClientModInitializer {
 
-    public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays");
+    public static final Material OVERLAY_TEXTURE_LOCATION = new Material(TextureAtlases.getBlocks(), ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays"));
 
     @Override
     public void onInitializeClient(){
@@ -35,7 +36,7 @@ public class MovingElevatorsClient implements ClientModInitializer {
         handler.registerCustomBlockEntityRenderer(() -> MovingElevators.display_tile, DisplayBlockEntityRenderer::new);
         handler.registerCustomBlockEntityRenderer(() -> MovingElevators.button_tile, ElevatorInputBlockEntityRenderer::new);
         // Register texture
-        handler.registerAtlasSprite(TextureAtlases.getBlocks(), OVERLAY_TEXTURE_LOCATION.getPath());
+        handler.registerAtlasSprite(TextureAtlases.getBlocks(), OVERLAY_TEXTURE_LOCATION.texture().getPath());
         // Baked models
         handler.registerBlockModelOverwrite(() -> MovingElevators.elevator_block, CamoBakedModel::new);
         handler.registerBlockModelOverwrite(() -> MovingElevators.display_block, CamoBakedModel::new);
@@ -57,7 +58,7 @@ public class MovingElevatorsClient implements ClientModInitializer {
     }
 
     public static TextureAtlasSprite getOverlaySprite(){
-        return ClientUtils.getMinecraft().getTextureAtlas(TextureAtlases.getBlocks()).apply(OVERLAY_TEXTURE_LOCATION);
+        return ClientUtils.getMinecraft().getAtlasManager().get(OVERLAY_TEXTURE_LOCATION);
     }
 
     public static void openElevatorScreen(BlockPos pos){

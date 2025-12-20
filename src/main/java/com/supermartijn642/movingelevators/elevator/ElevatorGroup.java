@@ -60,7 +60,7 @@ public class ElevatorGroup {
     }
 
     public void update(){
-        if(!this.level.isClientSide && this.shouldBeSynced){
+        if(!this.level.isClientSide() && this.shouldBeSynced){
             this.shouldBeSynced = false;
             this.updateGroup();
         }
@@ -103,7 +103,7 @@ public class ElevatorGroup {
 
         this.moveElevator(this.lastY, this.currentY);
 
-        if(!this.level.isClientSide){
+        if(!this.level.isClientSide()){
             this.level.updateNeighbourForOutputSignal(this.getPos(this.targetY), MovingElevators.elevator_block);
             for(BlockPos pos : this.comparatorListeners.getOrDefault(this.targetY, Collections.emptySet()))
                 if(this.level.isLoaded(pos))
@@ -130,7 +130,7 @@ public class ElevatorGroup {
         this.lastY = this.currentY;
         this.speed = 0;
 
-        if(!this.level.isClientSide){
+        if(!this.level.isClientSide()){
             this.level.updateNeighbourForOutputSignal(this.getPos(currentY), MovingElevators.elevator_block);
             for(BlockPos pos : this.comparatorListeners.getOrDefault(currentY, Collections.emptySet()))
                 if(this.level.isLoaded(pos))
@@ -588,7 +588,7 @@ public class ElevatorGroup {
             this.targetY = compound.getIntOr("targetY", 0);
             this.lastY = compound.getDoubleOr("lastY", 0);
             this.currentY = compound.getDoubleOr("currentY", 0);
-            this.cage = ElevatorCage.read(compound.getCompoundOrEmpty("cage"), this.level.isClientSide);
+            this.cage = ElevatorCage.read(compound.getCompoundOrEmpty("cage"), this.level.isClientSide());
         }
         this.targetSpeed = compound.getDoubleOr("targetSpeed", 0.2);
         this.speed = compound.getDoubleOr("speed", 0);
@@ -655,7 +655,7 @@ public class ElevatorGroup {
     }
 
     private void syncMovement(){
-        if(!this.level.isClientSide)
+        if(!this.level.isClientSide())
             MovingElevators.CHANNEL.sendToDimension(this.level.dimension(), new PacketSyncElevatorMovement(this.x, this.z, this.facing, this.currentY, this.speed));
     }
 

@@ -114,7 +114,7 @@ public class ElevatorCage {
 
         shape.optimize();
 
-        return level.isClientSide ?
+        return level.isClientSide() ?
             new ClientElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs()) :
             new ElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs());
     }
@@ -228,12 +228,12 @@ public class ElevatorCage {
                     markAndNotify(level, pos, level.getChunkAt(pos), previousState, state, flags, 512);
 
                     // Special case for buttons and pressure plates to prevent them getting stuck
-                    if(!level.isClientSide
+                    if(!level.isClientSide()
                         && state.getBlock() instanceof ButtonBlock
                         && state.hasProperty(ButtonBlock.POWERED)
                         && state.getValue(ButtonBlock.POWERED))
                         state.tick((ServerLevel)level, pos, level.random);
-                    if(!level.isClientSide
+                    if(!level.isClientSide()
                         && state.getBlock() instanceof PressurePlateBlock
                         && state.hasProperty(PressurePlateBlock.POWERED)
                         && state.getValue(PressurePlateBlock.POWERED))
@@ -377,12 +377,12 @@ public class ElevatorCage {
             if(oldState != currentState)
                 level.setBlocksDirty(pos, oldState, currentState);
 
-            if((flags & 2) != 0 && (!level.isClientSide || (flags & 4) == 0) && (level.isClientSide || levelChunk.getFullStatus() != null && levelChunk.getFullStatus().isOrAfter(FullChunkStatus.BLOCK_TICKING)))
+            if((flags & 2) != 0 && (!level.isClientSide() || (flags & 4) == 0) && (level.isClientSide() || levelChunk.getFullStatus() != null && levelChunk.getFullStatus().isOrAfter(FullChunkStatus.BLOCK_TICKING)))
                 level.sendBlockUpdated(pos, oldState, newState, flags);
 
             if((flags & 1) != 0){
                 level.updateNeighborsAt(pos, oldState.getBlock());
-                if(!level.isClientSide && newState.hasAnalogOutputSignal())
+                if(!level.isClientSide() && newState.hasAnalogOutputSignal())
                     level.updateNeighbourForOutputSignal(pos, newState.getBlock());
             }
 

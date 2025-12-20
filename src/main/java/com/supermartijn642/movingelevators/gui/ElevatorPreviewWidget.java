@@ -7,6 +7,7 @@ import com.supermartijn642.movingelevators.blocks.ControllerBlockEntity;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.gui.preview.ElevatorPreviewRenderer;
 import com.supermartijn642.movingelevators.gui.preview.WorldBlockCapture;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -22,6 +23,7 @@ public class ElevatorPreviewWidget extends BaseWidget {
     private final Supplier<ControllerBlockEntity> elevatorEntity;
     private final Supplier<BlockPos> previewSizeIncrease;
     private final Supplier<BlockPos> previewOffset;
+    private final WorldBlockCapture.RenderState captureRenderState = new WorldBlockCapture.RenderState();
 
     private float yaw = 20, pitch = 30;
     private boolean dragging = false;
@@ -58,7 +60,6 @@ public class ElevatorPreviewWidget extends BaseWidget {
         BlockPos anchorPos = group.getCageAnchorBlockPos(elevatorEntity.getBlockPos().getY());
 
         WorldBlockCapture capture = new WorldBlockCapture(group.level);
-
         capture.putBlock(elevatorEntity.getBlockPos(), elevatorEntity.getBlockPos());
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
@@ -68,6 +69,7 @@ public class ElevatorPreviewWidget extends BaseWidget {
                 }
             }
         }
+        capture.updateRenderState(this.captureRenderState);
 
         // Get the bounding boxes
         AABB cabinBox = new AABB(anchorPos.getX(), anchorPos.getY(), anchorPos.getZ(), anchorPos.getX() + group.getCageSizeX(), anchorPos.getY() + group.getCageSizeY(), anchorPos.getZ() + group.getCageSizeZ()).inflate(0.1);
@@ -106,27 +108,27 @@ public class ElevatorPreviewWidget extends BaseWidget {
         graphics.nextStratum();
         graphics.submitCustomRendering(
             this.x, this.y, this.width, this.height,
-            poseStack -> ElevatorPreviewRenderer.renderPreview(poseStack, capture, cabinBox, previewBox, this.width / 2f, this.height / 2f, Math.min(this.width, this.height), this.yaw + group.facing.toYRot(), this.pitch)
+            (poseStack, bufferSource) -> ElevatorPreviewRenderer.renderPreview(poseStack, bufferSource, this.captureRenderState, cabinBox, previewBox, this.width / 2f, this.height / 2f, Math.min(this.width, this.height), this.yaw + group.facing.toYRot(), this.pitch)
         );
     }
 
     @Override
-    public boolean mousePressed(int mouseX, int mouseY, int button, boolean hasBeenHandled){
+    public boolean mousePressed(int mouseX, int mouseY, MouseButtonInfo info, boolean isDoubleClick, boolean hasBeenHandled){
         if(!hasBeenHandled && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height){
             this.dragging = true;
             this.mouseStartX = mouseX;
             this.mouseStartY = mouseY;
             return true;
         }
-        return super.mousePressed(mouseX, mouseY, button, hasBeenHandled);
+        return super.mousePressed(mouseX, mouseY, info, isDoubleClick, hasBeenHandled);
     }
 
     @Override
-    public boolean mouseReleased(int mouseX, int mouseY, int button, boolean hasBeenHandled){
+    public boolean mouseReleased(int mouseX, int mouseY, MouseButtonInfo info, boolean hasBeenHandled){
         if(this.dragging){
             this.dragging = false;
             return true;
         }
-        return super.mouseReleased(mouseX, mouseY, button, hasBeenHandled);
+        return super.mouseReleased(mouseX, mouseY, info, hasBeenHandled);
     }
 }
