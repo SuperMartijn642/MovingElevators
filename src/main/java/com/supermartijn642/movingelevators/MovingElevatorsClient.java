@@ -13,6 +13,7 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -21,7 +22,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 
 /**
  * Created 3/28/2020 by SuperMartijn642
@@ -29,8 +29,7 @@ import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 @EventBusSubscriber(value = Dist.CLIENT)
 public class MovingElevatorsClient {
 
-    public static final ResourceLocation OVERLAY_TEXTURE_LOCATION = ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays");
-    public static TextureAtlasSprite OVERLAY_SPRITE;
+    public static final Material OVERLAY_TEXTURE_LOCATION = new Material(TextureAtlases.getBlocks(), ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays"));
 
     public static void register(){
         ElevatorGroupRenderer.registerEventListeners();
@@ -41,7 +40,7 @@ public class MovingElevatorsClient {
         handler.registerCustomBlockEntityRenderer(() -> MovingElevators.display_tile, DisplayBlockEntityRenderer::new);
         handler.registerCustomBlockEntityRenderer(() -> MovingElevators.button_tile, ElevatorInputBlockEntityRenderer::new);
         // Register texture
-        handler.registerAtlasSprite(TextureAtlases.getBlocks(), OVERLAY_TEXTURE_LOCATION.getPath());
+        handler.registerAtlasSprite(TextureAtlases.getBlocks(), OVERLAY_TEXTURE_LOCATION.texture().getPath());
         // Baked models
         handler.registerBlockModelOverwrite(() -> MovingElevators.elevator_block, CamoBakedModel::new);
         handler.registerBlockModelOverwrite(() -> MovingElevators.display_block, CamoBakedModel::new);
@@ -61,10 +60,8 @@ public class MovingElevatorsClient {
         );
     }
 
-    @SubscribeEvent
-    public static void onTextureStitchPost(TextureAtlasStitchedEvent e){
-        if(e.getAtlas().location().equals(TextureAtlases.getBlocks()))
-            OVERLAY_SPRITE = e.getAtlas().getSprite(OVERLAY_TEXTURE_LOCATION);
+    public static TextureAtlasSprite getOverlaySprite(){
+        return ClientUtils.getMinecraft().getAtlasManager().get(OVERLAY_TEXTURE_LOCATION);
     }
 
     public static void openElevatorScreen(BlockPos pos){

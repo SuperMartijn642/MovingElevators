@@ -40,7 +40,7 @@ public class ElevatorGroupCapability {
 
     public static void registerEventListeners(){
         NeoForge.EVENT_BUS.addListener((Consumer<LevelTickEvent.Post>)event -> {
-            if(!event.getLevel().isClientSide)
+            if(!event.getLevel().isClientSide())
                 tickWorldCapability(event.getLevel());
         });
         NeoForge.EVENT_BUS.addListener((Consumer<PlayerEvent.PlayerChangedDimensionEvent>)event -> onJoinWorld(event.getEntity(), event.getEntity().level()));
@@ -98,7 +98,7 @@ public class ElevatorGroupCapability {
     }
 
     public void updateGroup(ElevatorGroup group){
-        if(!this.level.isClientSide && group != null)
+        if(!this.level.isClientSide() && group != null)
             MovingElevators.CHANNEL.sendToDimension(this.level.dimension(), new PacketAddElevatorGroup(this.writeGroup(group)));
     }
 
@@ -106,7 +106,7 @@ public class ElevatorGroupCapability {
         ElevatorGroup group = this.groups.remove(pos);
         if(group != null){
             this.groupsPerChunk.remove(pos.chunkPos(), group);
-            if(!this.level.isClientSide)
+            if(!this.level.isClientSide())
                 MovingElevators.CHANNEL.sendToDimension(this.level.dimension(), new PacketRemoveElevatorGroup(group));
         }
     }
@@ -115,7 +115,7 @@ public class ElevatorGroupCapability {
      * This should only be called client-side from the {@link PacketRemoveElevatorGroup}
      */
     public void removeGroup(int x, int z, Direction facing){
-        if(this.level.isClientSide)
+        if(this.level.isClientSide())
             this.removeGroup(new ElevatorGroupPosition(x, z, facing));
     }
 

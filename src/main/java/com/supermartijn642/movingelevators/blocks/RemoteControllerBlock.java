@@ -52,7 +52,7 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
             return true;
 
         if(blockEntity instanceof RemoteControllerBlockEntity){
-            if(level.isClientSide){
+            if(level.isClientSide()){
                 BlockPos controllerPos = ((RemoteControllerBlockEntity)blockEntity).getControllerPos();
                 Component x = TextComponents.number(controllerPos.getX()).color(ChatFormatting.GOLD).get();
                 Component y = TextComponents.number(controllerPos.getY()).color(ChatFormatting.GOLD).get();
@@ -99,7 +99,7 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos){
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction side){
         BlockEntity entity = level.getBlockEntity(pos);
         if(entity instanceof RemoteControllerBlockEntity){
             entity = ((RemoteControllerBlockEntity)entity).getController();
