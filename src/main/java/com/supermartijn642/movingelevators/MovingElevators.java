@@ -81,7 +81,7 @@ public class MovingElevators {
 
         register();
         if(CommonUtils.getEnvironmentSide().isClient())
-            MovingElevatorsClient.register(context);
+            MovingElevatorsClient.register();
         registerGenerators();
     }
 

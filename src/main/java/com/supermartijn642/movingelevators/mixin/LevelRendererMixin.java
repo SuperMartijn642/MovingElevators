@@ -3,9 +3,13 @@ package com.supermartijn642.movingelevators.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.state.LevelRenderState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,20 +32,24 @@ public class LevelRendererMixin {
     private RenderBuffers renderBuffers;
 
     @Inject(
-        method = "lambda$addMainPass$2",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/LevelRenderer;renderBlockEntities(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/culling/Frustum;)Z",
-            shift = At.Shift.BEFORE
-        ),
+        method = "extractVisibleBlockEntities(Lnet/minecraft/client/Camera;FLnet/minecraft/client/renderer/state/LevelRenderState;Lnet/minecraft/client/renderer/culling/Frustum;)V",
+        at = @At("HEAD"),
         remap = false
     )
-    private void renderLevelBlockEntities(CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, ClientUtils.getPartialTicks(), this.renderBuffers.bufferSource());
+    private void extractVisibleBlockEntities(Camera camera, float f, LevelRenderState levelRenderState, Frustum frustum, CallbackInfo ci){
+        ElevatorGroupRenderer.extractRenderState();
     }
 
     @Inject(
-        method = "lambda$addMainPass$2",
+        method = "submitBlockEntities",
+        at = @At("HEAD")
+    )
+    private void submitBlockEntities(PoseStack poseStack, LevelRenderState levelRenderState, SubmitNodeStorage submitNodeStorage, CallbackInfo ci){
+        ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, ClientUtils.getPartialTicks(), levelRenderState.cameraRenderState, submitNodeStorage);
+    }
+
+    @Inject(
+        method = "lambda$addMainPass$1",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;)V",
@@ -54,7 +62,7 @@ public class LevelRendererMixin {
     }
 
     @Inject(
-        method = "lambda$addMainPass$2",
+        method = "lambda$addMainPass$1",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;)V",
@@ -67,7 +75,7 @@ public class LevelRendererMixin {
     }
 
     @Inject(
-        method = "lambda$addMainPass$2",
+        method = "lambda$addMainPass$1",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;)V",

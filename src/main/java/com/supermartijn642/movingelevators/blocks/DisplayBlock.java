@@ -37,7 +37,7 @@ public class DisplayBlock extends CamoBlock {
         if(blockEntity instanceof DisplayBlockEntity){
             DisplayBlockEntity displayEntity = (DisplayBlockEntity)blockEntity;
             if(displayEntity.getFacing() == hitSide){
-                if(!level.isClientSide){
+                if(!level.isClientSide()){
                     int displayCat = displayEntity.getDisplayCategory();
 
                     Vec3 hitVec = hitLocation.subtract(pos.getX(), pos.getY(), pos.getZ());

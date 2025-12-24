@@ -29,14 +29,14 @@ public class RemoteControllerBlockItem extends BaseBlockItem {
     public ItemUseResult interact(ItemStack stack, Player player, InteractionHand hand, Level level){
         if(player.isShiftKeyDown()){
             if(stack.has(RemoteControllerBlock.TARGET)){
-                if(!level.isClientSide){
+                if(!level.isClientSide()){
                     stack.remove(RemoteControllerBlock.TARGET);
                     player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.clear").get(), true);
                 }
                 return ItemUseResult.success(stack);
             }
         }else{
-            if(!level.isClientSide){
+            if(!level.isClientSide()){
                 RemoteControllerBlock.Target target = stack.get(RemoteControllerBlock.TARGET);
                 if(target != null){
                     Component x = TextComponents.number(target.pos().getX()).color(ChatFormatting.GOLD).get();
@@ -56,12 +56,12 @@ public class RemoteControllerBlockItem extends BaseBlockItem {
     public InteractionFeedback interactWithBlock(ItemStack stack, Player player, InteractionHand hand, Level level, BlockPos hitPos, Direction hitSide, Vec3 hitLocation){
         RemoteControllerBlock.Target target = stack.get(RemoteControllerBlock.TARGET);
         if(target == null){
-            if(player != null && !level.isClientSide)
+            if(player != null && !level.isClientSide())
                 player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.not_bound").color(ChatFormatting.RED).get(), true);
             return InteractionFeedback.CONSUME;
         }
         if(!target.dimension().equals(level.dimension().location())){
-            if(player != null && !level.isClientSide)
+            if(player != null && !level.isClientSide())
                 player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.wrong_dimension").color(ChatFormatting.RED).get(), true);
             return InteractionFeedback.CONSUME;
         }

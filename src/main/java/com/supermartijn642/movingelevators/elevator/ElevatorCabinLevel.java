@@ -3,10 +3,12 @@ package com.supermartijn642.movingelevators.elevator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ExplosionParticleInfo;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.AbortableIterationConsumer;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.TickRateManager;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
@@ -30,6 +33,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
@@ -92,6 +96,15 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
+    public void setRespawnData(LevelData.RespawnData respawnData){
+    }
+
+    @Override
+    public LevelData.RespawnData getRespawnData(){
+        return this.level.getRespawnData();
+    }
+
+    @Override
     public void playSeededSound(@Nullable Entity entity, double x, double y, double z, Holder<SoundEvent> sound, SoundSource source, float pitch, float volume, long l){
 
     }
@@ -106,7 +119,7 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public void explode(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionDamageCalculator explosionDamageCalculator, double d, double e, double f, float g, boolean bl, ExplosionInteraction explosionInteraction, ParticleOptions particleOptions, ParticleOptions particleOptions2, Holder<SoundEvent> holder){
+    public void explode(@Nullable Entity entity, @Nullable DamageSource damageSource, @Nullable ExplosionDamageCalculator explosionDamageCalculator, double d, double e, double f, float g, boolean bl, ExplosionInteraction explosionInteraction, ParticleOptions particleOptions, ParticleOptions particleOptions2, WeightedList<ExplosionParticleInfo> weightedList, Holder<SoundEvent> holder){
     }
 
     @Override
@@ -303,5 +316,10 @@ public class ElevatorCabinLevel extends Level {
     @Override
     public float getTimeOfDay(float f){
         return this.level.getTimeOfDay(f);
+    }
+
+    @Override
+    public WorldBorder getWorldBorder(){
+        return this.level.getWorldBorder();
     }
 }

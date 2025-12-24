@@ -112,7 +112,7 @@ public class ElevatorCage {
 
         shape.optimize();
 
-        return level.isClientSide ?
+        return level.isClientSide() ?
             new ClientElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs()) :
             new ElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs());
     }
@@ -226,12 +226,12 @@ public class ElevatorCage {
                     level.markAndNotifyBlock(pos, level.getChunkAt(pos), previousState, state, flags, 512);
 
                     // Special case for buttons and pressure plates to prevent them getting stuck
-                    if(!level.isClientSide
+                    if(!level.isClientSide()
                         && state.getBlock() instanceof ButtonBlock
                         && state.hasProperty(ButtonBlock.POWERED)
                         && state.getValue(ButtonBlock.POWERED))
                         state.tick((ServerLevel)level, pos, level.random);
-                    if(!level.isClientSide
+                    if(!level.isClientSide()
                         && state.getBlock() instanceof PressurePlateBlock
                         && state.hasProperty(PressurePlateBlock.POWERED)
                         && state.getValue(PressurePlateBlock.POWERED))

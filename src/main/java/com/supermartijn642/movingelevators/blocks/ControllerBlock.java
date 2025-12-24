@@ -37,7 +37,7 @@ public class ControllerBlock extends ElevatorInputBlock {
     @Override
     protected boolean onRightClick(BlockState state, Level level, CamoBlockEntity blockEntity, BlockPos pos, Player player, InteractionHand hand, Direction hitSide, Vec3 hitLocation){
         if(player != null && player.getItemInHand(hand).getItem() instanceof RemoteControllerBlockItem && blockEntity instanceof ControllerBlockEntity){
-            if(!level.isClientSide){
+            if(!level.isClientSide()){
                 ItemStack stack = player.getItemInHand(hand);
                 stack.set(RemoteControllerBlock.TARGET, new RemoteControllerBlock.Target(
                     level.dimension().location(),
@@ -53,7 +53,7 @@ public class ControllerBlock extends ElevatorInputBlock {
             return true;
 
         if(state.getValue(FACING) != hitSide){
-            if(level.isClientSide)
+            if(level.isClientSide())
                 MovingElevatorsClient.openElevatorScreen(pos);
             return true;
         }
@@ -78,7 +78,7 @@ public class ControllerBlock extends ElevatorInputBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos){
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction side){
         BlockEntity entity = level.getBlockEntity(pos);
         if(entity instanceof ControllerBlockEntity
             && ((ControllerBlockEntity)entity).hasGroup()

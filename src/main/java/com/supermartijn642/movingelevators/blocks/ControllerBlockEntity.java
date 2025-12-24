@@ -65,7 +65,7 @@ public class ControllerBlockEntity extends ElevatorInputBlockEntity {
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state){
-        if(!this.level.isClientSide)
+        if(!this.level.isClientSide())
             ElevatorGroupCapability.get(this.level).remove(this);
     }
 

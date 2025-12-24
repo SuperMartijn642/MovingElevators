@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators.gui;
 import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.BaseWidget;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -72,21 +73,21 @@ public class SliderWidget extends BaseWidget {
     }
 
     @Override
-    public boolean mousePressed(int mouseX, int mouseY, int button, boolean hasBeenHandled){
+    public boolean mousePressed(int mouseX, int mouseY, MouseButtonInfo info, boolean isDoubleClick, boolean hasBeenHandled){
         if(!hasBeenHandled && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height){
             this.dragging = true;
             return true;
         }
-        return super.mousePressed(mouseX, mouseY, button, hasBeenHandled);
+        return super.mousePressed(mouseX, mouseY, info, isDoubleClick, hasBeenHandled);
     }
 
     @Override
-    public boolean mouseReleased(int mouseX, int mouseY, int button, boolean hasBeenHandled){
+    public boolean mouseReleased(int mouseX, int mouseY, MouseButtonInfo info, boolean hasBeenHandled){
         if(this.dragging){
             this.dragging = false;
             return true;
         }
-        return super.mouseReleased(mouseX, mouseY, button, hasBeenHandled);
+        return super.mouseReleased(mouseX, mouseY, info, hasBeenHandled);
     }
 
     @Override
