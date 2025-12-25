@@ -91,8 +91,8 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         Vec3 cameraPos = context.cameraPos();
         for(int i = 0; i < total; i++){
             int floor = startIndex + i;
-            state.floorColors[floor] = group.getFloorDisplayColor(floor);
-            state.floorNames[floor] = cameraPos.distanceToSqr(buttonPos) < TEXT_RENDER_DISTANCE ? // text rendering is VERY slow, so only draw it within a certain distance
+            state.floorColors[i] = group.getFloorDisplayColor(floor);
+            state.floorNames[i] = cameraPos.distanceToSqr(buttonPos) < TEXT_RENDER_DISTANCE ? // text rendering is VERY slow, so only draw it within a certain distance
                 MovingElevatorsClient.formatFloorDisplayName(group.getFloorDisplayName(floor), floor) : null;
             buttonPos = buttonPos.add(0, DisplayBlock.BUTTON_HEIGHT, 0);
         }
