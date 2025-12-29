@@ -15,7 +15,7 @@ import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -29,7 +29,7 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 @EventBusSubscriber(value = Dist.CLIENT)
 public class MovingElevatorsClient {
 
-    public static final Material OVERLAY_TEXTURE_LOCATION = new Material(TextureAtlases.getBlocks(), ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays"));
+    public static final Material OVERLAY_TEXTURE_LOCATION = new Material(TextureAtlases.getBlocks(), Identifier.fromNamespaceAndPath("movingelevators", "blocks/block_overlays"));
 
     public static void register(){
         ElevatorGroupRenderer.registerEventListeners();

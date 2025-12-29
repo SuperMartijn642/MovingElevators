@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.TickRateManager;
+import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -193,6 +194,11 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
+    public EnvironmentAttributeSystem environmentAttributes(){
+        return this.level.environmentAttributes();
+    }
+
+    @Override
     public PotionBrewing potionBrewing(){
         return null;
     }
@@ -312,11 +318,6 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public long dayTime(){
-        return this.level.dayTime();
-    }
-
-    @Override
     public long getDayTime(){
         return this.level.getDayTime();
     }
@@ -329,11 +330,6 @@ public class ElevatorCabinLevel extends Level {
     @Override
     public long getGameTime(){
         return this.level.getGameTime();
-    }
-
-    @Override
-    public float getTimeOfDay(float f){
-        return this.level.getTimeOfDay(f);
     }
 
     @Override

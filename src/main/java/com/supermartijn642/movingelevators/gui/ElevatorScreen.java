@@ -12,7 +12,7 @@ import com.supermartijn642.movingelevators.packets.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
@@ -24,8 +24,8 @@ public class ElevatorScreen extends BlockEntityBaseWidget<ControllerBlockEntity>
 
     public static final int MAX_NAME_LENGTH = 11;
 
-    public static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/gui_background");
-    public static final ResourceLocation SIZE_ICONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/size_icons2");
+    public static final Identifier BACKGROUND = Identifier.fromNamespaceAndPath("movingelevators", "gui/gui_background");
+    public static final Identifier SIZE_ICONS = Identifier.fromNamespaceAndPath("movingelevators", "gui/size_icons2");
 
     public ElevatorScreen(BlockPos entityPos){
         super(0, 0, 280, 118, ClientUtils.getWorld(), entityPos);

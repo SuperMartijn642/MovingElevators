@@ -10,8 +10,8 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -31,12 +31,12 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
 
     public static final DataComponentType<Target> TARGET = DataComponentType.<Target>builder()
         .persistent(RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("dimension").forGetter(Target::dimension),
+            Identifier.CODEC.fieldOf("dimension").forGetter(Target::dimension),
             BlockPos.CODEC.fieldOf("pos").forGetter(Target::pos),
             Direction.CODEC.fieldOf("facing").forGetter(Target::facing)
         ).apply(instance, Target::new)))
         .networkSynchronized(StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC, Target::dimension,
+            Identifier.STREAM_CODEC, Target::dimension,
             BlockPos.STREAM_CODEC, Target::pos,
             Direction.STREAM_CODEC, Target::facing,
             Target::new
@@ -112,6 +112,6 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
         return 0;
     }
 
-    public record Target(ResourceLocation dimension, BlockPos pos, Direction facing) {
+    public record Target(Identifier dimension, BlockPos pos, Direction facing) {
     }
 }

@@ -60,7 +60,7 @@ public class RemoteControllerBlockItem extends BaseBlockItem {
                 player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.not_bound").color(ChatFormatting.RED).get(), true);
             return InteractionFeedback.CONSUME;
         }
-        if(!target.dimension().equals(level.dimension().location())){
+        if(!target.dimension().equals(level.dimension().identifier())){
             if(player != null && !level.isClientSide())
                 player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.wrong_dimension").color(ChatFormatting.RED).get(), true);
             return InteractionFeedback.CONSUME;
