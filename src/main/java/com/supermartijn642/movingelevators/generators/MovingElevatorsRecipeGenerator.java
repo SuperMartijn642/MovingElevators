@@ -32,7 +32,7 @@ public class MovingElevatorsRecipeGenerator extends RecipeGenerator {
             .pattern("ABA")
             .input('A', Tags.Items.INGOTS_IRON)
             .input('B', Tags.Items.DUSTS_REDSTONE)
-            .input('C', Tags.Items.GLASS)
+            .input('C', Tags.Items.GLASS_BLOCKS)
             .unlockedBy(MovingElevators.elevator_block);
         this.shaped(MovingElevators.button_block)
             .pattern("ABA")

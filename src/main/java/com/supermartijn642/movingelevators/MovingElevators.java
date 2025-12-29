@@ -15,7 +15,7 @@ import com.supermartijn642.movingelevators.blocks.*;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import com.supermartijn642.movingelevators.generators.*;
 import com.supermartijn642.movingelevators.packets.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
@@ -103,7 +103,7 @@ public class MovingElevators {
         // Data components
         handler.registerDataComponentType("button_block_target", RemoteControllerBlock.TARGET);
         // Sounds
-        handler.registerSoundEvent("arrive_sound", () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath("movingelevators", "arrive_sound")));
+        handler.registerSoundEvent("arrive_sound", () -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath("movingelevators", "arrive_sound")));
     }
 
     private static void registerGenerators(){

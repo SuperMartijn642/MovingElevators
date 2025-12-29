@@ -5,7 +5,7 @@ import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import com.supermartijn642.core.util.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  */
 public class CheckBoxWidget extends AbstractButtonWidget {
 
-    public static final ResourceLocation CHECKMARK_BOX_TEXTURE = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/checkmark_box");
+    public static final Identifier CHECKMARK_BOX_TEXTURE = Identifier.fromNamespaceAndPath("movingelevators", "gui/checkmark_box");
 
     private final Function<Boolean,Component> hoverText;
     private final Supplier<Boolean> isChecked;

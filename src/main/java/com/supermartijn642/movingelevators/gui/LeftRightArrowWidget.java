@@ -4,7 +4,7 @@ import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  */
 public class LeftRightArrowWidget extends AbstractButtonWidget {
 
-    public static final ResourceLocation ARROW_BUTTONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/arrow_buttons");
+    public static final Identifier ARROW_BUTTONS = Identifier.fromNamespaceAndPath("movingelevators", "gui/arrow_buttons");
 
     private final boolean isLeft;
     private final Component hoverText;

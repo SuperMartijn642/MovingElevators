@@ -40,7 +40,7 @@ public class ControllerBlock extends ElevatorInputBlock {
             if(!level.isClientSide()){
                 ItemStack stack = player.getItemInHand(hand);
                 stack.set(RemoteControllerBlock.TARGET, new RemoteControllerBlock.Target(
-                    level.dimension().location(),
+                    level.dimension().identifier(),
                     pos,
                     ((ControllerBlockEntity)blockEntity).getFacing()
                 ));

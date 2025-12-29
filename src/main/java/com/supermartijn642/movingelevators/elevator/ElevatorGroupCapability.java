@@ -13,7 +13,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -61,7 +61,7 @@ public class ElevatorGroupCapability {
         Level level = e.getObject();
 
         LazyOptional<ElevatorGroupCapability> capability = LazyOptional.of(() -> new ElevatorGroupCapability(level));
-        e.addCapability(ResourceLocation.fromNamespaceAndPath("movingelevators", "elevator_groups"), new ICapabilitySerializable<Tag>() {
+        e.addCapability(Identifier.fromNamespaceAndPath("movingelevators", "elevator_groups"), new ICapabilitySerializable<Tag>() {
             @Nonnull
             @Override
             public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side){
