@@ -137,7 +137,7 @@ public class ElevatorGroupRenderer {
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving() && isWithinRenderDistance(group)){
                 if(buffer == null)
-                    buffer = bufferSource.getBuffer(layers == ChunkSectionLayerGroup.TRANSLUCENT ? Sheets.translucentItemSheet() : RenderType.cutout());
+                    buffer = bufferSource.getBuffer(layers == ChunkSectionLayerGroup.TRANSLUCENT ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockSheet());
                 renderGroupBlocks(poseStack, group, layersSet, buffer, ClientUtils.getPartialTicks());
             }
         }

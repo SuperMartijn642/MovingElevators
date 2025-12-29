@@ -4,7 +4,7 @@ import com.supermartijn642.core.gui.GuiGraphicsHelper;
 import com.supermartijn642.core.gui.widget.WidgetRenderContext;
 import com.supermartijn642.core.gui.widget.premade.AbstractButtonWidget;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  */
 public class PlusMinusButtonWidget extends AbstractButtonWidget {
 
-    public static final ResourceLocation PLUS_MINUS_BUTTONS = ResourceLocation.fromNamespaceAndPath("movingelevators", "gui/plus_minus_buttons");
+    public static final Identifier PLUS_MINUS_BUTTONS = Identifier.fromNamespaceAndPath("movingelevators", "gui/plus_minus_buttons");
 
     private final boolean isPlus;
     private final Component hoverText;

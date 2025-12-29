@@ -3,7 +3,7 @@ package com.supermartijn642.movingelevators.generators;
 import com.supermartijn642.core.generator.ModelGenerator;
 import com.supermartijn642.core.generator.ResourceCache;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Created 12/09/2022 by SuperMartijn642
@@ -16,9 +16,9 @@ public class MovingElevatorsModelGenerator extends ModelGenerator {
 
     @Override
     public void generate(){
-        this.cubeAll("block/elevator_block", ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/elevator"));
-        this.cubeAll("block/display_block", ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/display"));
-        this.cubeAll("block/button_block", ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/display"));
+        this.cubeAll("block/elevator_block", Identifier.fromNamespaceAndPath("movingelevators", "blocks/elevator"));
+        this.cubeAll("block/display_block", Identifier.fromNamespaceAndPath("movingelevators", "blocks/display"));
+        this.cubeAll("block/button_block", Identifier.fromNamespaceAndPath("movingelevators", "blocks/display"));
         this.model("item/elevator_block")
             .parent("block/elevator_block")
             .texture("overlay", "blocks/buttons")

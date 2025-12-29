@@ -16,7 +16,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
  */
 public class MovingElevatorsClient implements ClientModInitializer {
 
-    public static final Material OVERLAY_TEXTURE_LOCATION = new Material(TextureAtlases.getBlocks(), ResourceLocation.fromNamespaceAndPath("movingelevators", "blocks/block_overlays"));
+    public static final Material OVERLAY_TEXTURE_LOCATION = new Material(TextureAtlases.getBlocks(), Identifier.fromNamespaceAndPath("movingelevators", "blocks/block_overlays"));
 
     @Override
     public void onInitializeClient(){

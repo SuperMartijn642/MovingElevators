@@ -6,7 +6,7 @@ import com.supermartijn642.movingelevators.MovingElevators;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -55,7 +55,7 @@ public class ClientElevatorCage extends ElevatorCage {
                     String identifier = entityData.getStringOr("id", null);
                     if(identifier == null)
                         continue;
-                    BlockEntityType<?> entityType = Registries.BLOCK_ENTITY_TYPES.getValue(ResourceLocation.parse(identifier));
+                    BlockEntityType<?> entityType = Registries.BLOCK_ENTITY_TYPES.getValue(Identifier.parse(identifier));
                     if(entityType != null){
                         BlockState state = this.blockStates[x][y][z];
                         BlockPos pos = new BlockPos(renderPos.getX() + x, renderPos.getY() + y, renderPos.getZ() + z);
