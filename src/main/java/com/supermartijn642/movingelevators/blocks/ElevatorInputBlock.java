@@ -32,7 +32,7 @@ public class ElevatorInputBlock extends CamoBlock {
             if(inputEntity.getFacing() == hitSide && inputEntity.hasGroup()){
                 if(!level.isClientSide()){
                     double y = hitLocation.y - pos.getY();
-                    inputEntity.getGroup().onButtonPress(y > 2 / 3D, y < 1 / 3D, inputEntity.getFloorLevel());
+                    inputEntity.getGroup().onButtonPress(y > 2 / 3D, y < 1 / 3D, inputEntity.getFloorLevel(), player);
                 }
                 return true;
             }
