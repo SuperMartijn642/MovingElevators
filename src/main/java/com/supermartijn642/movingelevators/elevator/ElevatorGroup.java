@@ -1,17 +1,22 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.MovingElevatorsConfig;
 import com.supermartijn642.movingelevators.blocks.ControllerBlockEntity;
 import com.supermartijn642.movingelevators.packets.PacketSyncElevatorMovement;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -154,7 +159,7 @@ public class ElevatorGroup {
         }
     }
 
-    public void onButtonPress(boolean isUp, boolean isDown, int yLevel){
+    public void onButtonPress(boolean isUp, boolean isDown, int yLevel, Player requester){
         if(this.isMoving || !this.floors.contains(yLevel))
             return;
 
@@ -164,22 +169,22 @@ public class ElevatorGroup {
         int entityFloor = this.floors.indexOf(yLevel);
 
         if(isUp){
-            if(this.isCageAvailableAt(entityFloor, true)){
+            if(this.isCageAvailableAt(entityFloor, true, requester)){
                 for(int floor = entityFloor + 1; floor < this.floors.size(); floor++){
                     ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
                     if(entity2 != null){
-                        if(this.canCageBePlacedAt(entity2, entity))
+                        if(this.canCageBePlacedAt(entity2, entity, requester))
                             this.startElevator(yLevel, this.floors.get(floor));
                         return;
                     }
                 }
             }
         }else if(isDown){
-            if(this.isCageAvailableAt(entityFloor, true)){
+            if(this.isCageAvailableAt(entityFloor, true, requester)){
                 for(int floor = entityFloor - 1; floor >= 0; floor--){
                     ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
                     if(entity2 != null){
-                        if(this.canCageBePlacedAt(entity2, entity))
+                        if(this.canCageBePlacedAt(entity2, entity, requester))
                             this.startElevator(yLevel, this.floors.get(floor));
                         return;
                     }
@@ -190,21 +195,24 @@ public class ElevatorGroup {
             for(int floor : floorIndices){
                 if(floor == entityFloor)
                     continue;
-                if(this.isCageAvailableAt(floor, true) && this.canCageBePlacedAt(entity, this.getEntityForFloor(floor))){
-                    this.startElevator(this.getFloorYLevel(floor), yLevel);
+                if(this.isCageAvailableAt(floor, true, null)){
+                    if(this.canCageBePlacedAt(entity, this.getEntityForFloor(floor), requester))
+                        this.startElevator(this.getFloorYLevel(floor), yLevel);
                     return;
                 }
             }
+            if(requester instanceof ServerPlayer && !this.isCageAvailableAt(entityFloor, true, null))
+                requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.no_cabins").color(ChatFormatting.GRAY).get(), false);
         }
     }
 
-    public void onDisplayPress(int yLevel, int floorOffset){
+    public void onDisplayPress(int yLevel, int floorOffset, Player requester){
         if(this.isMoving || !this.floors.contains(yLevel))
             return;
 
         int floor = this.floors.indexOf(yLevel);
         if(floorOffset == 0){
-            this.onButtonPress(false, false, yLevel);
+            this.onButtonPress(false, false, yLevel, requester);
             return;
         }
 
@@ -215,7 +223,7 @@ public class ElevatorGroup {
         ControllerBlockEntity entity = this.getEntity(yLevel);
         int toY = this.floors.get(toFloor);
         ControllerBlockEntity toEntity = this.getEntity(toY);
-        if(entity != null && toEntity != null && this.isCageAvailableAt(floor, true) && this.canCageBePlacedAt(toEntity, entity))
+        if(entity != null && toEntity != null && this.isCageAvailableAt(floor, true, requester) && this.canCageBePlacedAt(toEntity, entity, requester))
             this.startElevator(yLevel, toY);
     }
 
@@ -527,10 +535,10 @@ public class ElevatorGroup {
     /**
      * @return whether the blocks at the given floor are suitable for a cage
      */
-    public boolean isCageAvailableAt(int floor, boolean forceRefresh){
+    public boolean isCageAvailableAt(int floor, boolean forceRefresh, Player requester){
         FloorData floorData = this.floorData.get(floor);
         if(forceRefresh || (this.tickCounter - floorData.lastCageCheck > CAGE_CHECK_INTERVAL && this.cageChecks < MAX_CAGE_CHECKS_PER_TICK && this.level.isLoaded(this.getPos(this.getFloorYLevel(floor))))){
-            boolean isCageAvailable = ElevatorCage.canCreateCage(this.level, this.getCageAnchorBlockPos(this.getFloorYLevel(floor)), this.cageSizeX, this.cageSizeY, this.cageSizeZ);
+            boolean isCageAvailable = ElevatorCage.canCreateCage(this.level, this.getCageAnchorBlockPos(this.getFloorYLevel(floor)), this.cageSizeX, this.cageSizeY, this.cageSizeZ, requester);
             if(isCageAvailable != floorData.isCageAvailable)
                 this.shouldBeSynced = true;
             floorData.isCageAvailable = isCageAvailable;
@@ -543,7 +551,7 @@ public class ElevatorGroup {
      * @return whether the blocks at the given floor are suitable for a cage
      */
     public boolean isCageAvailableAt(int floor){
-        return this.isCageAvailableAt(floor, false);
+        return this.isCageAvailableAt(floor, false, null);
     }
 
     /**
@@ -552,7 +560,7 @@ public class ElevatorGroup {
      * @return whether there is enough space for the cage to be placed in front
      * of the given {@code entity}
      */
-    public boolean canCageBePlacedAt(ControllerBlockEntity entity, ControllerBlockEntity from){
+    public boolean canCageBePlacedAt(ControllerBlockEntity entity, ControllerBlockEntity from, Player requester){
         BlockPos startPos = this.getCageAnchorBlockPos(entity.getBlockPos().getY());
         int minY = 0, maxY = this.cageSizeY;
         if(from != null){
@@ -565,8 +573,17 @@ public class ElevatorGroup {
         for(int x = 0; x < this.cageSizeX; x++){
             for(int y = minY; y < maxY; y++){
                 for(int z = 0; z < this.cageSizeZ; z++){
-                    if(!this.level.isEmptyBlock(startPos.offset(x, y, z)))
+                    if(!this.level.isEmptyBlock(startPos.offset(x, y, z))){
+                        if(requester instanceof ServerPlayer){
+                            Component block = TextComponents.block(this.level.getBlockState(startPos.offset(x, y, z)).getBlock()).color(ChatFormatting.GOLD).get();
+                            Component position = TextComponents.string("(").color(ChatFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getX() + x).color(ChatFormatting.GOLD).get()).string(",").color(ChatFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getY() + y).color(ChatFormatting.GOLD).get()).string(",").color(ChatFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getZ() + z).color(ChatFormatting.GOLD).get()).string(")").color(ChatFormatting.GRAY).get();
+                            requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.obstructed", block, position).color(ChatFormatting.GRAY).get(), false);
+                        }
                         return false;
+                    }
                 }
             }
         }
