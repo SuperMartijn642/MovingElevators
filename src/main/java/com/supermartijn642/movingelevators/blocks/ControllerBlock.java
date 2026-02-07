@@ -84,7 +84,7 @@ public class ControllerBlock extends ElevatorInputBlock {
         BlockEntity entity = level.getBlockEntity(pos);
         if(entity instanceof ControllerBlockEntity
             && ((ControllerBlockEntity)entity).hasGroup()
-            && ((ControllerBlockEntity)entity).getGroup().isCageAvailableAt(((ControllerBlockEntity)entity).getGroup().getFloorNumber(((ControllerBlockEntity)entity).getFloorLevel()), false)){
+            && ((ControllerBlockEntity)entity).getGroup().isCageAvailableAt(((ControllerBlockEntity)entity).getGroup().getFloorNumber(((ControllerBlockEntity)entity).getFloorLevel()), false, null)){
             return 15;
         }
         return 0;
