@@ -94,7 +94,7 @@ public class DisplayBlock extends CamoBlock {
                                 int floorOffset = (int)Math.floor((hitY - (height - total * BUTTON_HEIGHT) / 2d) / BUTTON_HEIGHT) + startIndex - index;
 
                                 if(player == null || player.getHeldItem(hand).isEmpty() || !(player.getHeldItem(hand).getItem() instanceof ItemDye))
-                                    inputEntity.getGroup().onDisplayPress(inputEntity.getFloorLevel(), floorOffset);
+                                    inputEntity.getGroup().onDisplayPress(inputEntity.getFloorLevel(), floorOffset, player);
                                 else{
                                     EnumDyeColor color = EnumDyeColor.byDyeDamage(player.getHeldItem(hand).getMetadata());
                                     int floor = group.getFloorNumber(inputEntity.getFloorLevel()) + floorOffset;

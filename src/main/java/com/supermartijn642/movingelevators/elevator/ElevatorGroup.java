@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.block.BlockShape;
 import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.MovingElevatorsConfig;
@@ -9,6 +10,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTBase;
@@ -19,6 +22,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.Constants;
@@ -154,7 +159,7 @@ public class ElevatorGroup {
         }
     }
 
-    public void onButtonPress(boolean isUp, boolean isDown, int yLevel){
+    public void onButtonPress(boolean isUp, boolean isDown, int yLevel, EntityPlayer requester){
         if(this.isMoving || !this.floors.contains(yLevel))
             return;
 
@@ -164,22 +169,22 @@ public class ElevatorGroup {
         int entityFloor = this.floors.indexOf(yLevel);
 
         if(isUp){
-            if(this.isCageAvailableAt(entityFloor, true)){
+            if(this.isCageAvailableAt(entityFloor, true, requester)){
                 for(int floor = entityFloor + 1; floor < this.floors.size(); floor++){
                     ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
                     if(entity2 != null){
-                        if(this.canCageBePlacedAt(entity2, entity))
+                        if(this.canCageBePlacedAt(entity2, entity, requester))
                             this.startElevator(yLevel, this.floors.get(floor));
                         return;
                     }
                 }
             }
         }else if(isDown){
-            if(this.isCageAvailableAt(entityFloor, true)){
+            if(this.isCageAvailableAt(entityFloor, true, requester)){
                 for(int floor = entityFloor - 1; floor >= 0; floor--){
                     ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
                     if(entity2 != null){
-                        if(this.canCageBePlacedAt(entity2, entity))
+                        if(this.canCageBePlacedAt(entity2, entity, requester))
                             this.startElevator(yLevel, this.floors.get(floor));
                         return;
                     }
@@ -190,21 +195,24 @@ public class ElevatorGroup {
             for(int floor : floorIndices){
                 if(floor == entityFloor)
                     continue;
-                if(this.isCageAvailableAt(floor, true) && this.canCageBePlacedAt(entity, this.getEntityForFloor(floor))){
-                    this.startElevator(this.getFloorYLevel(floor), yLevel);
+                if(this.isCageAvailableAt(floor, true, null)){
+                    if(this.canCageBePlacedAt(entity, this.getEntityForFloor(floor), requester))
+                        this.startElevator(this.getFloorYLevel(floor), yLevel);
                     return;
                 }
             }
+            if(requester instanceof EntityPlayerMP && !this.isCageAvailableAt(entityFloor, true, null))
+                requester.sendStatusMessage(TextComponents.translation("movingelevators.elevator.no_cabins").color(TextFormatting.GRAY).get(), false);
         }
     }
 
-    public void onDisplayPress(int yLevel, int floorOffset){
+    public void onDisplayPress(int yLevel, int floorOffset, EntityPlayer requester){
         if(this.isMoving || !this.floors.contains(yLevel))
             return;
 
         int floor = this.floors.indexOf(yLevel);
         if(floorOffset == 0){
-            this.onButtonPress(false, false, yLevel);
+            this.onButtonPress(false, false, yLevel, requester);
             return;
         }
 
@@ -215,7 +223,7 @@ public class ElevatorGroup {
         ControllerBlockEntity entity = this.getEntity(yLevel);
         int toY = this.floors.get(toFloor);
         ControllerBlockEntity toEntity = this.getEntity(toY);
-        if(entity != null && toEntity != null && this.isCageAvailableAt(floor, true) && this.canCageBePlacedAt(toEntity, entity))
+        if(entity != null && toEntity != null && this.isCageAvailableAt(floor, true, requester) && this.canCageBePlacedAt(toEntity, entity, requester))
             this.startElevator(yLevel, toY);
     }
 
@@ -527,10 +535,10 @@ public class ElevatorGroup {
     /**
      * @return whether the blocks at the given floor are suitable for a cage
      */
-    public boolean isCageAvailableAt(int floor, boolean forceRefresh){
+    public boolean isCageAvailableAt(int floor, boolean forceRefresh, EntityPlayer requester){
         FloorData floorData = this.floorData.get(floor);
         if(forceRefresh || (this.tickCounter - floorData.lastCageCheck > CAGE_CHECK_INTERVAL && this.cageChecks < MAX_CAGE_CHECKS_PER_TICK && this.level.isBlockLoaded(this.getPos(this.getFloorYLevel(floor))))){
-            boolean isCageAvailable = ElevatorCage.canCreateCage(this.level, this.getCageAnchorBlockPos(this.getFloorYLevel(floor)), this.cageSizeX, this.cageSizeY, this.cageSizeZ);
+            boolean isCageAvailable = ElevatorCage.canCreateCage(this.level, this.getCageAnchorBlockPos(this.getFloorYLevel(floor)), this.cageSizeX, this.cageSizeY, this.cageSizeZ, requester);
             if(isCageAvailable != floorData.isCageAvailable)
                 this.shouldBeSynced = true;
             floorData.isCageAvailable = isCageAvailable;
@@ -543,7 +551,7 @@ public class ElevatorGroup {
      * @return whether the blocks at the given floor are suitable for a cage
      */
     public boolean isCageAvailableAt(int floor){
-        return this.isCageAvailableAt(floor, false);
+        return this.isCageAvailableAt(floor, false, null);
     }
 
     /**
@@ -552,7 +560,7 @@ public class ElevatorGroup {
      * @return whether there is enough space for the cage to be placed in front
      * of the given {@code entity}
      */
-    public boolean canCageBePlacedAt(ControllerBlockEntity entity, ControllerBlockEntity from){
+    public boolean canCageBePlacedAt(ControllerBlockEntity entity, ControllerBlockEntity from, EntityPlayer requester){
         BlockPos startPos = this.getCageAnchorBlockPos(entity.getPos().getY());
         int minY = 0, maxY = this.cageSizeY;
         if(from != null){
@@ -565,211 +573,220 @@ public class ElevatorGroup {
         for(int x = 0; x < this.cageSizeX; x++){
             for(int y = minY; y < maxY; y++){
                 for(int z = 0; z < this.cageSizeZ; z++){
-                    if(!this.level.isAirBlock(startPos.add(x, y, z)))
+                    if(!this.level.isAirBlock(startPos.add(x, y, z))){
+                        if(requester instanceof EntityPlayerMP){
+                            ITextComponent block = TextComponents.block(this.level.getBlockState(startPos.add(x, y, z)).getBlock()).color(TextFormatting.GOLD).get();
+                            ITextComponent position = TextComponents.string("(").color(TextFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getX() + x).color(TextFormatting.GOLD).get()).string(",").color(TextFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getY() + y).color(TextFormatting.GOLD).get()).string(",").color(TextFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getZ() + z).color(TextFormatting.GOLD).get()).string(")").color(TextFormatting.GRAY).get();
+                            requester.sendStatusMessage(TextComponents.translation("movingelevators.elevator.obstructed", block, position).color(TextFormatting.GRAY).get(), false);
+                        }
                         return false;
                 }
             }
         }
+    }
         return true;
-    }
+}
 
-    public void addComparatorListener(int floorYLevel, BlockPos blockPos){
-        this.comparatorListeners.putIfAbsent(floorYLevel, new HashSet<>());
-        this.comparatorListeners.get(floorYLevel).add(blockPos);
-    }
+public void addComparatorListener(int floorYLevel, BlockPos blockPos){
+    this.comparatorListeners.putIfAbsent(floorYLevel, new HashSet<>());
+    this.comparatorListeners.get(floorYLevel).add(blockPos);
+}
 
-    public boolean removeComparatorListener(BlockPos blockPos){
-        boolean removed = false;
-        Iterator<Set<BlockPos>> iterator = this.comparatorListeners.values().iterator();
-        while(iterator.hasNext()){
-            Set<BlockPos> positions = iterator.next();
-            if(positions.remove(blockPos))
-                removed = true;
+public boolean removeComparatorListener(BlockPos blockPos){
+    boolean removed = false;
+    Iterator<Set<BlockPos>> iterator = this.comparatorListeners.values().iterator();
+    while(iterator.hasNext()){
+        Set<BlockPos> positions = iterator.next();
+        if(positions.remove(blockPos))
+            removed = true;
+    }
+    return removed;
+}
+
+public NBTTagCompound write(){
+    NBTTagCompound compound = new NBTTagCompound();
+    compound.setBoolean("isMoving", this.isMoving);
+    if(this.isMoving){
+        compound.setInteger("targetY", this.targetY);
+        compound.setDouble("lastY", this.lastY);
+        compound.setDouble("currentY", this.currentY);
+        compound.setTag("cage", this.cage.write());
+    }
+    compound.setDouble("targetSpeed", this.targetSpeed);
+    compound.setDouble("speed", this.speed);
+    compound.setInteger("cageSideOffset", this.cageSideOffset);
+    compound.setInteger("cageDepthOffset", this.cageDepthOffset);
+    compound.setInteger("cageHeightOffset", this.cageHeightOffset);
+    compound.setInteger("cageSizeX", this.cageSizeX);
+    compound.setInteger("cageSizeY", this.cageSizeY);
+    compound.setInteger("cageSizeZ", this.cageSizeZ);
+    int[] arr = new int[this.floors.size()];
+    for(int i = 0; i < this.floors.size(); i++)
+        arr[i] = this.floors.get(i);
+    compound.setIntArray("floors", arr);
+    NBTTagList floorDataTag = new NBTTagList();
+    for(FloorData floorDatum : this.floorData)
+        floorDataTag.appendTag(floorDatum.write());
+    compound.setTag("floorData", floorDataTag);
+    return compound;
+}
+
+public void read(NBTTagCompound compound){
+    if(compound.hasKey("moving")){ // old version stuff
+        this.isMoving = compound.getBoolean("moving");
+        int size = compound.getInteger("size");
+        if(this.isMoving){
+            this.targetY = compound.getInteger("targetY");
+            this.lastY = compound.getDouble("lastY");
+            this.currentY = compound.getDouble("currentY");
+            IBlockState[][][] blockStates = new IBlockState[size][1][size];
+            BlockShape shape = BlockShape.empty();
+            for(int x = 0; x < size; x++){
+                for(int z = 0; z < size; z++){
+                    IBlockState state = Block.getStateById(compound.getInteger("platform" + x + "," + z));
+                    if(state.getBlock() != Blocks.AIR){
+                        blockStates[x][0][z] = state;
+                        shape = BlockShape.or(shape, BlockShape.create(state.getCollisionBoundingBox(this.level, this.getPos((int)this.currentY))));
+                    }
+                }
+            }
+            // TODO reduce the number of collision boxes
+//                shape.optimize();
+            this.cage = this.level.isRemote ?
+                new ClientElevatorCage(size, 1, size, blockStates, new NBTTagCompound[size][1][size], new NBTTagCompound[size][1][size], shape.toBoxes()) :
+                new ElevatorCage(size, 1, size, blockStates, new NBTTagCompound[size][1][size], new NBTTagCompound[size][1][size], shape.toBoxes());
         }
-        return removed;
+        this.targetSpeed = compound.getDouble("speed");
+        this.speed = this.targetSpeed;
+        this.cageSizeX = this.cageSizeZ = size;
+        this.cageSizeY = 1;
+    }else{
+        this.isMoving = compound.getBoolean("isMoving");
+        if(this.isMoving){
+            this.targetY = compound.getInteger("targetY");
+            this.lastY = compound.getDouble("lastY");
+            this.currentY = compound.getDouble("currentY");
+            this.cage = ElevatorCage.read(compound.getCompoundTag("cage"), this.level.isRemote);
+        }
+        this.targetSpeed = compound.getDouble("targetSpeed");
+        this.speed = compound.getDouble("speed");
+        this.cageSideOffset = compound.getInteger("cageSideOffset");
+        this.cageDepthOffset = compound.getInteger("cageDepthOffset");
+        this.cageHeightOffset = compound.getInteger("cageHeightOffset");
+        this.cageSizeX = compound.getInteger("cageSizeX");
+        this.cageSizeY = compound.getInteger("cageSizeY");
+        this.cageSizeZ = compound.getInteger("cageSizeZ");
+    }
+    this.floors.clear();
+    for(int y : compound.getIntArray("floors"))
+        this.floors.add(y);
+    this.floorData.clear();
+    if(compound.hasKey("floorData", Constants.NBT.TAG_LIST)){
+        NBTBase base = compound.getTag("floorData");
+        if(base instanceof NBTTagList){
+            NBTTagList floorDataTag = (NBTTagList)base;
+            for(NBTBase tag : floorDataTag)
+                this.floorData.add(FloorData.read((NBTTagCompound)tag));
+        }
+    }
+}
+
+private BlockPos getPos(int y){
+    return new BlockPos(this.x, y, this.z);
+}
+
+private ControllerBlockEntity getEntity(int y){
+    if(this.level == null)
+        return null;
+    TileEntity entity = this.level.getTileEntity(this.getPos(y));
+    return entity instanceof ControllerBlockEntity ? (ControllerBlockEntity)entity : null;
+}
+
+public int getFloorCount(){
+    return this.floors.size();
+}
+
+public int getFloorNumber(int y){
+    return this.floors.indexOf(y);
+}
+
+public int getClosestFloorNumber(int y){
+    if(y < this.floors.get(0))
+        return 0;
+    for(int floor = 1; floor < this.floors.size(); floor++){
+        if(y < (this.floors.get(floor - 1) + this.floors.get(floor)) / 2)
+            return floor - 1;
+    }
+    return this.floors.size() - 1; // this should never be reached
+}
+
+public int getFloorYLevel(int floor){
+    return this.floors.get(floor);
+}
+
+public ControllerBlockEntity getEntityForFloor(int floor){
+    if(floor < 0 || floor >= this.floors.size())
+        return null;
+    return this.getEntity(this.floors.get(floor));
+}
+
+public boolean hasControllerAt(int yLevel){
+    return this.floors.contains(yLevel);
+}
+
+private void updateGroup(){
+    ElevatorGroupCapability.get(this.level).updateGroup(this);
+}
+
+private void syncMovement(){
+    if(!this.level.isRemote)
+        MovingElevators.CHANNEL.sendToDimension(this.level, new PacketSyncElevatorMovement(this.x, this.z, this.facing, this.currentY, this.speed));
+}
+
+public void validateControllersExist(Chunk chunk){
+    BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(this.x, 0, this.z);
+    for(int floor = 0; floor < this.floors.size(); floor++){
+        pos.setY(this.floors.get(floor));
+        if(!(chunk.getTileEntity(pos, Chunk.EnumCreateEntityType.CHECK) instanceof ControllerBlockEntity))
+            this.removeFloor(floor);
+    }
+}
+
+private static class FloorData {
+
+    public String name;
+    public EnumDyeColor color;
+    public boolean isCageAvailable;
+    public int lastCageCheck = -1;
+
+    public FloorData(String name, EnumDyeColor color, boolean isCageAvailable){
+        this.name = name;
+        this.color = color;
+        this.isCageAvailable = isCageAvailable;
+    }
+
+    public FloorData(String name, EnumDyeColor color){
+        this(name, color, false);
     }
 
     public NBTTagCompound write(){
-        NBTTagCompound compound = new NBTTagCompound();
-        compound.setBoolean("isMoving", this.isMoving);
-        if(this.isMoving){
-            compound.setInteger("targetY", this.targetY);
-            compound.setDouble("lastY", this.lastY);
-            compound.setDouble("currentY", this.currentY);
-            compound.setTag("cage", this.cage.write());
-        }
-        compound.setDouble("targetSpeed", this.targetSpeed);
-        compound.setDouble("speed", this.speed);
-        compound.setInteger("cageSideOffset", this.cageSideOffset);
-        compound.setInteger("cageDepthOffset", this.cageDepthOffset);
-        compound.setInteger("cageHeightOffset", this.cageHeightOffset);
-        compound.setInteger("cageSizeX", this.cageSizeX);
-        compound.setInteger("cageSizeY", this.cageSizeY);
-        compound.setInteger("cageSizeZ", this.cageSizeZ);
-        int[] arr = new int[this.floors.size()];
-        for(int i = 0; i < this.floors.size(); i++)
-            arr[i] = this.floors.get(i);
-        compound.setIntArray("floors", arr);
-        NBTTagList floorDataTag = new NBTTagList();
-        for(FloorData floorDatum : this.floorData)
-            floorDataTag.appendTag(floorDatum.write());
-        compound.setTag("floorData", floorDataTag);
-        return compound;
+        NBTTagCompound tag = new NBTTagCompound();
+        if(this.name != null)
+            tag.setString("name", this.name);
+        tag.setInteger("color", this.color.getDyeDamage());
+        tag.setBoolean("isCageAvailable", this.isCageAvailable);
+        return tag;
     }
 
-    public void read(NBTTagCompound compound){
-        if(compound.hasKey("moving")){ // old version stuff
-            this.isMoving = compound.getBoolean("moving");
-            int size = compound.getInteger("size");
-            if(this.isMoving){
-                this.targetY = compound.getInteger("targetY");
-                this.lastY = compound.getDouble("lastY");
-                this.currentY = compound.getDouble("currentY");
-                IBlockState[][][] blockStates = new IBlockState[size][1][size];
-                BlockShape shape = BlockShape.empty();
-                for(int x = 0; x < size; x++){
-                    for(int z = 0; z < size; z++){
-                        IBlockState state = Block.getStateById(compound.getInteger("platform" + x + "," + z));
-                        if(state.getBlock() != Blocks.AIR){
-                            blockStates[x][0][z] = state;
-                            shape = BlockShape.or(shape, BlockShape.create(state.getCollisionBoundingBox(this.level, this.getPos((int)this.currentY))));
-                        }
-                    }
-                }
-                // TODO reduce the number of collision boxes
-//                shape.optimize();
-                this.cage = this.level.isRemote ?
-                    new ClientElevatorCage(size, 1, size, blockStates, new NBTTagCompound[size][1][size], new NBTTagCompound[size][1][size], shape.toBoxes()) :
-                    new ElevatorCage(size, 1, size, blockStates, new NBTTagCompound[size][1][size], new NBTTagCompound[size][1][size], shape.toBoxes());
-            }
-            this.targetSpeed = compound.getDouble("speed");
-            this.speed = this.targetSpeed;
-            this.cageSizeX = this.cageSizeZ = size;
-            this.cageSizeY = 1;
-        }else{
-            this.isMoving = compound.getBoolean("isMoving");
-            if(this.isMoving){
-                this.targetY = compound.getInteger("targetY");
-                this.lastY = compound.getDouble("lastY");
-                this.currentY = compound.getDouble("currentY");
-                this.cage = ElevatorCage.read(compound.getCompoundTag("cage"), this.level.isRemote);
-            }
-            this.targetSpeed = compound.getDouble("targetSpeed");
-            this.speed = compound.getDouble("speed");
-            this.cageSideOffset = compound.getInteger("cageSideOffset");
-            this.cageDepthOffset = compound.getInteger("cageDepthOffset");
-            this.cageHeightOffset = compound.getInteger("cageHeightOffset");
-            this.cageSizeX = compound.getInteger("cageSizeX");
-            this.cageSizeY = compound.getInteger("cageSizeY");
-            this.cageSizeZ = compound.getInteger("cageSizeZ");
-        }
-        this.floors.clear();
-        for(int y : compound.getIntArray("floors"))
-            this.floors.add(y);
-        this.floorData.clear();
-        if(compound.hasKey("floorData", Constants.NBT.TAG_LIST)){
-            NBTBase base = compound.getTag("floorData");
-            if(base instanceof NBTTagList){
-                NBTTagList floorDataTag = (NBTTagList)base;
-                for(NBTBase tag : floorDataTag)
-                    this.floorData.add(FloorData.read((NBTTagCompound)tag));
-            }
-        }
+    public static FloorData read(NBTTagCompound tag){
+        return new FloorData(
+            tag.hasKey("name") ? tag.getString("name") : null,
+            EnumDyeColor.byDyeDamage(tag.getInteger("color")),
+            tag.hasKey("isCageAvailable") && tag.getBoolean("isCageAvailable")
+        );
     }
-
-    private BlockPos getPos(int y){
-        return new BlockPos(this.x, y, this.z);
-    }
-
-    private ControllerBlockEntity getEntity(int y){
-        if(this.level == null)
-            return null;
-        TileEntity entity = this.level.getTileEntity(this.getPos(y));
-        return entity instanceof ControllerBlockEntity ? (ControllerBlockEntity)entity : null;
-    }
-
-    public int getFloorCount(){
-        return this.floors.size();
-    }
-
-    public int getFloorNumber(int y){
-        return this.floors.indexOf(y);
-    }
-
-    public int getClosestFloorNumber(int y){
-        if(y < this.floors.get(0))
-            return 0;
-        for(int floor = 1; floor < this.floors.size(); floor++){
-            if(y < (this.floors.get(floor - 1) + this.floors.get(floor)) / 2)
-                return floor - 1;
-        }
-        return this.floors.size() - 1; // this should never be reached
-    }
-
-    public int getFloorYLevel(int floor){
-        return this.floors.get(floor);
-    }
-
-    public ControllerBlockEntity getEntityForFloor(int floor){
-        if(floor < 0 || floor >= this.floors.size())
-            return null;
-        return this.getEntity(this.floors.get(floor));
-    }
-
-    public boolean hasControllerAt(int yLevel){
-        return this.floors.contains(yLevel);
-    }
-
-    private void updateGroup(){
-        ElevatorGroupCapability.get(this.level).updateGroup(this);
-    }
-
-    private void syncMovement(){
-        if(!this.level.isRemote)
-            MovingElevators.CHANNEL.sendToDimension(this.level, new PacketSyncElevatorMovement(this.x, this.z, this.facing, this.currentY, this.speed));
-    }
-
-    public void validateControllersExist(Chunk chunk){
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(this.x, 0, this.z);
-        for(int floor = 0; floor < this.floors.size(); floor++){
-            pos.setY(this.floors.get(floor));
-            if(!(chunk.getTileEntity(pos, Chunk.EnumCreateEntityType.CHECK) instanceof ControllerBlockEntity))
-                this.removeFloor(floor);
-        }
-    }
-
-    private static class FloorData {
-
-        public String name;
-        public EnumDyeColor color;
-        public boolean isCageAvailable;
-        public int lastCageCheck = -1;
-
-        public FloorData(String name, EnumDyeColor color, boolean isCageAvailable){
-            this.name = name;
-            this.color = color;
-            this.isCageAvailable = isCageAvailable;
-        }
-
-        public FloorData(String name, EnumDyeColor color){
-            this(name, color, false);
-        }
-
-        public NBTTagCompound write(){
-            NBTTagCompound tag = new NBTTagCompound();
-            if(this.name != null)
-                tag.setString("name", this.name);
-            tag.setInteger("color", this.color.getDyeDamage());
-            tag.setBoolean("isCageAvailable", this.isCageAvailable);
-            return tag;
-        }
-
-        public static FloorData read(NBTTagCompound tag){
-            return new FloorData(
-                tag.hasKey("name") ? tag.getString("name") : null,
-                EnumDyeColor.byDyeDamage(tag.getInteger("color")),
-                tag.hasKey("isCageAvailable") && tag.getBoolean("isCageAvailable")
-            );
-        }
-    }
+}
 }

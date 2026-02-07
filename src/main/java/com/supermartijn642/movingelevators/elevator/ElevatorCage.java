@@ -1,12 +1,15 @@
 package com.supermartijn642.movingelevators.elevator;
 
 import com.google.common.collect.Streams;
+import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.block.BlockShape;
 import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockButton;
 import net.minecraft.block.BlockPressurePlate;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
@@ -18,6 +21,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.Constants;
@@ -34,7 +39,7 @@ import java.util.stream.Collectors;
 public class ElevatorCage {
 
     public static ElevatorCage createCageAndClear(World level, BlockPos startPos, int xSize, int ySize, int zSize){
-        if(!canCreateCage(level, startPos, xSize, ySize, zSize))
+        if(!canCreateCage(level, startPos, xSize, ySize, zSize, null))
             return null;
 
         IBlockState[][][] states = new IBlockState[xSize][ySize][zSize];
@@ -124,19 +129,30 @@ public class ElevatorCage {
             new ElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toBoxes());
     }
 
-    public static boolean canCreateCage(World level, BlockPos startPos, int xSize, int ySize, int zSize){
+    public static boolean canCreateCage(World level, BlockPos startPos, int xSize, int ySize, int zSize, EntityPlayer requester){
         boolean hasBlocks = false;
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     if(canBlockBeIgnored(level, startPos.add(x, y, z)))
                         continue;
-                    if(!canBlockBeInCage(level, startPos.add(x, y, z)))
+                    if(!canBlockBeInCage(level, startPos.add(x, y, z))){
+                        if(requester instanceof EntityPlayerMP){
+                            ITextComponent block = TextComponents.block(level.getBlockState(startPos.add(x, y, z)).getBlock()).color(TextFormatting.GOLD).get();
+                            ITextComponent position = TextComponents.string("(").color(TextFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getX() + x).color(TextFormatting.GOLD).get()).string(",").color(TextFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getY() + y).color(TextFormatting.GOLD).get()).string(",").color(TextFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getZ() + z).color(TextFormatting.GOLD).get()).string(")").color(TextFormatting.GRAY).get();
+                            requester.sendStatusMessage(TextComponents.translation("movingelevators.elevator.invalid_block", block, position).color(TextFormatting.GRAY).get(), false);
+                        }
                         return false;
+                    }
                     hasBlocks = true;
                 }
             }
         }
+        if(!hasBlocks && requester instanceof EntityPlayerMP)
+            requester.sendStatusMessage(TextComponents.translation("movingelevators.elevator.empty").color(TextFormatting.GRAY).get(), false);
         return hasBlocks;
     }
 
