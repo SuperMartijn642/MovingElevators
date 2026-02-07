@@ -1,16 +1,21 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -36,7 +41,7 @@ import java.util.stream.Collectors;
 public class ElevatorCage {
 
     public static ElevatorCage createCageAndClear(Level level, BlockPos startPos, int xSize, int ySize, int zSize){
-        if(!canCreateCage(level, startPos, xSize, ySize, zSize))
+        if(!canCreateCage(level, startPos, xSize, ySize, zSize, null))
             return null;
 
         BlockState[][][] states = new BlockState[xSize][ySize][zSize];
@@ -127,19 +132,30 @@ public class ElevatorCage {
             new ElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs());
     }
 
-    public static boolean canCreateCage(Level level, BlockPos startPos, int xSize, int ySize, int zSize){
+    public static boolean canCreateCage(Level level, BlockPos startPos, int xSize, int ySize, int zSize, Player requester){
         boolean hasBlocks = false;
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     if(canBlockBeIgnored(level, startPos.offset(x, y, z)))
                         continue;
-                    if(!canBlockBeInCage(level, startPos.offset(x, y, z)))
+                    if(!canBlockBeInCage(level, startPos.offset(x, y, z))){
+                        if(requester instanceof ServerPlayer){
+                            Component block = TextComponents.block(level.getBlockState(startPos.offset(x, y, z)).getBlock()).color(ChatFormatting.GOLD).get();
+                            Component position = TextComponents.string("(").color(ChatFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getX() + x).color(ChatFormatting.GOLD).get()).string(",").color(ChatFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getY() + y).color(ChatFormatting.GOLD).get()).string(",").color(ChatFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getZ() + z).color(ChatFormatting.GOLD).get()).string(")").color(ChatFormatting.GRAY).get();
+                            requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.invalid_block", block, position).color(ChatFormatting.GRAY).get(), false);
+                        }
                         return false;
+                    }
                     hasBlocks = true;
                 }
             }
         }
+        if(!hasBlocks && requester instanceof ServerPlayer)
+            requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.empty").color(ChatFormatting.GRAY).get(), false);
         return hasBlocks;
     }
 
