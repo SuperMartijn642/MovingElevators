@@ -68,5 +68,11 @@ public class MovingElevatorsLanguageGenerator extends LanguageGenerator {
 
         // Elevator arrive sound
         this.translation("movingelevators.elevator.arrive_sound", "Elevator arrived");
+
+        // Elevator feedback
+        this.translation("movingelevators.elevator.invalid_block", "Invalid block '%s' in cabin at %s.");
+        this.translation("movingelevators.elevator.empty", "No cabin at the current floor.");
+        this.translation("movingelevators.elevator.obstructed", "Cabin space is obstructed by block '%s' at %s.");
+        this.translation("movingelevators.elevator.no_cabins", "There are no available cabins.");
     }
 }
