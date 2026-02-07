@@ -157,7 +157,7 @@ public class ElevatorGroup {
                 for(int floor = this.floors.indexOf(yLevel) + 1; floor < this.floors.size(); floor++){
                     ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
                     if(entity2 != null){
-                        if(this.canCageBePlacedAt(entity2))
+                        if(this.canCageBePlacedAt(entity2, entity))
                             this.startElevator(yLevel, this.floors.get(floor));
                         return;
                     }
@@ -168,18 +168,18 @@ public class ElevatorGroup {
                 for(int floor = this.floors.indexOf(yLevel) - 1; floor >= 0; floor--){
                     ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
                     if(entity2 != null){
-                        if(this.canCageBePlacedAt(entity2))
+                        if(this.canCageBePlacedAt(entity2, entity))
                             this.startElevator(yLevel, this.floors.get(floor));
                         return;
                     }
                 }
             }
         }else{
-            if(this.canCageBePlacedAt(entity)){
-                this.floors.sort(Comparator.comparingInt(a -> Math.abs(a - yLevel)));
-                for(int y : this.floors){
-                    if(y != yLevel){
-                        ControllerBlockEntity entity2 = this.getEntity(y);
+            this.floors.sort(Comparator.comparingInt(a -> Math.abs(a - yLevel)));
+            for(int y : this.floors){
+                if(y != yLevel){
+                    ControllerBlockEntity entity2 = this.getEntity(y);
+                    if(this.canCageBePlacedAt(entity, entity2)){
                         if(entity2 != null && this.isCageAvailableAt(entity2)){
                             this.floors.sort(Integer::compare);
                             this.startElevator(y, yLevel);
@@ -187,8 +187,8 @@ public class ElevatorGroup {
                         }
                     }
                 }
-                this.floors.sort(Integer::compare);
             }
+            this.floors.sort(Integer::compare);
         }
     }
 
@@ -209,7 +209,7 @@ public class ElevatorGroup {
         ControllerBlockEntity entity = this.getEntity(yLevel);
         int toY = this.floors.get(toFloor);
         ControllerBlockEntity toEntity = this.getEntity(toY);
-        if(entity != null && toEntity != null && this.isCageAvailableAt(entity) && this.canCageBePlacedAt(toEntity))
+        if(entity != null && toEntity != null && this.isCageAvailableAt(entity) && this.canCageBePlacedAt(toEntity, entity))
             this.startElevator(yLevel, toY);
     }
 
@@ -527,13 +527,23 @@ public class ElevatorGroup {
     }
 
     /**
+     * @param entity the entity that the cage would be placed in front of
+     * @param from   the entity that the cage originates from, overlapping space in cage area will be ignored
      * @return whether there is enough space for the cage to be placed in front
      * of the given {@code entity}
      */
-    public boolean canCageBePlacedAt(ControllerBlockEntity entity){
+    public boolean canCageBePlacedAt(ControllerBlockEntity entity, ControllerBlockEntity from){
         BlockPos startPos = this.getCageAnchorBlockPos(entity.getPos().getY());
+        int minY = 0, maxY = this.cageSizeY;
+        if(from != null){
+            int y = this.getCageAnchorBlockPos(from.getPos().getY()).getY();
+            if(y > startPos.getY() && y < startPos.getY() + this.cageSizeY)
+                maxY = y - startPos.getY();
+            else if(y < startPos.getY() && y + this.cageSizeY > startPos.getY())
+                minY = y + this.cageSizeY - startPos.getY();
+        }
         for(int x = 0; x < this.cageSizeX; x++){
-            for(int y = 0; y < this.cageSizeY; y++){
+            for(int y = minY; y < maxY; y++){
                 for(int z = 0; z < this.cageSizeZ; z++){
                     if(!this.level.isAirBlock(startPos.add(x, y, z)))
                         return false;
