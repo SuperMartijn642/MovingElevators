@@ -87,6 +87,8 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
             state.floorColors = new DyeColor[total];
         if(state.floorNames == null || state.floorNames.length < total)
             state.floorNames = new String[total];
+        if(state.floorCageAvailable == null || state.floorCageAvailable.length < total)
+            state.floorCageAvailable = new boolean[total];
         Vec3 buttonPos = new Vec3(entity.getBlockPos().getX() + 0.5, entity.getBlockPos().getY() + 0.5 * state.displayHeight - state.floorCount * DisplayBlock.BUTTON_HEIGHT / 2d, entity.getBlockPos().getZ() + 0.5);
         Vec3 cameraPos = context.cameraPos();
         for(int i = 0; i < total; i++){
@@ -94,6 +96,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
             state.floorColors[i] = group.getFloorDisplayColor(floor);
             state.floorNames[i] = cameraPos.distanceToSqr(buttonPos) < TEXT_RENDER_DISTANCE ? // text rendering is VERY slow, so only draw it within a certain distance
                 MovingElevatorsClient.formatFloorDisplayName(group.getFloorDisplayName(floor), floor) : null;
+            state.floorCageAvailable[i] = group.isCageAvailableAt(floor);
             buttonPos = buttonPos.add(0, DisplayBlock.BUTTON_HEIGHT, 0);
         }
 
@@ -145,18 +148,29 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         }
         poseStack.popPose();
 
+        // Submit floor cage availability dots
+        poseStack.pushPose();
+        poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), 0.5 * state.displayHeight - state.floorCount * DisplayBlock.BUTTON_HEIGHT / 2d, -0.004);
+        poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
+        for(int i = 0; i < state.floorCount; i++){
+            if(state.floorCageAvailable[i])
+                this.drawOverlayPart(poseStack, output, lighting, overlay, facing, 0, 0, 1, 1, 0, state.showPlatformDot ? 42 : 32, 10, 10);
+            poseStack.translate(0, 1, 0);
+        }
+        poseStack.popPose();
+
         // Submit platform dot
         if(state.showPlatformDot){
             poseStack.pushPose();
-            poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), state.platformDotOffset, -0.003);
+            poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), state.platformDotOffset, -0.006);
             poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
-            this.drawOverlayPart(poseStack, output, lighting, overlay, facing, 0, 0, 1, 1, 0, 32, 10, 10);
+            this.drawOverlayPart(poseStack, output, lighting, overlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
             poseStack.popPose();
         }
 
         // Submit floor names
         poseStack.pushPose();
-        poseStack.translate(18.5 / 32d, 0.5 * state.displayHeight - state.floorCount * DisplayBlock.BUTTON_HEIGHT / 2d, -0.002);
+        poseStack.translate(18.5 / 32d, 0.5 * state.displayHeight - state.floorCount * DisplayBlock.BUTTON_HEIGHT / 2d, -0.008);
         poseStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < state.floorCount; i++){
             String floorName = state.floorNames[i];
@@ -202,6 +216,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         int floorCount, firstFloorIndex, ownFloorIndex;
         DyeColor[] floorColors;
         String[] floorNames;
+        boolean[] floorCageAvailable;
         boolean showPlatformDot;
         double platformDotOffset;
     }
