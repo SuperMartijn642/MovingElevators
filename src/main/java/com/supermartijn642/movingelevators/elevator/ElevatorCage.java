@@ -1,7 +1,10 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.block.*;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IClearable;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
@@ -16,6 +19,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ServerWorld;
@@ -32,7 +37,7 @@ import java.util.stream.Collectors;
 public class ElevatorCage {
 
     public static ElevatorCage createCageAndClear(World level, BlockPos startPos, int xSize, int ySize, int zSize){
-        if(!canCreateCage(level, startPos, xSize, ySize, zSize))
+        if(!canCreateCage(level, startPos, xSize, ySize, zSize, null))
             return null;
 
         BlockState[][][] states = new BlockState[xSize][ySize][zSize];
@@ -123,19 +128,30 @@ public class ElevatorCage {
             new ElevatorCage(xSize, ySize, zSize, states, entities, entityItemStacks, shape.toAabbs());
     }
 
-    public static boolean canCreateCage(World level, BlockPos startPos, int xSize, int ySize, int zSize){
+    public static boolean canCreateCage(World level, BlockPos startPos, int xSize, int ySize, int zSize, PlayerEntity requester){
         boolean hasBlocks = false;
         for(int x = 0; x < xSize; x++){
             for(int y = 0; y < ySize; y++){
                 for(int z = 0; z < zSize; z++){
                     if(canBlockBeIgnored(level, startPos.offset(x, y, z)))
                         continue;
-                    if(!canBlockBeInCage(level, startPos.offset(x, y, z)))
+                    if(!canBlockBeInCage(level, startPos.offset(x, y, z))){
+                        if(requester instanceof ServerPlayerEntity){
+                            ITextComponent block = TextComponents.block(level.getBlockState(startPos.offset(x, y, z)).getBlock()).color(TextFormatting.GOLD).get();
+                            ITextComponent position = TextComponents.string("(").color(TextFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getX() + x).color(TextFormatting.GOLD).get()).string(",").color(TextFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getY() + y).color(TextFormatting.GOLD).get()).string(",").color(TextFormatting.GRAY)
+                                .append(TextComponents.number(startPos.getZ() + z).color(TextFormatting.GOLD).get()).string(")").color(TextFormatting.GRAY).get();
+                            requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.invalid_block", block, position).color(TextFormatting.GRAY).get(), false);
+                        }
                         return false;
+                    }
                     hasBlocks = true;
                 }
             }
         }
+        if(!hasBlocks && requester instanceof ServerPlayerEntity)
+            requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.empty").color(TextFormatting.GRAY).get(), false);
         return hasBlocks;
     }
 
