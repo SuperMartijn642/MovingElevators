@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.elevator;
 
 import com.supermartijn642.core.TextComponents;
+import com.supermartijn642.movingelevators.MovingElevatorsConfig;
 import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -164,7 +165,7 @@ public class ElevatorCage {
 
     public static boolean canBlockBeInCage(Level level, BlockPos pos){
         BlockState state = level.getBlockState(pos);
-        return state.getFluidState().isEmpty() && state.getDestroySpeed(level, pos) >= 0;
+        return state.getFluidState().isEmpty() && (state.getDestroySpeed(level, pos) >= 0 || MovingElevatorsConfig.allowUnbreakableBlocks.get());
     }
 
     public final int xSize, ySize, zSize;
