@@ -80,7 +80,9 @@ public class ElevatorGroup {
         if(this.isMoving){
             if(this.currentY != this.targetY)
                 this.lastY = this.currentY;
-            if(this.speed < this.targetSpeed)
+            if(Math.abs(this.targetY - this.currentY) / this.speed < (this.speed - 0.01) / ACCELERATION)
+                this.speed = Math.max(0.01, this.speed - ACCELERATION);
+            else if(this.speed < this.targetSpeed)
                 this.speed = Math.min(this.targetSpeed, this.speed + ACCELERATION);
             if(this.currentY == this.targetY)
                 this.stopElevator();
