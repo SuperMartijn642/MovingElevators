@@ -3,6 +3,7 @@ package com.supermartijn642.movingelevators.elevator;
 import com.google.common.collect.Streams;
 import com.supermartijn642.core.TextComponents;
 import com.supermartijn642.core.block.BlockShape;
+import com.supermartijn642.movingelevators.MovingElevatorsConfig;
 import com.supermartijn642.movingelevators.extensions.MovingElevatorsLevelChunk;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockButton;
@@ -162,7 +163,7 @@ public class ElevatorCage {
 
     public static boolean canBlockBeInCage(World level, BlockPos pos){
         IBlockState state = level.getBlockState(pos);
-        return !(state.getBlock() instanceof IFluidBlock) && state.getBlockHardness(level, pos) >= 0;
+        return !(state.getBlock() instanceof IFluidBlock) && (state.getBlockHardness(level, pos) >= 0 || MovingElevatorsConfig.allowUnbreakableBlocks.get());
     }
 
     public final int xSize, ySize, zSize;
