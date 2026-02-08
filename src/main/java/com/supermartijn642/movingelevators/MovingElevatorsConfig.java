@@ -18,8 +18,8 @@ public class MovingElevatorsConfig {
         IConfigBuilder builder = ConfigBuilders.newTomlConfig("movingelevators", null, false);
 
         builder.push("General");
-        maxCabinHorizontalSize = builder.comment("What should be the maximum width of an elevator cabin? Higher numbers may cause lag.").define("maxCabinHorizontalSize", 7, 1, 15);
-        maxCabinVerticalSize = builder.comment("What should be the maximum height of an elevator cabin? Higher numbers may cause lag.").define("maxCabinVerticalSize", 7, 1, 15);
+        maxCabinHorizontalSize = builder.comment("What should be the maximum width of an elevator cabin? Higher numbers may cause lag.").define("maxCabinHorizontalSize", 11, 1, 15);
+        maxCabinVerticalSize = builder.comment("What should be the maximum height of an elevator cabin? Higher numbers may cause lag.").define("maxCabinVerticalSize", 11, 1, 15);
         allowUnbreakableBlocks = builder.comment("Is the elevator allowed to move unbreakable blocks? If set to true, this may allow players to move blocks like bedrock and portals using elevators!").define("allowUnbreakableBlocks", false);
         builder.pop();
 
