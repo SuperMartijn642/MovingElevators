@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.mojang.serialization.Codec;
 import com.supermartijn642.core.block.BaseBlockEntity;
 import com.supermartijn642.core.block.BaseBlockEntityType;
 import com.supermartijn642.core.registry.Registries;
@@ -17,6 +18,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created 4/6/2020 by SuperMartijn642
@@ -64,11 +66,19 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
     @Override
     protected void writeData(ValueOutput output){
         if(this.camoState.getBlock() != Blocks.AIR)
-            output.putInt("camoState", Block.getId(this.camoState));
+            output.store("camoState", BlockState.CODEC, this.camoState);
     }
+
+    /**
+     * Gets the state by id for data saved in older versions.
+     */
+    private static final Codec<BlockState> FALLBACK_BLOCK_STATE_CODEC = Codec.either(
+        BlockState.CODEC,
+        Codec.INT.xmap(Block::stateById, o -> {throw new AssertionError();})
+    ).xmap(either -> either.map(Function.identity(), Function.identity()), o -> {throw new AssertionError();});
 
     @Override
     protected void readData(ValueInput input){
-        this.camoState = input.getInt("camoState").map(Block::stateById).orElse(Blocks.AIR.defaultBlockState());
+        this.camoState = input.read("camoState", FALLBACK_BLOCK_STATE_CODEC).orElse(Blocks.AIR.defaultBlockState());
     }
 }
