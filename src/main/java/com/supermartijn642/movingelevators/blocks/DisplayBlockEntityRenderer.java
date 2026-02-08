@@ -28,8 +28,6 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         if(!entity.isBottomDisplay() || !entity.getInputBlockEntity().hasGroup())
             return;
 
-        IVertexBuilder buffer = bufferSource.getBuffer(RenderType.cutout());
-
         int height = entity.hasDisplayOnTop() ? 2 : 1;
         World level = entity.getLevel();
         Direction facing = entity.getFacing();
@@ -55,9 +53,9 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
 
         // render background
         if(height == 1)
-            this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, 0, 32, 32);
+            this.drawOverlayPart(poseStack, bufferSource, false, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, 0, 32, 32);
         else
-            this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 2, 32, 0, 32, 64);
+            this.drawOverlayPart(poseStack, bufferSource, false, combinedLight, combinedOverlay, facing, 0, 0, 1, 2, 32, 0, 32, 64);
 
         int index = group.getFloorNumber(entity.getInputBlockEntity().getFloorLevel());
         int button_count = height == 1 ? DisplayBlock.BUTTON_COUNT : DisplayBlock.BUTTON_COUNT_BIG;
@@ -82,7 +80,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             DyeColor labelColor = group.getFloorDisplayColor(startIndex + i);
-            this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, startIndex + i == index ? 96 : 64, labelColor.getId() * 4, 32, 4);
+            this.drawOverlayPart(poseStack, bufferSource, false, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, startIndex + i == index ? 96 : 64, labelColor.getId() * 4, 32, 4);
 
             boolean drawText = cameraPos.distanceToSqr(buttonPos) < TEXT_RENDER_DISTANCE; // text rendering is VERY slow apparently, so only draw it within a certain distance
             if(drawText){
@@ -102,7 +100,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             if(group.isCageAvailableAt(startIndex + i))
-                this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, group.isMoving() ? 42 : 32, 10, 10);
+                this.drawOverlayPart(poseStack, bufferSource, true, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, group.isMoving() ? 42 : 32, 10, 10);
             poseStack.translate(0, 1, 0);
         }
         poseStack.popPose();
@@ -121,7 +119,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
                 poseStack.pushPose();
                 poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), yOffset, -0.006);
                 poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
-                this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
+                this.drawOverlayPart(poseStack, bufferSource, true, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
                 poseStack.popPose();
             }
         }
@@ -129,17 +127,18 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.popPose();
     }
 
-    private void drawOverlayPart(MatrixStack poseStack, IVertexBuilder buffer, int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
+    private void drawOverlayPart(MatrixStack poseStack, IRenderTypeBuffer bufferSource, boolean transparent, int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
         Matrix4f matrix = poseStack.last().pose();
         Matrix3f normalMatrix = poseStack.last().normal();
 
         float minU = MovingElevatorsClient.OVERLAY_SPRITE.getU(tX / 8f), maxU = MovingElevatorsClient.OVERLAY_SPRITE.getU((tX + tWidth) / 8f);
         float minV = MovingElevatorsClient.OVERLAY_SPRITE.getV(tY / 8f), maxV = MovingElevatorsClient.OVERLAY_SPRITE.getV((tY + tHeight) / 8f);
 
-        buffer.vertex(matrix, x, y + height, 0).color(255, 255, 255, 255).uv(maxU, minV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
-        buffer.vertex(matrix, x + width, y + height, 0).color(255, 255, 255, 255).uv(minU, minV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
-        buffer.vertex(matrix, x + width, y, 0).color(255, 255, 255, 255).uv(minU, maxV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
-        buffer.vertex(matrix, x, y, 0).color(255, 255, 255, 255).uv(maxU, maxV).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).overlayCoords(combinedOverlay).endVertex();
+        IVertexBuilder buffer = bufferSource.getBuffer(transparent ? Atlases.translucentCullBlockSheet() : Atlases.cutoutBlockSheet());
+        buffer.vertex(matrix, x, y + height, 0).color(255, 255, 255, 255).uv(maxU, minV).overlayCoords(combinedOverlay).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).endVertex();
+        buffer.vertex(matrix, x + width, y + height, 0).color(255, 255, 255, 255).uv(minU, minV).overlayCoords(combinedOverlay).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).endVertex();
+        buffer.vertex(matrix, x + width, y, 0).color(255, 255, 255, 255).uv(minU, maxV).overlayCoords(combinedOverlay).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).endVertex();
+        buffer.vertex(matrix, x, y, 0).color(255, 255, 255, 255).uv(maxU, maxV).overlayCoords(combinedOverlay).uv2(combinedLight).normal(normalMatrix, facing.getStepX(), facing.getStepY(), facing.getStepZ()).endVertex();
     }
 
     private void drawString(MatrixStack poseStack, IRenderTypeBuffer buffer, int combinedLight, String s){
