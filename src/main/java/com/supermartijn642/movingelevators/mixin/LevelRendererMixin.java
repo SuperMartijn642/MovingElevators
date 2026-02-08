@@ -7,7 +7,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.state.LevelRenderState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -44,44 +43,6 @@ public class LevelRendererMixin {
     )
     private void submitBlockEntities(PoseStack poseStack, LevelRenderState levelRenderState, SubmitNodeStorage submitNodeStorage, CallbackInfo ci){
         ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, ClientUtils.getPartialTicks(), levelRenderState.cameraRenderState, submitNodeStorage);
-    }
-
-    @Inject(
-        method = "method_62214",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;Lcom/mojang/blaze3d/textures/GpuSampler;)V",
-            shift = At.Shift.BEFORE,
-            ordinal = 0
-        )
-    )
-    private void renderOpaqueLayer(CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(POSE_STACK, ChunkSectionLayerGroup.OPAQUE, this.renderBuffers.bufferSource());
-    }
-
-    @Inject(
-        method = "method_62214",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;Lcom/mojang/blaze3d/textures/GpuSampler;)V",
-            shift = At.Shift.BEFORE,
-            ordinal = 1
-        )
-    )
-    private void renderTranslucentLayer(CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(POSE_STACK, ChunkSectionLayerGroup.TRANSLUCENT, this.renderBuffers.bufferSource());
-    }
-
-    @Inject(
-        method = "method_62214",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;Lcom/mojang/blaze3d/textures/GpuSampler;)V",
-            shift = At.Shift.BEFORE,
-            ordinal = 2
-        )
-    )
-    private void renderTripwireLayer(CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(POSE_STACK, ChunkSectionLayerGroup.TRIPWIRE, this.renderBuffers.bufferSource());
+        ElevatorGroupRenderer.renderBlocks(POSE_STACK, levelRenderState.cameraRenderState, this.renderBuffers.bufferSource());
     }
 }
