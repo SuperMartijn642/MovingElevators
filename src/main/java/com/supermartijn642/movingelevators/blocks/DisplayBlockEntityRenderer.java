@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
@@ -133,9 +134,9 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         int lighting = state.frontLighting;
         int overlay = state.combinedOverlay;
         if(state.displayHeight == 1)
-            this.drawOverlayPart(poseStack, output, lighting, overlay, facing, 0, 0, 1, 1, 0, 0, 32, 32);
+            this.drawOverlayPart(poseStack, output, false, lighting, overlay, facing, 0, 0, 1, 1, 0, 0, 32, 32);
         else
-            this.drawOverlayPart(poseStack, output, lighting, overlay, facing, 0, 0, 1, 2, 32, 0, 32, 64);
+            this.drawOverlayPart(poseStack, output, false, lighting, overlay, facing, 0, 0, 1, 2, 32, 0, 32, 64);
 
         // Submit buttons
         poseStack.pushPose();
@@ -143,7 +144,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < state.floorCount; i++){
             DyeColor labelColor = state.floorColors[i];
-            this.drawOverlayPart(poseStack, output, lighting, overlay, facing, 0, 0, 1, 1, state.firstFloorIndex + i == state.ownFloorIndex ? 96 : 64, labelColor.getId() * 4, 32, 4);
+            this.drawOverlayPart(poseStack, output, false, lighting, overlay, facing, 0, 0, 1, 1, state.firstFloorIndex + i == state.ownFloorIndex ? 96 : 64, labelColor.getId() * 4, 32, 4);
             poseStack.translate(0, 1, 0);
         }
         poseStack.popPose();
@@ -154,7 +155,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < state.floorCount; i++){
             if(state.floorCageAvailable[i])
-                this.drawOverlayPart(poseStack, output, lighting, overlay, facing, 0, 0, 1, 1, 0, state.showPlatformDot ? 42 : 32, 10, 10);
+                this.drawOverlayPart(poseStack, output, true, lighting, overlay, facing, 0, 0, 1, 1, 0, state.showPlatformDot ? 42 : 32, 10, 10);
             poseStack.translate(0, 1, 0);
         }
         poseStack.popPose();
@@ -164,7 +165,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
             poseStack.pushPose();
             poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), state.platformDotOffset, -0.006);
             poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
-            this.drawOverlayPart(poseStack, output, lighting, overlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
+            this.drawOverlayPart(poseStack, output, true, lighting, overlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
             poseStack.popPose();
         }
 
@@ -184,8 +185,9 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.popPose();
     }
 
-    private void drawOverlayPart(PoseStack poseStack, SubmitNodeCollector output, int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
-        output.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), (pose, buffer) -> {
+    private void drawOverlayPart(PoseStack poseStack, SubmitNodeCollector output, boolean transparent, int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
+        RenderType renderType = transparent ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockSheet();
+        output.submitCustomGeometry(poseStack, renderType, (pose, buffer) -> {
             Matrix4f matrix = pose.pose();
             TextureAtlasSprite overlaySprite = MovingElevatorsClient.getOverlaySprite();
             float minU = overlaySprite.getU(tX / 128f), maxU = overlaySprite.getU((tX + tWidth) / 128f);
