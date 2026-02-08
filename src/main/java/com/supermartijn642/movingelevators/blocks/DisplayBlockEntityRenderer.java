@@ -10,7 +10,7 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,8 +32,6 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
     public void render(DisplayBlockEntity entity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay){
         if(!entity.isBottomDisplay() || !entity.getInputBlockEntity().hasGroup())
             return;
-
-        VertexConsumer buffer = bufferSource.getBuffer(RenderType.cutout());
 
         int height = entity.hasDisplayOnTop() ? 2 : 1;
         Level level = entity.getLevel();
@@ -60,9 +58,9 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
 
         // render background
         if(height == 1)
-            this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, 0, 32, 32);
+            this.drawOverlayPart(poseStack, bufferSource, false, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, 0, 32, 32);
         else
-            this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 2, 32, 0, 32, 64);
+            this.drawOverlayPart(poseStack, bufferSource, false, combinedLight, combinedOverlay, facing, 0, 0, 1, 2, 32, 0, 32, 64);
 
         int index = group.getFloorNumber(entity.getInputBlockEntity().getFloorLevel());
         int button_count = height == 1 ? DisplayBlock.BUTTON_COUNT : DisplayBlock.BUTTON_COUNT_BIG;
@@ -84,7 +82,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.scale(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             DyeColor labelColor = group.getFloorDisplayColor(startIndex + i);
-            this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, startIndex + i == index ? 96 : 64, labelColor.getId() * 4, 32, 4);
+            this.drawOverlayPart(poseStack, bufferSource, false, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, startIndex + i == index ? 96 : 64, labelColor.getId() * 4, 32, 4);
             poseStack.translate(0, 1, 0);
         }
         poseStack.popPose();
@@ -95,7 +93,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             if(group.isCageAvailableAt(startIndex + i))
-                this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, group.isMoving() ? 42 : 32, 10, 10);
+                this.drawOverlayPart(poseStack, bufferSource, true, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, group.isMoving() ? 42 : 32, 10, 10);
             poseStack.translate(0, 1, 0);
         }
         poseStack.popPose();
@@ -114,7 +112,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
                 poseStack.pushPose();
                 poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), yOffset, -0.006);
                 poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
-                this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
+                this.drawOverlayPart(poseStack, bufferSource, true, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
                 poseStack.popPose();
             }
         }
@@ -141,13 +139,14 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         poseStack.popPose();
     }
 
-    private void drawOverlayPart(PoseStack poseStack, VertexConsumer buffer, int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
+    private void drawOverlayPart(PoseStack poseStack, MultiBufferSource bufferSource, boolean transparent, int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
         Matrix4f matrix = poseStack.last().pose();
 
         TextureAtlasSprite overlaySprite = MovingElevatorsClient.OVERLAY_SPRITE;
         float minU = overlaySprite.getU(tX / 128f), maxU = overlaySprite.getU((tX + tWidth) / 128f);
         float minV = overlaySprite.getV(tY / 128f), maxV = overlaySprite.getV((tY + tHeight) / 128f);
 
+        VertexConsumer buffer = bufferSource.getBuffer(transparent ? Sheets.translucentCullBlockSheet() : Sheets.cutoutBlockSheet());
         buffer.addVertex(matrix, x, y + height, 0).setColor(255, 255, 255, 255).setUv(maxU, minV).setLight(combinedLight).setNormal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).setOverlay(combinedOverlay);
         buffer.addVertex(matrix, x + width, y + height, 0).setColor(255, 255, 255, 255).setUv(minU, minV).setLight(combinedLight).setNormal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).setOverlay(combinedOverlay);
         buffer.addVertex(matrix, x + width, y, 0).setColor(255, 255, 255, 255).setUv(minU, maxV).setLight(combinedLight).setNormal(poseStack.last(), facing.getStepX(), facing.getStepY(), facing.getStepZ()).setOverlay(combinedOverlay);
