@@ -58,9 +58,9 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
 
         // render background
         if(height == 1)
-            this.drawOverlayPart(combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, 0, 32, 32);
+            this.drawOverlayPart(false, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, 0, 32, 32);
         else
-            this.drawOverlayPart(combinedLight, combinedOverlay, facing, 0, 0, 1, 2, 32, 0, 32, 64);
+            this.drawOverlayPart(false, combinedLight, combinedOverlay, facing, 0, 0, 1, 2, 32, 0, 32, 64);
 
         int index = group.getFloorNumber(entity.getInputBlockEntity().getFloorLevel());
         int button_count = height == 1 ? DisplayBlock.BUTTON_COUNT : DisplayBlock.BUTTON_COUNT_BIG;
@@ -85,7 +85,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         GlStateManager.scaled(1, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             DyeColor labelColor = group.getFloorDisplayColor(startIndex + i);
-            this.drawOverlayPart(combinedLight, combinedOverlay, facing, 0, 0, 1, 1, startIndex + i == index ? 96 : 64, labelColor.getId() * 4, 32, 4);
+            this.drawOverlayPart(false, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, startIndex + i == index ? 96 : 64, labelColor.getId() * 4, 32, 4);
 
             boolean drawText = cameraPos.distanceToSqr(buttonPos) < TEXT_RENDER_DISTANCE; // text rendering is VERY slow apparently, so only draw it within a certain distance
             if(drawText){
@@ -106,7 +106,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         GlStateManager.scaled(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
         for(int i = 0; i < total; i++){
             if(group.isCageAvailableAt(startIndex + i))
-                this.drawOverlayPart(combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, group.isMoving() ? 42 : 32, 10, 10);
+                this.drawOverlayPart(true, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, group.isMoving() ? 42 : 32, 10, 10);
             GlStateManager.translated(0, 1, 0);
         }
         GlStateManager.popMatrix();
@@ -125,7 +125,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
                 GlStateManager.pushMatrix();
                 GlStateManager.translated(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), yOffset, -0.006);
                 GlStateManager.scaled(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
-                this.drawOverlayPart(combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
+                this.drawOverlayPart(true, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
                 GlStateManager.popMatrix();
             }
         }
@@ -133,7 +133,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         GlStateManager.popMatrix();
     }
 
-    private void drawOverlayPart(int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
+    private void drawOverlayPart(boolean transparent, int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
         float minU = MovingElevatorsClient.OVERLAY_SPRITE.getU(tX / 8f), maxU = MovingElevatorsClient.OVERLAY_SPRITE.getU((tX + tWidth) / 8f);
         float minV = MovingElevatorsClient.OVERLAY_SPRITE.getV(tY / 8f), maxV = MovingElevatorsClient.OVERLAY_SPRITE.getV((tY + tHeight) / 8f);
         int k = combinedLight >> 16 & '\uffff';
@@ -145,7 +145,13 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         buffer.vertex(x + width, y + height, 0).color(255, 255, 255, 255).uv(minU, minV).uv2(k, l).endVertex();
         buffer.vertex(x + width, y, 0).color(255, 255, 255, 255).uv(minU, maxV).uv2(k, l).endVertex();
         buffer.vertex(x, y, 0).color(255, 255, 255, 255).uv(maxU, maxV).uv2(k, l).endVertex();
-        Tessellator.getInstance().end();
+        if(transparent){
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            Tessellator.getInstance().end();
+            GlStateManager.disableBlend();
+        }else
+            Tessellator.getInstance().end();
     }
 
     private void drawString(int combinedLight, String s){
