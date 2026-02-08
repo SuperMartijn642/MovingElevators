@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.elevator;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
 import com.supermartijn642.core.render.RenderWorldEvent;
@@ -13,7 +14,6 @@ import net.minecraft.client.renderer.block.model.BlockModelPart;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -26,7 +26,10 @@ import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.common.NeoForge;
 import org.joml.Vector3f;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created 11/8/2020 by SuperMartijn642
@@ -130,17 +133,15 @@ public class ElevatorGroupRenderer {
         state.entityCount = index;
     }
 
-    public static void renderBlocks(PoseStack poseStack, ChunkSectionLayerGroup layers, MultiBufferSource bufferSource){
+    public static void renderBlocks(PoseStack poseStack, CameraRenderState cameraRenderState, MultiBufferSource bufferSource){
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         poseStack.pushPose();
-        Vec3 camera = RenderUtils.getCameraPosition();
+        Vec3 camera = cameraRenderState.pos;
         poseStack.translate(-camera.x, -camera.y, -camera.z);
-        Set<ChunkSectionLayer> layersSet = EnumSet.noneOf(ChunkSectionLayer.class);
-        layersSet.addAll(Arrays.asList(layers.layers()));
         for(ElevatorGroup group : groups.getGroups()){
             if(group.isMoving() && isWithinRenderDistance(group))
-                renderGroupBlocks(poseStack, group, layersSet, bufferSource, ClientUtils.getPartialTicks());
+                renderGroupBlocks(poseStack, group, bufferSource, ClientUtils.getPartialTicks());
         }
         poseStack.popPose();
     }
@@ -156,7 +157,7 @@ public class ElevatorGroupRenderer {
         poseStack.popPose();
     }
 
-    private static void renderGroupBlocks(PoseStack poseStack, ElevatorGroup group, Set<ChunkSectionLayer> layers, MultiBufferSource bufferSource, float partialTicks){
+    public static void renderGroupBlocks(PoseStack poseStack, ElevatorGroup group, MultiBufferSource bufferSource, float partialTicks){
         ClientElevatorCage cage = (ClientElevatorCage)group.getCage();
         double lastY = group.getLastY(), currentY = group.getCurrentY();
         double renderY = lastY + (currentY - lastY) * partialTicks;
@@ -166,6 +167,7 @@ public class ElevatorGroupRenderer {
         Level level = ClientElevatorCage.getFakeLevel();
 
         BlockRenderDispatcher blockRenderer = ClientUtils.getBlockRenderer();
+        Function<ChunkSectionLayer,VertexConsumer> vertexConsumerProvider = layer -> bufferSource.getBuffer(RenderTypeHelper.getEntityRenderType(layer));
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
@@ -181,7 +183,7 @@ public class ElevatorGroupRenderer {
                         BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
                         pos.set(anchorPos.getX() + x, anchorPos.getY() + y, anchorPos.getZ() + z);
                         List<BlockModelPart> parts = model.collectParts(level, pos, state, level.random);
-                        blockRenderer.renderBatched(state, pos, level, poseStack, layer -> bufferSource.getBuffer(RenderTypeHelper.getMovingBlockRenderType(layer)), true, parts);
+                        blockRenderer.renderBatched(state, pos, level, poseStack, vertexConsumerProvider, true, parts);
                     }
                     poseStack.popPose();
                 }
