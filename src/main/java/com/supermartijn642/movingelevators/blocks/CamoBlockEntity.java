@@ -12,6 +12,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.Constants;
 
@@ -58,13 +59,15 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
     @Override
     protected NBTTagCompound writeData(){
         NBTTagCompound compound = new NBTTagCompound();
-        compound.setInteger("camoState", Block.getStateId(this.camoState));
+        compound.setTag("camoState", NBTUtil.writeBlockState(new NBTTagCompound(), this.camoState));
         return compound;
     }
 
     @Override
     protected void readData(NBTTagCompound compound){
-        if(compound.hasKey("camoState"))
+        if(compound.hasKey("camoState", Constants.NBT.TAG_COMPOUND))
+            this.camoState = NBTUtil.readBlockState(compound.getCompoundTag("camoState"));
+        else if(compound.hasKey("camoState"))
             this.camoState = Block.getStateById(compound.getInteger("camoState"));
         else if(compound.hasKey("hasCamo")){ // Do this for older versions
             if(compound.getBoolean("hasCamo"))
