@@ -25,6 +25,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Created 4/7/2020 by SuperMartijn642
@@ -33,6 +34,8 @@ public class ElevatorGroup {
 
     private static final int RE_SYNC_INTERVAL = 10;
     private static final double ACCELERATION = 0.05;
+    private static final int CAGE_CHECK_INTERVAL = 20;
+    private static final int MAX_CAGE_CHECKS_PER_TICK = 1;
 
     public final Level level;
     public final int x, z;
@@ -57,6 +60,8 @@ public class ElevatorGroup {
     private final Map<Integer,Set<BlockPos>> comparatorListeners = new Int2ObjectArrayMap<>();
 
     private int syncCounter = 0;
+    private int tickCounter = 0;
+    private int cageChecks = 0;
 
     public ElevatorGroup(Level level, int x, int z, Direction facing){
         this.level = level;
@@ -66,6 +71,8 @@ public class ElevatorGroup {
     }
 
     public void update(){
+        this.tickCounter++;
+        this.cageChecks = 0;
         if(!this.level.isClientSide && this.shouldBeSynced){
             this.shouldBeSynced = false;
             this.updateGroup();
@@ -106,6 +113,7 @@ public class ElevatorGroup {
         this.isMoving = false;
 
         this.cage.place(this.level, this.getCageAnchorBlockPos(this.targetY));
+        this.floorData.get(this.getFloorNumber(this.targetY)).isCageAvailable = true;
 
         this.moveElevator(this.lastY, this.currentY);
 
@@ -128,6 +136,7 @@ public class ElevatorGroup {
         ElevatorCage cage = ElevatorCage.createCageAndClear(this.level, this.getCageAnchorBlockPos(currentY), this.cageSizeX, this.cageSizeY, this.cageSizeZ);
         if(cage == null)
             return;
+        this.floorData.get(this.getFloorNumber(currentY)).isCageAvailable = false;
 
         this.cage = cage;
         this.isMoving = true;
@@ -152,10 +161,11 @@ public class ElevatorGroup {
         ControllerBlockEntity entity = this.getEntity(yLevel);
         if(entity == null)
             return;
+        int entityFloor = this.floors.indexOf(yLevel);
 
         if(isUp){
-            if(this.isCageAvailableAt(entity)){
-                for(int floor = this.floors.indexOf(yLevel) + 1; floor < this.floors.size(); floor++){
+            if(this.isCageAvailableAt(entityFloor, true)){
+                for(int floor = entityFloor + 1; floor < this.floors.size(); floor++){
                     ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
                     if(entity2 != null){
                         if(this.canCageBePlacedAt(entity2, entity))
@@ -165,8 +175,8 @@ public class ElevatorGroup {
                 }
             }
         }else if(isDown){
-            if(this.isCageAvailableAt(entity)){
-                for(int floor = this.floors.indexOf(yLevel) - 1; floor >= 0; floor--){
+            if(this.isCageAvailableAt(entityFloor, true)){
+                for(int floor = entityFloor - 1; floor >= 0; floor--){
                     ControllerBlockEntity entity2 = this.getEntity(this.floors.get(floor));
                     if(entity2 != null){
                         if(this.canCageBePlacedAt(entity2, entity))
@@ -176,20 +186,15 @@ public class ElevatorGroup {
                 }
             }
         }else{
-            this.floors.sort(Comparator.comparingInt(a -> Math.abs(a - yLevel)));
-            for(int y : this.floors){
-                if(y != yLevel){
-                    ControllerBlockEntity entity2 = this.getEntity(y);
-                    if(this.canCageBePlacedAt(entity, entity2)){
-                        if(entity2 != null && this.isCageAvailableAt(entity2)){
-                            this.floors.sort(Integer::compare);
-                            this.startElevator(y, yLevel);
-                            return;
-                        }
-                    }
+            List<Integer> floorIndices = IntStream.range(0, this.floors.size()).boxed().sorted(Comparator.comparingInt(i -> Math.abs(this.floors.get(i) - yLevel))).toList();
+            for(int floor : floorIndices){
+                if(floor == entityFloor)
+                    continue;
+                if(this.isCageAvailableAt(floor, true) && this.canCageBePlacedAt(entity, this.getEntityForFloor(floor))){
+                    this.startElevator(this.getFloorYLevel(floor), yLevel);
+                    return;
                 }
             }
-            this.floors.sort(Integer::compare);
         }
     }
 
@@ -210,7 +215,7 @@ public class ElevatorGroup {
         ControllerBlockEntity entity = this.getEntity(yLevel);
         int toY = this.floors.get(toFloor);
         ControllerBlockEntity toEntity = this.getEntity(toY);
-        if(entity != null && toEntity != null && this.isCageAvailableAt(entity) && this.canCageBePlacedAt(toEntity, entity))
+        if(entity != null && toEntity != null && this.isCageAvailableAt(floor, true) && this.canCageBePlacedAt(toEntity, entity))
             this.startElevator(yLevel, toY);
     }
 
@@ -520,11 +525,25 @@ public class ElevatorGroup {
     }
 
     /**
-     * @return whether the blocks in front of the given {@code entity} are suitable
-     * for a cage
+     * @return whether the blocks at the given floor are suitable for a cage
      */
-    public boolean isCageAvailableAt(ControllerBlockEntity entity){
-        return ElevatorCage.canCreateCage(this.level, this.getCageAnchorBlockPos(entity.getBlockPos().getY()), this.cageSizeX, this.cageSizeY, this.cageSizeZ);
+    public boolean isCageAvailableAt(int floor, boolean forceRefresh){
+        FloorData floorData = this.floorData.get(floor);
+        if(forceRefresh || (this.tickCounter - floorData.lastCageCheck > CAGE_CHECK_INTERVAL && this.cageChecks < MAX_CAGE_CHECKS_PER_TICK && this.level.isLoaded(this.getPos(this.getFloorYLevel(floor))))){
+            boolean isCageAvailable = ElevatorCage.canCreateCage(this.level, this.getCageAnchorBlockPos(this.getFloorYLevel(floor)), this.cageSizeX, this.cageSizeY, this.cageSizeZ);
+            if(isCageAvailable != floorData.isCageAvailable)
+                this.shouldBeSynced = true;
+            floorData.isCageAvailable = isCageAvailable;
+            floorData.lastCageCheck = this.tickCounter;
+        }
+        return floorData.isCageAvailable;
+    }
+
+    /**
+     * @return whether the blocks at the given floor are suitable for a cage
+     */
+    public boolean isCageAvailableAt(int floor){
+        return this.isCageAvailableAt(floor, false);
     }
 
     /**
@@ -717,10 +736,17 @@ public class ElevatorGroup {
 
         public String name;
         public DyeColor color;
+        public boolean isCageAvailable;
+        public int lastCageCheck = -1;
 
-        public FloorData(String name, DyeColor color){
+        public FloorData(String name, DyeColor color, boolean isCageAvailable){
             this.name = name;
             this.color = color;
+            this.isCageAvailable = isCageAvailable;
+        }
+
+        public FloorData(String name, DyeColor color){
+            this(name, color, false);
         }
 
         public CompoundTag write(){
@@ -728,11 +754,16 @@ public class ElevatorGroup {
             if(this.name != null)
                 tag.putString("name", this.name);
             tag.putInt("color", this.color.getId());
+            tag.putBoolean("isCageAvailable", this.isCageAvailable);
             return tag;
         }
 
         public static FloorData read(CompoundTag tag){
-            return new FloorData(tag.contains("name") ? tag.getString("name") : null, DyeColor.byId(tag.getInt("color")));
+            return new FloorData(
+                tag.contains("name") ? tag.getString("name") : null,
+                DyeColor.byId(tag.getInt("color")),
+                tag.contains("isCageAvailable") && tag.getBoolean("isCageAvailable")
+            );
         }
     }
 }
