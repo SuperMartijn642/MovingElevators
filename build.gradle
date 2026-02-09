@@ -111,6 +111,8 @@ minecraft {
         }
 
         data {
+            //noinspection GroovyAssignabilityCheck
+            parent runs.client
             property "--generatorModid", mod_id
             property "--output", file("src/generated/resources/")
             //noinspection GroovyAssignabilityCheck
@@ -127,8 +129,8 @@ tasks.register('processSources', Sync) {
     // Replace mod properties in main mod class
     Hashtable<String, String> properties = new Hashtable<>()
     project.properties.entrySet().stream()
-            .filter(entry -> entry.key instanceof String && entry.value instanceof String)
-            .forEach(entry -> properties.put(entry.key, entry.value as String))
+        .filter(entry -> entry.key instanceof String && entry.value instanceof String)
+        .forEach(entry -> properties.put(entry.key, entry.value as String))
     filesMatching(mod_package.replace('.', '/') + "/" + mod_main_class + ".java") {
         //noinspection UnnecessaryQualifiedReference
         filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: properties)
@@ -152,7 +154,7 @@ gradle.taskGraph.whenReady {
         minecraft.runs.each {
             //noinspection GroovyAssignabilityCheck
             def configFile = new File(configDir, it.getUniqueFileName() + ".xml")
-            if(configFile.exists()){
+            if (configFile.exists()) {
                 def xml = new groovy.xml.XmlSlurper().parse(configFile)
                 //noinspection GrUnresolvedAccess
                 xml.configuration.@name = "Forge " + it.name.capitalize()
@@ -165,8 +167,8 @@ gradle.taskGraph.whenReady {
 jar {
     from {
         configurations.compileClasspath
-                .filter { "mixin-0.8.3-SNAPSHOT.jar" == it.name }
-                .collect { it.isDirectory() ? it : zipTree(it) }
+            .filter { "mixin-0.8.3-SNAPSHOT.jar" == it.name }
+            .collect { it.isDirectory() ? it : zipTree(it) }
     } {
         exclude "LICENSE.txt", "META-INF/MANIFSET.MF", "META-INF/maven/**", "META-INF/*.RSA", "META-INF/*.SF"
     }
