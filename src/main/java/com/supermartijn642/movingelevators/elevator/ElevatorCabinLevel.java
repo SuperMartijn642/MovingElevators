@@ -26,6 +26,7 @@ import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -89,6 +90,11 @@ public class ElevatorCabinLevel extends Level {
             return state == null ? Blocks.AIR.defaultBlockState() : state;
         }
         return Blocks.AIR.defaultBlockState();
+    }
+
+    @Override
+    public LevelLightEngine getLightEngine(){
+        return this.level.getLightEngine();
     }
 
     @Override
