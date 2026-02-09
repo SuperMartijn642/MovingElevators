@@ -1,8 +1,1 @@
-// 1.19.4	2023-11-14T22:57:07.8986394	Moving Elevators/Moving Elevators Model Generator
-c488a11747a9eb6688b4104b68e4d96795c5ec4f assets\movingelevators\models\item\button_block.json
-a342fb09e01bba607c0087cf74461980f935e5f9 assets\minecraft\atlases\blocks.json
-6f27a04de932493752feb6098db3ebe710b9a157 assets\movingelevators\models\item\display_block.json
-a87c5f76165eace5081796f29ec801c734e8efb9 assets\movingelevators\models\block\display_block.json
-c71b717e4a2ddb3429b02f0affffdfef05600901 assets\movingelevators\models\item\elevator_block.json
-a87c5f76165eace5081796f29ec801c734e8efb9 assets\movingelevators\models\block\button_block.json
-75b4b981ca687783c774e95e65db4ae73778b346 assets\movingelevators\models\block\elevator_block.json
+// 1.19.4	2026-02-09T14:31:04.0559445	Moving Elevators/Moving Elevators Model Generator
