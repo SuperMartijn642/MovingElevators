@@ -5,8 +5,6 @@ import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.client.renderer.RenderType;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,13 +36,6 @@ public class LevelRendererMixin {
     )
     private void renderLevelBlockEntities(CallbackInfo ci){
         ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, ClientUtils.getPartialTicks(), this.renderBuffers.bufferSource());
-    }
-
-    @Inject(
-        method = "renderSectionLayer",
-        at = @At("HEAD")
-    )
-    private void renderChunkLayer(RenderType renderType, double cameraX, double cameraY, double cameraZ, Matrix4f modelView, Matrix4f projection, CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(POSE_STACK, renderType, this.renderBuffers.bufferSource());
+        ElevatorGroupRenderer.renderBlocks(POSE_STACK, this.renderBuffers.bufferSource());
     }
 }
