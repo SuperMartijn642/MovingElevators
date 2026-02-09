@@ -1,5 +1,6 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.supermartijn642.core.CommonUtils;
 import com.supermartijn642.core.block.BaseBlockEntity;
 import com.supermartijn642.core.block.BaseBlockEntityType;
 import com.supermartijn642.core.registry.Registries;
@@ -7,6 +8,7 @@ import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -63,12 +65,14 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
     @Override
     protected CompoundTag writeData(){
         CompoundTag compound = new CompoundTag();
-        compound.putInt("camoState", Block.getId(this.camoState));
+        compound.put("camoState", NbtUtils.writeBlockState(this.camoState));
         return compound;
     }
 
     @Override
     protected void readData(CompoundTag compound){
-        this.camoState = Block.stateById(compound.getInt("camoState"));
+        this.camoState = compound.contains("camoState", CompoundTag.TAG_COMPOUND) ?
+            NbtUtils.readBlockState(CommonUtils.getRegistryAccess().lookup(net.minecraft.core.registries.Registries.BLOCK).orElseThrow(), compound.getCompound("camoState")) :
+            Block.stateById(compound.getInt("camoState"));
     }
 }
