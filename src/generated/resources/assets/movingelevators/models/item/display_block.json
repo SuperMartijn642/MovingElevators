@@ -26,13 +26,13 @@
         "down": {
           "texture": "#all"
         },
-        "north": {
+        "south": {
           "texture": "#all"
         },
         "up": {
           "texture": "#all"
         },
-        "south": {
+        "north": {
           "texture": "#all"
         }
       }
