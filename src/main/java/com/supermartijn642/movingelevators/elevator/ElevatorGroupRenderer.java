@@ -1,15 +1,15 @@
 package com.supermartijn642.movingelevators.elevator;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
 import com.supermartijn642.core.render.RenderWorldEvent;
+import com.supermartijn642.movingelevators.util.BufferSourceWrapper;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
@@ -26,6 +26,8 @@ public class ElevatorGroupRenderer {
     public static void registerEventListeners(){
         RenderWorldEvent.EVENT.register(ElevatorGroupRenderer::onRender);
     }
+
+    private static final BufferSourceWrapper BUFFER_SOURCE_WRAPPER = new BufferSourceWrapper();
 
     private static boolean isWithinRenderDistance(ElevatorGroup group){
         GameRenderer renderer = ClientUtils.getMinecraft().gameRenderer;
@@ -52,28 +54,17 @@ public class ElevatorGroupRenderer {
         e.getPoseStack().popPose();
     }
 
-    public static void renderBlocks(PoseStack poseStack, RenderType renderType, MultiBufferSource bufferSource){
+    public static void renderBlocks(PoseStack poseStack, MultiBufferSource bufferSource){
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         poseStack.pushPose();
         Vec3 camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
-        VertexConsumer buffer = null;
-        boolean rendered = false;
         for(ElevatorGroup group : groups.getGroups()){
-            if(group.isMoving() && isWithinRenderDistance(group)){
-                if(buffer == null)
-                    buffer = bufferSource.getBuffer(renderType);
-                renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
-                rendered = true;
-            }
+            if(group.isMoving() && isWithinRenderDistance(group))
+                renderGroupBlocks(poseStack, group, bufferSource, ClientUtils.getPartialTicks());
         }
         poseStack.popPose();
-
-        if(rendered
-            && renderType != RenderType.translucent()
-            && bufferSource instanceof MultiBufferSource.BufferSource) // Make sure blocks get rendered before the model view matrix gets updated
-            ((MultiBufferSource.BufferSource)bufferSource).endBatch(renderType);
     }
 
     public static void renderBlockEntities(PoseStack poseStack, float partialTicks, MultiBufferSource bufferSource){
@@ -89,7 +80,7 @@ public class ElevatorGroupRenderer {
         poseStack.popPose();
     }
 
-    public static void renderGroupBlocks(PoseStack poseStack, ElevatorGroup group, RenderType renderType, VertexConsumer buffer, float partialTicks){
+    public static void renderGroupBlocks(PoseStack poseStack, ElevatorGroup group, MultiBufferSource bufferSource, float partialTicks){
         ClientElevatorCage cage = (ClientElevatorCage)group.getCage();
         double lastY = group.getLastY(), currentY = group.getCurrentY();
         double renderY = lastY + (currentY - lastY) * partialTicks;
@@ -99,6 +90,7 @@ public class ElevatorGroupRenderer {
         Level level = ClientElevatorCage.getFakeLevel();
 
         BlockRenderDispatcher blockRenderer = ClientUtils.getBlockRenderer();
+        BUFFER_SOURCE_WRAPPER.set(bufferSource);
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
@@ -110,9 +102,11 @@ public class ElevatorGroupRenderer {
                     poseStack.translate(startPos.x + x, startPos.y + y, startPos.z + z);
 
                     BlockState state = cage.blockStates[x][y][z];
-                    if(state.getRenderShape() == RenderShape.MODEL && ItemBlockRenderTypes.getChunkRenderType(state) == renderType){
+                    if(state.getRenderShape() == RenderShape.MODEL){
                         pos.set(anchorPos.getX() + x, anchorPos.getY() + y, anchorPos.getZ() + z);
-                        blockRenderer.renderBatched(state, pos, level, poseStack, buffer, true, blockRenderer.getBlockModel(state).collectParts(level.random));
+                        BlockStateModel model = blockRenderer.getBlockModel(state);
+                        long seed = state.getSeed(pos);
+                        blockRenderer.getModelRenderer().render(level, model, state, pos, poseStack, BUFFER_SOURCE_WRAPPER, true, seed, OverlayTexture.NO_OVERLAY);
                     }
                     poseStack.popPose();
                 }
