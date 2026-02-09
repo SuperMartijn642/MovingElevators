@@ -12,6 +12,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
@@ -66,13 +67,15 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
     @Override
     protected CompoundNBT writeData(){
         CompoundNBT compound = new CompoundNBT();
-        compound.putInt("camoState", Block.getId(this.camoState));
+        compound.put("camoState", NBTUtil.writeBlockState(this.camoState));
         return compound;
     }
 
     @Override
     protected void readData(CompoundNBT compound){
-        if(compound.contains("camoState"))
+        if(compound.contains("camoState", Constants.NBT.TAG_COMPOUND))
+            this.camoState = NBTUtil.readBlockState(compound.getCompound("camoState"));
+        else if(compound.contains("camoState")) // Do this for older versions
             this.camoState = Block.stateById(compound.getInt("camoState"));
         else if(compound.contains("hasCamo")){ // Do this for older versions
             if(compound.getBoolean("hasCamo"))
