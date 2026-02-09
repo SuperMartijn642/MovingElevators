@@ -1,7 +1,6 @@
 package com.supermartijn642.movingelevators;
 
 import com.google.common.collect.Sets;
-import com.supermartijn642.core.CommonUtils;
 import com.supermartijn642.core.block.BaseBlockEntityType;
 import com.supermartijn642.core.block.BlockProperties;
 import com.supermartijn642.core.item.BaseBlockItem;
@@ -48,8 +47,6 @@ public class MovingElevators implements ModInitializer {
     public static SoundEvent arrive_sound;
 
     public static final CreativeItemGroup GROUP = CreativeItemGroup.create("movingelevators", () -> elevator_block.asItem());
-
-    public static final boolean isIrisLoaded = CommonUtils.isModLoaded("iris");
 
     @Override
     public void onInitialize(){
