@@ -2,7 +2,7 @@
   "replace": false,
   "values": [
     "movingelevators:elevator_block",
-    "movingelevators:button_block",
-    "movingelevators:display_block"
+    "movingelevators:display_block",
+    "movingelevators:button_block"
   ]
 }
