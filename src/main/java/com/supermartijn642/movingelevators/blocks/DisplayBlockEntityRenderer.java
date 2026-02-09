@@ -96,6 +96,17 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         }
         poseStack.popPose();
 
+        // Submit floor cage availability dots
+        poseStack.pushPose();
+        poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), 0.5 * height - total * DisplayBlock.BUTTON_HEIGHT / 2d, -0.004);
+        poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
+        for(int i = 0; i < total; i++){
+            if(group.isCageAvailableAt(startIndex + i))
+                this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, group.isMoving() ? 42 : 32, 10, 10);
+            poseStack.translate(0, 1, 0);
+        }
+        poseStack.popPose();
+
         // render platform dot
         if(group.isMoving()){
             double platformY = group.getCurrentY();
@@ -107,9 +118,11 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
                     if(platformY >= belowY && platformY < aboveY)
                         yOffset += (i + (platformY - belowY) / (aboveY - belowY)) * DisplayBlock.BUTTON_HEIGHT;
                 }
-                poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), yOffset, -0.003);
+                poseStack.pushPose();
+                poseStack.translate(1 - (27.5 / 32d + DisplayBlock.BUTTON_HEIGHT / 2d), yOffset, -0.006);
                 poseStack.scale(DisplayBlock.BUTTON_HEIGHT, DisplayBlock.BUTTON_HEIGHT, 1);
-                this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 0, 32, 10, 10);
+                this.drawOverlayPart(poseStack, buffer, combinedLight, combinedOverlay, facing, 0, 0, 1, 1, 10, 32, 10, 10);
+                poseStack.popPose();
             }
         }
 
