@@ -23,6 +23,7 @@ import net.minecraft.world.biome.BiomeManager;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.lighting.WorldLightManager;
 import net.minecraft.world.storage.MapData;
 
 import javax.annotation.Nullable;
@@ -83,6 +84,11 @@ public class ElevatorCabinLevel extends World {
             return state == null ? Blocks.AIR.defaultBlockState() : state;
         }
         return Blocks.AIR.defaultBlockState();
+    }
+
+    @Override
+    public WorldLightManager getLightEngine(){
+        return this.level.getLightEngine();
     }
 
     @Override

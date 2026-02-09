@@ -1,16 +1,12 @@
 package com.supermartijn642.movingelevators.elevator;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.RenderUtils;
 import com.supermartijn642.core.render.RenderWorldEvent;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
@@ -58,28 +54,22 @@ public class ElevatorGroupRenderer {
         e.getPoseStack().popPose();
     }
 
-    public static void renderBlocks(MatrixStack poseStack, RenderType renderType, IRenderTypeBuffer bufferSource){
+    public static void renderBlocks(MatrixStack poseStack, IRenderTypeBuffer bufferSource){
         ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
 
         poseStack.pushPose();
-        RenderType oldLayer = MinecraftForgeClient.getRenderLayer();
-        ForgeHooksClient.setRenderLayer(renderType);
         Vec3d camera = RenderUtils.getCameraPosition();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
-        IVertexBuilder buffer = null;
-        for(ElevatorGroup group : groups.getGroups()){
-            if(group.isMoving() && isWithinRenderDistance(group)){
-                if(buffer == null)
-                    buffer = bufferSource.getBuffer(renderType);
-                renderGroupBlocks(poseStack, group, renderType, buffer, ClientUtils.getPartialTicks());
+        RenderType oldLayer = MinecraftForgeClient.getRenderLayer();
+        for(RenderType renderType : RenderType.chunkBufferLayers()){
+            ForgeHooksClient.setRenderLayer(renderType);
+            for(ElevatorGroup group : groups.getGroups()){
+                if(group.isMoving() && isWithinRenderDistance(group))
+                    renderGroupBlocks(poseStack, group, renderType, bufferSource, ClientUtils.getPartialTicks());
             }
         }
         poseStack.popPose();
         ForgeHooksClient.setRenderLayer(oldLayer);
-
-        // For some reason this is needed ¯\(o_o)/¯
-        if(buffer != null && renderType == RenderType.translucent())
-            ((IRenderTypeBuffer.Impl)bufferSource).endBatch(renderType);
     }
 
     public static void renderBlockEntities(MatrixStack poseStack, float partialTicks, IRenderTypeBuffer bufferSource){
@@ -95,7 +85,7 @@ public class ElevatorGroupRenderer {
         poseStack.popPose();
     }
 
-    public static void renderGroupBlocks(MatrixStack poseStack, ElevatorGroup group, RenderType renderType, IVertexBuilder buffer, float partialTicks){
+    public static void renderGroupBlocks(MatrixStack poseStack, ElevatorGroup group, RenderType renderType, IRenderTypeBuffer bufferSource, float partialTicks){
         ClientElevatorCage cage = (ClientElevatorCage)group.getCage();
         double lastY = group.getLastY(), currentY = group.getCurrentY();
         double renderY = lastY + (currentY - lastY) * partialTicks;
@@ -104,6 +94,7 @@ public class ElevatorGroupRenderer {
         cage.loadRenderInfo(anchorPos, group);
         World level = ClientElevatorCage.getFakeLevel();
 
+        BlockRendererDispatcher blockRenderer = ClientUtils.getBlockRenderer();
         BlockPos.Mutable pos = new BlockPos.Mutable();
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
@@ -116,11 +107,12 @@ public class ElevatorGroupRenderer {
 
                     BlockState state = cage.blockStates[x][y][z];
                     if(state.getRenderShape() == BlockRenderType.MODEL && RenderTypeLookup.canRenderInLayer(state, renderType)){
-                        IBakedModel model = ClientUtils.getBlockRenderer().getBlockModel(state);
+                        pos.set(anchorPos.getX() + x, anchorPos.getY() + y, anchorPos.getZ() + z);
+                        IBakedModel model = blockRenderer.getBlockModel(state);
                         IModelData modelData = cage.blockEntities[x][y][z] == null ? EmptyModelData.INSTANCE : cage.blockEntities[x][y][z].getModelData();
                         modelData = model.getModelData(level, pos, state, modelData);
-                        pos.set(anchorPos.getX() + x, anchorPos.getY() + y, anchorPos.getZ() + z);
-                        ClientUtils.getBlockRenderer().renderModel(state, pos, level, poseStack, buffer, true, level.random, modelData);
+                        RenderType entityRenderType = renderType == RenderType.translucent() ? Atlases.translucentCullBlockSheet() : Atlases.cutoutBlockSheet();
+                        blockRenderer.renderModel(state, pos, level, poseStack, bufferSource.getBuffer(entityRenderType), true, level.random, modelData);
                     }
                     poseStack.popPose();
                 }
