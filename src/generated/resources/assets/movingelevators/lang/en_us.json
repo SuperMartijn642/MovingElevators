@@ -38,5 +38,9 @@
   "movingelevators.elevator_screen.display_buttons": "Show buttons: %s",
   "movingelevators.elevator_screen.display_buttons.on": "True",
   "movingelevators.elevator_screen.display_buttons.off": "False",
-  "movingelevators.elevator.arrive_sound": "Elevator arrived"
+  "movingelevators.elevator.arrive_sound": "Elevator arrived",
+  "movingelevators.elevator.invalid_block": "Invalid block '%s' in cabin at %s.",
+  "movingelevators.elevator.empty": "No cabin at the current floor.",
+  "movingelevators.elevator.obstructed": "Cabin space is obstructed by block '%s' at %s.",
+  "movingelevators.elevator.no_cabins": "There are no available cabins."
 }
