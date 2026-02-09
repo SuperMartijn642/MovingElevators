@@ -1,5 +1,7 @@
 package com.supermartijn642.movingelevators.blocks;
 
+import com.mojang.serialization.Codec;
+import com.supermartijn642.core.CommonUtils;
 import com.supermartijn642.core.block.BaseBlockEntity;
 import com.supermartijn642.core.block.BaseBlockEntityType;
 import com.supermartijn642.core.registry.Registries;
@@ -7,6 +9,9 @@ import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -16,6 +21,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.ModelData;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created 4/6/2020 by SuperMartijn642
@@ -63,12 +69,22 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
     @Override
     protected CompoundTag writeData(){
         CompoundTag compound = new CompoundTag();
-        compound.putInt("camoState", Block.getId(this.camoState));
+        RegistryOps<Tag> registryOps = this.level.registryAccess().createSerializationContext(NbtOps.INSTANCE);
+        compound.store("camoState", BlockState.CODEC, registryOps, this.camoState);
         return compound;
     }
 
+    /**
+     * Gets the state by id for data saved in older versions.
+     */
+    private static final Codec<BlockState> FALLBACK_BLOCK_STATE_CODEC = Codec.either(
+        BlockState.CODEC,
+        Codec.INT.xmap(Block::stateById, o -> {throw new AssertionError();})
+    ).xmap(either -> either.map(Function.identity(), Function.identity()), o -> {throw new AssertionError();});
+
     @Override
     protected void readData(CompoundTag compound){
-        this.camoState = Block.stateById(compound.getIntOr("camoState", 0));
+        RegistryOps<Tag> registryOps = CommonUtils.getRegistryAccess().createSerializationContext(NbtOps.INSTANCE);
+        this.camoState = compound.read("camoState", FALLBACK_BLOCK_STATE_CODEC, registryOps).orElse(Blocks.AIR.defaultBlockState());
     }
 }
