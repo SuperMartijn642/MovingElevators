@@ -1,8 +1,8 @@
 {
   "parent": "movingelevators:block/display_block",
   "textures": {
-    "buttons": "movingelevators:blocks/display_buttons",
-    "overlay": "movingelevators:blocks/display_overlay"
+    "overlay": "movingelevators:blocks/display_overlay",
+    "buttons": "movingelevators:blocks/display_buttons"
   },
   "elements": [
     {
@@ -17,7 +17,13 @@
         16.0
       ],
       "faces": {
+        "east": {
+          "texture": "#all"
+        },
         "west": {
+          "texture": "#all"
+        },
+        "south": {
           "texture": "#all"
         },
         "north": {
@@ -27,12 +33,6 @@
           "texture": "#all"
         },
         "down": {
-          "texture": "#all"
-        },
-        "east": {
-          "texture": "#all"
-        },
-        "south": {
           "texture": "#all"
         }
       }
