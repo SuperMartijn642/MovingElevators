@@ -98,7 +98,7 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
             entity = ((RemoteControllerBlockEntity)entity).getController();
             if(entity != null
                 && ((ControllerBlockEntity)entity).hasGroup()
-                && ((ControllerBlockEntity)entity).getGroup().isCageAvailableAt((ControllerBlockEntity)entity)){
+                && ((ControllerBlockEntity)entity).getGroup().isCageAvailableAt(((ControllerBlockEntity)entity).getGroup().getFloorNumber(((ControllerBlockEntity)entity).getFloorLevel()), false)){
                 return 15;
             }
         }
