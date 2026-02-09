@@ -3,7 +3,10 @@ package com.supermartijn642.movingelevators.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderBuffers;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,13 +35,6 @@ public class LevelRendererMixin {
     )
     public void renderLevelBlockEntities(PoseStack poseStack, float partialTicks, long l, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci){
         ElevatorGroupRenderer.renderBlockEntities(poseStack, partialTicks, this.renderBuffers.bufferSource());
-    }
-
-    @Inject(
-        method = "renderChunkLayer",
-        at = @At("HEAD")
-    )
-    public void renderChunkLayer(RenderType renderType, PoseStack poseStack, double cameraX, double cameraY, double cameraZ, Matrix4f matrix4f, CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(poseStack, renderType, this.renderBuffers.bufferSource());
+        ElevatorGroupRenderer.renderBlocks(poseStack, this.renderBuffers.bufferSource());
     }
 }
