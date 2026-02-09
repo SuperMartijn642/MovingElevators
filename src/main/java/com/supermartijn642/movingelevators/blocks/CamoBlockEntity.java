@@ -7,6 +7,7 @@ import com.supermartijn642.movingelevators.MovingElevators;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -66,13 +67,15 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
     @Override
     protected CompoundTag writeData(){
         CompoundTag compound = new CompoundTag();
-        compound.putInt("camoState", Block.getId(this.camoState));
+        compound.put("camoState", NbtUtils.writeBlockState(this.camoState));
         return compound;
     }
 
     @Override
     protected void readData(CompoundTag compound){
-        if(compound.contains("camoState"))
+        if(compound.contains("camoState", CompoundTag.TAG_COMPOUND))
+            this.camoState = NbtUtils.readBlockState(compound.getCompound("camoState"));
+        else if(compound.contains("camoState")) // Do this for older versions
             this.camoState = Block.stateById(compound.getInt("camoState"));
         else if(compound.contains("hasCamo")){ // Do this for older versions
             if(compound.getBoolean("hasCamo"))
