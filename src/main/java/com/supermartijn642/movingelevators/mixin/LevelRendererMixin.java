@@ -31,13 +31,6 @@ public class LevelRendererMixin {
     )
     public void renderLevelBlockEntities(MatrixStack poseStack, float partialTicks, long l, boolean bl, ActiveRenderInfo camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo ci){
         ElevatorGroupRenderer.renderBlockEntities(poseStack, partialTicks, this.renderBuffers.bufferSource());
-    }
-
-    @Inject(
-        method = "renderChunkLayer",
-        at = @At("HEAD")
-    )
-    public void renderChunkLayer(RenderType renderType, MatrixStack poseStack, double cameraX, double cameraY, double cameraZ, CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(poseStack, renderType, this.renderBuffers.bufferSource());
+        ElevatorGroupRenderer.renderBlocks(poseStack, this.renderBuffers.bufferSource());
     }
 }
