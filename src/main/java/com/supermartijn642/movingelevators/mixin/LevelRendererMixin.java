@@ -5,7 +5,6 @@ import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,44 +37,6 @@ public class LevelRendererMixin {
     )
     private void renderLevelBlockEntities(CallbackInfo ci){
         ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, ClientUtils.getPartialTicks(), this.renderBuffers.bufferSource());
-    }
-
-    @Inject(
-        method = "lambda$addMainPass$2",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;)V",
-            shift = At.Shift.BEFORE,
-            ordinal = 0
-        )
-    )
-    private void renderOpaqueLayer(CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(POSE_STACK, ChunkSectionLayerGroup.OPAQUE, this.renderBuffers.bufferSource());
-    }
-
-    @Inject(
-        method = "lambda$addMainPass$2",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;)V",
-            shift = At.Shift.BEFORE,
-            ordinal = 1
-        )
-    )
-    private void renderTranslucentLayer(CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(POSE_STACK, ChunkSectionLayerGroup.TRANSLUCENT, this.renderBuffers.bufferSource());
-    }
-
-    @Inject(
-        method = "lambda$addMainPass$2",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;renderGroup(Lnet/minecraft/client/renderer/chunk/ChunkSectionLayerGroup;)V",
-            shift = At.Shift.BEFORE,
-            ordinal = 2
-        )
-    )
-    private void renderTripwireLayer(CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlocks(POSE_STACK, ChunkSectionLayerGroup.TRIPWIRE, this.renderBuffers.bufferSource());
+        ElevatorGroupRenderer.renderBlocks(POSE_STACK, this.renderBuffers.bufferSource());
     }
 }
