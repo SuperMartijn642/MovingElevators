@@ -53,7 +53,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         Level level = entity.getLevel();
         BlockPos frontPos = entity.getBlockPos().relative(facing);
         if(height == 1)
-            state.frontLighting = LevelRenderer.getLightColor(level, frontPos);
+            state.frontLighting = LevelRenderer.getLightCoords(level, frontPos);
         else if(level.getBlockState(frontPos).emissiveRendering(level, frontPos) || level.getBlockState(frontPos.above()).emissiveRendering(level, frontPos.above()))
             state.frontLighting = 15728880;
         else{

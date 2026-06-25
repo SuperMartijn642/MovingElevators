@@ -10,7 +10,7 @@ import com.supermartijn642.movingelevators.packets.PacketAddElevatorGroup;
 import com.supermartijn642.movingelevators.packets.PacketRemoveElevatorGroup;
 import com.supermartijn642.movingelevators.packets.PacketUpdateElevatorGroups;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityLevelChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -40,11 +40,11 @@ public class ElevatorGroupCapability {
 
     public static void registerEventListeners(){
         if(CommonUtils.getEnvironmentSide().isClient())
-            ClientTickEvents.END_WORLD_TICK.register(ElevatorGroupCapability::tickWorldCapability);
-        ServerTickEvents.END_WORLD_TICK.register(ElevatorGroupCapability::tickWorldCapability);
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> onJoinWorld(player, destination));
+            ClientTickEvents.END_LEVEL_TICK.register(ElevatorGroupCapability::tickWorldCapability);
+        ServerTickEvents.END_LEVEL_TICK.register(ElevatorGroupCapability::tickWorldCapability);
+        ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_LEVEL.register((player, origin, destination) -> onJoinWorld(player, destination));
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onJoin(handler.getPlayer()));
-        ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> onLoadChunk(chunk, level));
+        ServerChunkEvents.CHUNK_LOAD.register((level, chunk, generated) -> onLoadChunk(chunk, level));
     }
 
     public static void tickWorldCapability(Level level){

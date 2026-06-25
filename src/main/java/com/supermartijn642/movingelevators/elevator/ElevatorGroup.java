@@ -198,7 +198,7 @@ public class ElevatorGroup {
                 }
             }
             if(requester instanceof ServerPlayer && !this.isCageAvailableAt(entityFloor, true, null))
-                requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.no_cabins").color(ChatFormatting.GRAY).get(), false);
+                requester.sendOverlayMessage(TextComponents.translation("movingelevators.elevator.no_cabins").color(ChatFormatting.GRAY).get());
         }
     }
 
@@ -576,7 +576,7 @@ public class ElevatorGroup {
                                 .append(TextComponents.number(startPos.getX() + x).color(ChatFormatting.GOLD).get()).string(",").color(ChatFormatting.GRAY)
                                 .append(TextComponents.number(startPos.getY() + y).color(ChatFormatting.GOLD).get()).string(",").color(ChatFormatting.GRAY)
                                 .append(TextComponents.number(startPos.getZ() + z).color(ChatFormatting.GOLD).get()).string(")").color(ChatFormatting.GRAY).get();
-                            requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.obstructed", block, position).color(ChatFormatting.GRAY).get(), false);
+                            requester.sendOverlayMessage(TextComponents.translation("movingelevators.elevator.obstructed", block, position).color(ChatFormatting.GRAY).get());
                         }
                         return false;
                     }

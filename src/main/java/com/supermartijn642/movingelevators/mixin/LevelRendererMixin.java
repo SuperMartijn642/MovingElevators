@@ -7,7 +7,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.SubmitNodeStorage;
-import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,7 +33,7 @@ public class LevelRendererMixin {
         method = "extractVisibleBlockEntities",
         at = @At("HEAD")
     )
-    private void extractVisibleBlockEntities(Camera camera, float f, LevelRenderState levelRenderState, CallbackInfo ci){
+    private void extractVisibleBlockEntities(Camera camera, float partialTicks, LevelRenderState levelRenderState, CallbackInfo ci){
         ElevatorGroupRenderer.extractRenderState();
     }
 
@@ -42,7 +42,6 @@ public class LevelRendererMixin {
         at = @At("HEAD")
     )
     private void submitBlockEntities(PoseStack poseStack, LevelRenderState levelRenderState, SubmitNodeStorage submitNodeStorage, CallbackInfo ci){
-        ElevatorGroupRenderer.renderBlockEntities(POSE_STACK, ClientUtils.getPartialTicks(), levelRenderState.cameraRenderState, submitNodeStorage);
-        ElevatorGroupRenderer.renderBlocks(POSE_STACK, levelRenderState.cameraRenderState, this.renderBuffers.bufferSource());
+        ElevatorGroupRenderer.submit(POSE_STACK, ClientUtils.getPartialTicks(), levelRenderState.cameraRenderState, submitNodeStorage);
     }
 }

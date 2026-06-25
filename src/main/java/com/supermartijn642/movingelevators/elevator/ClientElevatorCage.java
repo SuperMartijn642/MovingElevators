@@ -3,12 +3,12 @@ package com.supermartijn642.movingelevators.elevator;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.registry.Registries;
 import com.supermartijn642.movingelevators.MovingElevators;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,7 +24,7 @@ public class ClientElevatorCage extends ElevatorCage {
 
     private static ElevatorCabinLevel level;
 
-    public static Level getFakeLevel(){
+    public static ClientLevel getFakeLevel(){
         return level;
     }
 

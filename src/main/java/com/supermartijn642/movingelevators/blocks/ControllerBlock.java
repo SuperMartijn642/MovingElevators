@@ -44,7 +44,7 @@ public class ControllerBlock extends ElevatorInputBlock {
                     pos,
                     ((ControllerBlockEntity)blockEntity).getFacing()
                 ));
-                player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.bind").get(), true);
+                player.sendOverlayMessage(TextComponents.translation("movingelevators.remote_controller.bind").get());
             }
             return true;
         }
