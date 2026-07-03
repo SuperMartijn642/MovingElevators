@@ -68,7 +68,7 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
                 if(camoState == null)
                     camoState = block.defaultBlockState();
                 blockEntity.setCamoState(camoState);
-                int opacity = Math.max(0, Math.min(15, camoState.getLightBlock()));
+                int opacity = Math.max(0, Math.min(15, camoState.getLightDampening()));
                 if(opacity != state.getValue(OPACITY))
                     level.setBlock(pos, state.setValue(OPACITY, opacity), Block.UPDATE_ALL);
             }
@@ -111,7 +111,7 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     }
 
     @Override
-    public int getLightBlock(BlockState state){
+    protected int getLightDampening(BlockState state){
         return state.getValue(OPACITY);
     }
 

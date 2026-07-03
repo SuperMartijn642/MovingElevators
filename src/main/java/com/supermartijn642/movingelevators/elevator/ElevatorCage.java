@@ -137,7 +137,7 @@ public class ElevatorCage {
                                 .append(TextComponents.number(startPos.getX() + x).color(ChatFormatting.GOLD).get()).string(",").color(ChatFormatting.GRAY)
                                 .append(TextComponents.number(startPos.getY() + y).color(ChatFormatting.GOLD).get()).string(",").color(ChatFormatting.GRAY)
                                 .append(TextComponents.number(startPos.getZ() + z).color(ChatFormatting.GOLD).get()).string(")").color(ChatFormatting.GRAY).get();
-                            requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.invalid_block", block, position).color(ChatFormatting.GRAY).get(), false);
+                            requester.sendOverlayMessage(TextComponents.translation("movingelevators.elevator.invalid_block", block, position).color(ChatFormatting.GRAY).get());
                         }
                         return false;
                     }
@@ -146,7 +146,7 @@ public class ElevatorCage {
             }
         }
         if(!hasBlocks && requester instanceof ServerPlayer)
-            requester.displayClientMessage(TextComponents.translation("movingelevators.elevator.empty").color(ChatFormatting.GRAY).get(), false);
+            requester.sendOverlayMessage(TextComponents.translation("movingelevators.elevator.empty").color(ChatFormatting.GRAY).get());
         return hasBlocks;
     }
 
@@ -247,12 +247,12 @@ public class ElevatorCage {
                         && state.getBlock() instanceof ButtonBlock
                         && state.hasProperty(ButtonBlock.POWERED)
                         && state.getValue(ButtonBlock.POWERED))
-                        state.tick((ServerLevel)level, pos, level.random);
+                        state.tick((ServerLevel)level, pos, level.getRandom());
                     if(!level.isClientSide()
                         && state.getBlock() instanceof PressurePlateBlock
                         && state.hasProperty(PressurePlateBlock.POWERED)
                         && state.getValue(PressurePlateBlock.POWERED))
-                        state.tick((ServerLevel)level, pos, level.random);
+                        state.tick((ServerLevel)level, pos, level.getRandom());
 
                     // Redstone wire only updates indirect neighbors when its power changes, not when it gets placed with a certain power
                     // Hence, special case for redstone wire

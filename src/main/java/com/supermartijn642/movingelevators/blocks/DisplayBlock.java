@@ -6,11 +6,11 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -91,14 +91,14 @@ public class DisplayBlock extends CamoBlock {
 
                                 int floorOffset = (int)Math.floor((hitY - (height - total * BUTTON_HEIGHT) / 2d) / BUTTON_HEIGHT) + startIndex - index;
 
-                                if(player == null || player.getItemInHand(hand).isEmpty() || !(player.getItemInHand(hand).getItem() instanceof DyeItem))
+                                DyeColor dye = player != null ? dye = player.getItemInHand(hand).get(DataComponents.DYE) : null;
+                                if(dye == null)
                                     inputEntity.getGroup().onDisplayPress(inputEntity.getFloorLevel(), floorOffset, player);
                                 else{
-                                    DyeColor color = ((DyeItem)player.getItemInHand(hand).getItem()).getDyeColor();
                                     int floor = group.getFloorNumber(inputEntity.getFloorLevel()) + floorOffset;
                                     ControllerBlockEntity elevatorEntity = group.getEntityForFloor(floor);
                                     if(elevatorEntity != null)
-                                        elevatorEntity.setDisplayLabelColor(color);
+                                        elevatorEntity.setDisplayLabelColor(dye);
                                 }
                             }
                         }

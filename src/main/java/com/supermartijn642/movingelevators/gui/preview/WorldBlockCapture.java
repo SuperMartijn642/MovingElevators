@@ -2,16 +2,29 @@ package com.supermartijn642.movingelevators.gui.preview;
 
 import com.google.common.collect.Maps;
 import com.supermartijn642.core.ClientUtils;
+import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,10 +32,13 @@ import java.util.Map;
  */
 public class WorldBlockCapture {
 
-    private final Level level;
+    private static final Matrix4fc IDENTITY_MATRIX = new Matrix4f().identity();
+    private static final RandomSource RANDOM_SOURCE = RandomSource.create();
+
+    private final ClientLevel level;
     private final Map<BlockPos,BlockPos> capturePosToWorldPos = Maps.newHashMap();
 
-    public WorldBlockCapture(Level level){
+    public WorldBlockCapture(ClientLevel level){
         this.level = level;
     }
 
@@ -62,8 +78,8 @@ public class WorldBlockCapture {
         state.size = this.capturePosToWorldPos.size();
         if(state.capacity < state.size){
             state.positions = new BlockPos[state.size];
-            state.states = new BlockState[state.size];
-            state.tintValues = new int[state.size];
+            state.blockRenderStates = new BlockModelRenderState[state.size];
+            state.blockLighting = new int[state.size];
             state.entityStates = new BlockEntityRenderState[state.size];
             state.capacity = state.size;
         }
@@ -72,8 +88,20 @@ public class WorldBlockCapture {
             state.positions[index] = entry.getKey();
             BlockPos pos = entry.getValue();
             BlockState block = this.level.getBlockState(pos);
-            state.states[index] = block;
-            state.tintValues[index] = ClientUtils.getMinecraft().getBlockColors().getColor(block, this.level, pos);
+            BlockModelRenderState blockRenderState = state.blockRenderStates[index];
+            if(blockRenderState == null)
+                blockRenderState = state.blockRenderStates[index] = new BlockModelRenderState();
+            BlockStateModel model = ClientUtils.getMinecraft().getModelManager().getBlockStateModelSet().get(block);
+            List<BlockStateModelPart> parts = blockRenderState.setupModel(IDENTITY_MATRIX, model.hasMaterialFlag(this.level, pos, block, BakedQuad.FLAG_TRANSLUCENT));
+            RANDOM_SOURCE.setSeed(block.getSeed(pos));
+            model.collectParts(this.level, pos, block, RANDOM_SOURCE, parts);
+            IntList tintLayers = blockRenderState.tintLayers();
+            for(BlockTintSource tintSource : ClientUtils.getMinecraft().getBlockColors().getTintSources(block))
+                tintLayers.add(tintSource.colorInWorld(block, this.level, pos));
+            state.blockLighting[index] = LightCoordsUtil.pack(
+                this.level.getBrightness(LightLayer.BLOCK, pos),
+                this.level.getBrightness(LightLayer.SKY, pos)
+            );
             BlockEntityRenderState entityRenderState = null;
             BlockEntity entity = this.level.getBlockEntity(pos);
             if(entity != null){
@@ -94,8 +122,8 @@ public class WorldBlockCapture {
         private int size, capacity;
         private BlockPos[] positions;
         private AABB bounds;
-        private BlockState[] states;
-        private int[] tintValues;
+        private BlockModelRenderState[] blockRenderStates;
+        private int[] blockLighting;
         private BlockEntityRenderState[] entityStates;
 
         public int size(){
@@ -110,12 +138,12 @@ public class WorldBlockCapture {
             return this.bounds;
         }
 
-        public BlockState state(int index){
-            return this.states[index];
+        public BlockModelRenderState blockRenderState(int index){
+            return this.blockRenderStates[index];
         }
 
-        public int tint(int index){
-            return this.tintValues[index];
+        public int lighting(int index){
+            return this.blockLighting[index];
         }
 
         public BlockEntityRenderState entityRenderState(int index){

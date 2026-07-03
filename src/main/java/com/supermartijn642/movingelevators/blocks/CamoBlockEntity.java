@@ -60,7 +60,9 @@ public abstract class CamoBlockEntity extends BaseBlockEntity {
 
     @Override
     public ModelData getModelData(){
-        return ModelData.builder().with(CamoBakedModel.CAMO_PROPERTY, this.hasCamoState() ? this.camoState : null).build();
+        return this.hasCamoState() ?
+            ModelData.builder().with(CamoBakedModel.CAMO_PROPERTY, this.camoState).build() :
+            ModelData.EMPTY;
     }
 
     @Override

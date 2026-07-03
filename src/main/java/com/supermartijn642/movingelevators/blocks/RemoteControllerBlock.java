@@ -57,7 +57,7 @@ public class RemoteControllerBlock extends ElevatorInputBlock {
                 Component x = TextComponents.number(controllerPos.getX()).color(ChatFormatting.GOLD).get();
                 Component y = TextComponents.number(controllerPos.getY()).color(ChatFormatting.GOLD).get();
                 Component z = TextComponents.number(controllerPos.getZ()).color(ChatFormatting.GOLD).get();
-                player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.controller_location", x, y, z).get(), true);
+                player.sendOverlayMessage(TextComponents.translation("movingelevators.remote_controller.controller_location", x, y, z).get());
             }
             return true;
         }

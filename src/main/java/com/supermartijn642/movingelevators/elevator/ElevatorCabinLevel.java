@@ -1,7 +1,10 @@
 package com.supermartijn642.movingelevators.elevator;
 
+import net.minecraft.client.ClientClockManager;
+import net.minecraft.client.multiplayer.ClientChunkCache;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ExplosionParticleInfo;
 import net.minecraft.core.particles.ParticleOptions;
@@ -13,12 +16,10 @@ import net.minecraft.world.TickRateManager;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeAccess;
 import net.minecraft.world.level.ExplosionDamageCalculator;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -26,7 +27,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -43,7 +43,6 @@ import net.minecraft.world.ticks.ScheduledTick;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -52,19 +51,19 @@ import java.util.function.Consumer;
 /**
  * Created 21/04/2023 by SuperMartijn642
  */
-public class ElevatorCabinLevel extends Level {
+public class ElevatorCabinLevel extends ClientLevel {
 
-    private Level level;
+    private ClientLevel level;
     private ClientElevatorCage cage;
     private ElevatorGroup group;
     private BlockPos minPos, maxPos;
 
-    protected ElevatorCabinLevel(Level clientLevel){
-        super(null, clientLevel.dimension(), clientLevel.registryAccess(), clientLevel.dimensionTypeRegistration(), true, false, 0, 512);
+    protected ElevatorCabinLevel(ClientLevel clientLevel){
+        super(clientLevel.connection, null, clientLevel.dimension(), clientLevel.dimensionTypeRegistration(), 1, 1, null, false, 0, 0);
         this.level = clientLevel;
     }
 
-    public void setCabinAndPos(Level clientLevel, ClientElevatorCage cage, ElevatorGroup group, BlockPos anchorPos){
+    public void setCabinAndPos(ClientLevel clientLevel, ClientElevatorCage cage, ElevatorGroup group, BlockPos anchorPos){
         this.level = clientLevel;
         this.cage = cage;
         this.group = group;
@@ -141,7 +140,7 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public Collection<PartEntity<?>> dragonParts(){
+    public List<PartEntity<?>> dragonParts(){
         return List.of();
     }
 
@@ -200,8 +199,22 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
+    public ClientClockManager clockManager(){
+        return this.level.clockManager();
+    }
+
+    @Override
     public EnvironmentAttributeSystem environmentAttributes(){
         return this.level.environmentAttributes();
+    }
+
+    @Override
+    protected EnvironmentAttributeSystem.Builder addEnvironmentAttributeLayers(EnvironmentAttributeSystem.Builder builder){
+        return builder;
+    }
+
+    @Override
+    public void updateSkyBrightness(){
     }
 
     @Override
@@ -212,24 +225,6 @@ public class ElevatorCabinLevel extends Level {
     @Override
     public FuelValues fuelValues(){
         return this.level.fuelValues();
-    }
-
-    @Override
-    public void setDayTimeFraction(float v){
-    }
-
-    @Override
-    public float getDayTimeFraction(){
-        return this.level.getDayTimeFraction();
-    }
-
-    @Override
-    public float getDayTimePerTick(){
-        return this.level.getDayTimePerTick();
-    }
-
-    @Override
-    public void setDayTimePerTick(float v){
     }
 
     @Override
@@ -281,7 +276,7 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public ChunkSource getChunkSource(){
+    public ClientChunkCache getChunkSource(){
         return this.level.getChunkSource();
     }
 
@@ -294,12 +289,7 @@ public class ElevatorCabinLevel extends Level {
     }
 
     @Override
-    public float getShade(Direction side, boolean bl){
-        return this.level.getShade(side, bl);
-    }
-
-    @Override
-    public List<? extends Player> players(){
+    public List<AbstractClientPlayer> players(){
         return Collections.emptyList();
     }
 
@@ -321,11 +311,6 @@ public class ElevatorCabinLevel extends Level {
     @Override
     public boolean setBlock(BlockPos pos, BlockState state, int i){
         return false;
-    }
-
-    @Override
-    public long getDayTime(){
-        return this.level.getDayTime();
     }
 
     @Override
