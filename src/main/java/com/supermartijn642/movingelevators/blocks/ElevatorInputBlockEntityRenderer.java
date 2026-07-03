@@ -33,7 +33,7 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
 
         Direction facing = entity.getFacing();
         state.facing = facing;
-        state.frontLighting = LevelRenderer.getLightColor(entity.getLevel(), entity.getBlockPos().relative(facing));
+        state.frontLighting = LevelRenderer.getLightCoords(entity.getLevel(), entity.getBlockPos().relative(facing));
         state.showCenter = entity.canReceiveInput();
         state.showUp = state.showCenter && entity.canMoveUp();
         state.showDown = state.showCenter && entity.canMoveDown();

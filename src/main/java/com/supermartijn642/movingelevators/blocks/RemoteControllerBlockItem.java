@@ -31,7 +31,7 @@ public class RemoteControllerBlockItem extends BaseBlockItem {
             if(stack.has(RemoteControllerBlock.TARGET)){
                 if(!level.isClientSide()){
                     stack.remove(RemoteControllerBlock.TARGET);
-                    player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.clear").get(), true);
+                    player.sendOverlayMessage(TextComponents.translation("movingelevators.remote_controller.clear").get());
                 }
                 return ItemUseResult.success(stack);
             }
@@ -43,9 +43,9 @@ public class RemoteControllerBlockItem extends BaseBlockItem {
                     Component y = TextComponents.number(target.pos().getY()).color(ChatFormatting.GOLD).get();
                     Component z = TextComponents.number(target.pos().getZ()).color(ChatFormatting.GOLD).get();
                     Component dimension = TextComponents.dimension(ResourceKey.create(Registries.DIMENSION, target.dimension())).color(ChatFormatting.GOLD).get();
-                    player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.tooltip.bound", x, y, z, dimension).get(), true);
+                    player.sendOverlayMessage(TextComponents.translation("movingelevators.remote_controller.tooltip.bound", x, y, z, dimension).get());
                 }else
-                    player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.tooltip").get(), true);
+                    player.sendOverlayMessage(TextComponents.translation("movingelevators.remote_controller.tooltip").get());
             }
             return ItemUseResult.success(stack);
         }
@@ -57,12 +57,12 @@ public class RemoteControllerBlockItem extends BaseBlockItem {
         RemoteControllerBlock.Target target = stack.get(RemoteControllerBlock.TARGET);
         if(target == null){
             if(player != null && !level.isClientSide())
-                player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.not_bound").color(ChatFormatting.RED).get(), true);
+                player.sendOverlayMessage(TextComponents.translation("movingelevators.remote_controller.not_bound").color(ChatFormatting.RED).get());
             return InteractionFeedback.CONSUME;
         }
         if(!target.dimension().equals(level.dimension().identifier())){
             if(player != null && !level.isClientSide())
-                player.displayClientMessage(TextComponents.translation("movingelevators.remote_controller.wrong_dimension").color(ChatFormatting.RED).get(), true);
+                player.sendOverlayMessage(TextComponents.translation("movingelevators.remote_controller.wrong_dimension").color(ChatFormatting.RED).get());
             return InteractionFeedback.CONSUME;
         }
         return super.interactWithBlock(stack, player, hand, level, hitPos, hitSide, hitLocation);

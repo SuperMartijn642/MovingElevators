@@ -5,10 +5,10 @@
       "id": "movingelevators:button_block"
     },
     "title": {
-      "translate": "movingelevators.advancement.recipes/misc/button_block.title"
+      "translate": "movingelevators.advancement.recipes/button_block.title"
     },
     "description": {
-      "translate": "movingelevators.advancement.recipes/misc/button_block.description"
+      "translate": "movingelevators.advancement.recipes/button_block.description"
     },
     "frame": "task",
     "show_toast": false,

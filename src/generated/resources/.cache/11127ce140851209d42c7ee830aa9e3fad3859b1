@@ -1,4 +1,4 @@
-// 1.21.11	2026-02-09T16:26:19.6819896	Core Lib Generators
+// 26.1.2	2026-07-03T21:13:50.9967414	Core Lib Generators
 a342fb09e01bba607c0087cf74461980f935e5f9 assets/minecraft/atlases/blocks.json
 2460a22fb1074f7551a64cf49097e2480987c7a7 assets/minecraft/atlases/gui.json
 54b242abc5fdac53084db335a16790985bba554c assets/movingelevators/blockstates/button_block.json
@@ -11,13 +11,13 @@ a519832608dc1f9899d2c9a02d25ffc4989ee513 assets/movingelevators/lang/en_us.json
 a87c5f76165eace5081796f29ec801c734e8efb9 assets/movingelevators/models/block/button_block.json
 a87c5f76165eace5081796f29ec801c734e8efb9 assets/movingelevators/models/block/display_block.json
 75b4b981ca687783c774e95e65db4ae73778b346 assets/movingelevators/models/block/elevator_block.json
-6f21858089ce2657d0136511d9cb00f150d4f8e7 assets/movingelevators/models/item/button_block.json
-dac3d91fd4daa29ab01706eb205abec56b473e06 assets/movingelevators/models/item/display_block.json
-89d20e157956072f9bc6abad7a8291c750469803 assets/movingelevators/models/item/elevator_block.json
-71728942e99951e71cc246b251a5b2a8e7cd3bbb data/minecraft/tags/block/mineable/pickaxe.json
-07a82cfd999dc3cc08c397390516f25e05acfe94 data/movingelevators/advancement/recipes/misc/button_block.json
-9e9e5803881c7cb2d501eecaf1857f65a8b64b23 data/movingelevators/advancement/recipes/misc/display_block.json
-1978cbe33e19241f2daf243dd775487d89ced69c data/movingelevators/advancement/recipes/misc/elevator_block.json
+145ae36a3055d15b830158127df2412781166c6a assets/movingelevators/models/item/button_block.json
+02c7965c7dced921d5ab8b3433081a648e4cad63 assets/movingelevators/models/item/display_block.json
+b24be5da7bc91e100de39f99b9862ddd599c9951 assets/movingelevators/models/item/elevator_block.json
+9ad77c4d771cc079c63b72db26bc7d1bd6f0f0bd data/minecraft/tags/block/mineable/pickaxe.json
+8215d7b089f4eba49b7e16f9264bc4212785bc46 data/movingelevators/advancement/recipes/button_block.json
+cb523c292b0e36d4817aa5a9e3a5dab5259d8fa2 data/movingelevators/advancement/recipes/display_block.json
+3d95409a2d6dd36358d4e003bf6f38f8d401ef6f data/movingelevators/advancement/recipes/elevator_block.json
 2a473c3d0b139bc4f958b1f20f3602499f90740d data/movingelevators/loot_table/blocks/button_block.json
 82a642bb0d8972d8709a723de3ec25c3cb71d4b1 data/movingelevators/loot_table/blocks/display_block.json
 5a0f25bf3dedff956505c0405dff921a58cefe63 data/movingelevators/loot_table/blocks/elevator_block.json

@@ -1,3 +1,5 @@
+## Update to Minecraft 26.1
+
 ### Moving Elevators 1.4.12
 - Added feedback when cabins contain an invalid block or when there are blocks obstructing the destination
 - Elevator now decelerates when approaching its destination floor

@@ -1,22 +1,18 @@
 package com.supermartijn642.movingelevators.model;
 
 import com.supermartijn642.core.ClientUtils;
-import net.minecraft.client.renderer.block.model.BlockModelPart;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -25,6 +21,7 @@ import java.util.List;
 public class CamoBakedModel implements BlockStateModel {
 
     public static final ModelProperty<BlockState> CAMO_PROPERTY = new ModelProperty<>();
+    public static final ModelProperty<ModelData> SUB_MODEL_DATA = new ModelProperty<>();
 
     private final BlockStateModel originalModel;
 
@@ -33,47 +30,62 @@ public class CamoBakedModel implements BlockStateModel {
     }
 
     @Override
-    public void collectParts(RandomSource random, List<BlockModelPart> parts, ModelData modelData, @Nullable ChunkSectionLayer renderType){
-        BlockState camouflage = modelData.get(CAMO_PROPERTY);
+    public void collectParts(RandomSource random, List<BlockStateModelPart> parts, ModelData modelData){
+        BlockState camoState = modelData.get(CAMO_PROPERTY);
 
-        if(camouflage == null || camouflage.getBlock() == Blocks.AIR){
-            this.originalModel.collectParts(random, parts, modelData, renderType);
+        if(camoState == null){
+            this.originalModel.collectParts(random, parts, modelData);
             return;
         }
 
-        BlockStateModel model = ClientUtils.getBlockRenderer().getBlockModel(camouflage);
-        model.collectParts(random, parts, modelData, renderType);
+        BlockStateModel model = ClientUtils.getMinecraft().getModelManager().getBlockStateModelSet().get(camoState);
+        model.collectParts(random, parts, modelData);
     }
 
     @Override
-    public void collectParts(RandomSource random, List<BlockModelPart> parts){
-        this.originalModel.collectParts(random, parts);
+    public Material.Baked particleMaterial(@NotNull ModelData modelData){
+        BlockState camoState = modelData.get(CAMO_PROPERTY);
+
+        if(camoState == null)
+            return this.originalModel.particleMaterial(modelData);
+
+        BlockStateModel model = ClientUtils.getMinecraft().getModelManager().getBlockStateModelSet().get(camoState);
+        return model.particleMaterial(modelData);
     }
 
     @Override
     public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData entityData){
-        BlockEntity entity = level.getBlockEntity(pos);
-        return entity == null ? ModelData.EMPTY : entity.getModelData();
+        BlockState camoState = entityData.get(CAMO_PROPERTY);
+
+        if(camoState == null){
+            return entityData.derive()
+                .with(SUB_MODEL_DATA, this.originalModel.getModelData(level, pos, state, entityData))
+                .build();
+        }
+
+        BlockStateModel model = ClientUtils.getMinecraft().getModelManager().getBlockStateModelSet().get(camoState);
+        return entityData.derive()
+            .with(SUB_MODEL_DATA, model.getModelData(level, pos, camoState, entityData))
+            .build();
     }
 
     @Override
-    public Collection<ChunkSectionLayer> getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data){
-        BlockState camouflage = data.get(CAMO_PROPERTY);
-        if(camouflage == null || camouflage.getBlock() == Blocks.AIR)
-            return this.originalModel.getRenderTypes(state, rand, data);
-        return ClientUtils.getBlockRenderer().getBlockModel(camouflage).getRenderTypes(camouflage, rand, ModelData.EMPTY);
+    public void collectParts(RandomSource random, List<BlockStateModelPart> parts){
+        this.originalModel.collectParts(random, parts);
     }
 
     @Override
-    public TextureAtlasSprite particleIcon(@NotNull ModelData data){
-        BlockState camouflage = data.get(CAMO_PROPERTY);
-        if(camouflage == null || camouflage.getBlock() == Blocks.AIR)
-            return this.originalModel.particleIcon(data);
-        return ClientUtils.getBlockRenderer().getBlockModel(camouflage).particleIcon(data);
+    public Material.Baked particleMaterial(){
+        return this.originalModel.particleMaterial();
     }
 
     @Override
-    public TextureAtlasSprite particleIcon(){
-        return this.originalModel.particleIcon();
+    public @BakedQuad.MaterialFlags int materialFlags(){
+        return this.originalModel.materialFlags();
+    }
+
+    @Override
+    public boolean hasMaterialFlag(@BakedQuad.MaterialFlags int flag){
+        return this.originalModel.hasMaterialFlag(flag);
     }
 }

@@ -12,16 +12,22 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroupCapability;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroupRenderer;
 import com.supermartijn642.movingelevators.gui.ElevatorScreen;
 import com.supermartijn642.movingelevators.model.CamoBakedModel;
+import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created 3/28/2020 by SuperMartijn642
@@ -29,10 +35,9 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = "movingelevators")
 public class MovingElevatorsClient {
 
-    public static final Material OVERLAY_TEXTURE_LOCATION = new Material(TextureAtlases.getBlocks(), Identifier.fromNamespaceAndPath("movingelevators", "blocks/block_overlays"));
+    public static final SpriteId OVERLAY_TEXTURE_LOCATION = new SpriteId(TextureAtlases.getBlocks(), Identifier.fromNamespaceAndPath("movingelevators", "blocks/block_overlays"));
 
     public static void register(){
-        RegisterColorHandlersEvent.Block.BUS.addListener(MovingElevatorsClient::setup);
         ElevatorGroupRenderer.registerEventListeners();
 
         ClientRegistrationHandler handler = ClientRegistrationHandler.get("movingelevators");
@@ -41,21 +46,48 @@ public class MovingElevatorsClient {
         handler.registerCustomBlockEntityRenderer(() -> MovingElevators.display_tile, DisplayBlockEntityRenderer::new);
         handler.registerCustomBlockEntityRenderer(() -> MovingElevators.button_tile, ElevatorInputBlockEntityRenderer::new);
         // Register texture
-        handler.registerAtlasSprite(TextureAtlases.getBlocks(), OVERLAY_TEXTURE_LOCATION.texture().getPath());
+        handler.registerAtlasSprite(TextureAtlases.getBlocks(), OVERLAY_TEXTURE_LOCATION.texture());
         // Baked models
-        handler.registerBlockModelOverwrite(() -> MovingElevators.elevator_block, CamoBakedModel::new);
-        handler.registerBlockModelOverwrite(() -> MovingElevators.display_block, CamoBakedModel::new);
-        handler.registerBlockModelOverwrite(() -> MovingElevators.button_block, CamoBakedModel::new);
+        handler.registerBlockStateModelOverwrite(() -> MovingElevators.elevator_block, CamoBakedModel::new);
+        handler.registerBlockStateModelOverwrite(() -> MovingElevators.display_block, CamoBakedModel::new);
+        handler.registerBlockStateModelOverwrite(() -> MovingElevators.button_block, CamoBakedModel::new);
     }
 
+    @SubscribeEvent
     public static void setup(RegisterColorHandlersEvent.Block e){
+        int layers = 4;
+        List<BlockTintSource> tintSources = new ArrayList<>(layers);
+        for(int i = 0; i < layers; i++){
+            int index = i;
+            tintSources.add(new BlockTintSource() {
+                @Override
+                public int color(BlockState state){
+                    return -1;
+                }
+
+                @Override
+                public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos){
+                    BlockEntity entity = level.getBlockEntity(pos);
+                    if(!(entity instanceof CamoBlockEntity) || !((CamoBlockEntity)entity).hasCamoState())
+                        return -1;
+                    BlockState camoState = ((CamoBlockEntity)entity).getCamoState();
+                    BlockTintSource tintSource = ClientUtils.getMinecraft().getBlockColors().getTintSource(camoState, index);
+                    return tintSource == null ? -1 : tintSource.colorInWorld(camoState, level, pos);
+                }
+
+                @Override
+                public int colorAsTerrainParticle(BlockState state, BlockAndTintGetter level, BlockPos pos){
+                    BlockEntity entity = level.getBlockEntity(pos);
+                    if(!(entity instanceof CamoBlockEntity) || !((CamoBlockEntity)entity).hasCamoState())
+                        return -1;
+                    BlockState camoState = ((CamoBlockEntity)entity).getCamoState();
+                    BlockTintSource tintSource = ClientUtils.getMinecraft().getBlockColors().getTintSource(camoState, index);
+                    return tintSource == null ? -1 : tintSource.colorAsTerrainParticle(camoState, level, pos);
+                }
+            });
+        }
         e.register(
-            (state, blockAndTintGetter, pos, p_92570_) -> {
-                if(blockAndTintGetter == null || pos == null)
-                    return 0;
-                BlockEntity entity = blockAndTintGetter.getBlockEntity(pos);
-                return entity instanceof CamoBlockEntity && ((CamoBlockEntity)entity).hasCamoState() ? ClientUtils.getMinecraft().getBlockColors().getColor(((CamoBlockEntity)entity).getCamoState(), blockAndTintGetter, pos, p_92570_) : 0;
-            },
+            tintSources,
             MovingElevators.elevator_block, MovingElevators.display_block, MovingElevators.button_block
         );
     }

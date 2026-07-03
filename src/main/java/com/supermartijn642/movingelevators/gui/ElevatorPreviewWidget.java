@@ -8,6 +8,7 @@ import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import com.supermartijn642.movingelevators.gui.preview.ElevatorPreviewRenderer;
 import com.supermartijn642.movingelevators.gui.preview.WorldBlockCapture;
 import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -59,7 +60,7 @@ public class ElevatorPreviewWidget extends BaseWidget {
         ElevatorGroup group = elevatorEntity.getGroup();
         BlockPos anchorPos = group.getCageAnchorBlockPos(elevatorEntity.getBlockPos().getY());
 
-        WorldBlockCapture capture = new WorldBlockCapture(group.level);
+        WorldBlockCapture capture = new WorldBlockCapture((ClientLevel)group.level);
         capture.putBlock(elevatorEntity.getBlockPos(), elevatorEntity.getBlockPos());
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
@@ -106,9 +107,9 @@ public class ElevatorPreviewWidget extends BaseWidget {
 
         // Render the preview
         graphics.nextStratum();
-        graphics.submitCustomRendering(
+        graphics.submitFeatures(
             this.x, this.y, this.width, this.height,
-            (poseStack, bufferSource) -> ElevatorPreviewRenderer.renderPreview(poseStack, bufferSource, this.captureRenderState, cabinBox, previewBox, this.width / 2f, this.height / 2f, Math.min(this.width, this.height), this.yaw + group.facing.toYRot(), this.pitch)
+            (poseStack, output) -> ElevatorPreviewRenderer.renderPreview(poseStack, output, this.captureRenderState, cabinBox, previewBox, this.width / 2f, this.height / 2f, Math.min(this.width, this.height), this.yaw + group.facing.toYRot(), this.pitch)
         );
     }
 
