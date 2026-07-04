@@ -3,13 +3,13 @@ package com.supermartijn642.movingelevators.blocks;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.util.LightCoordsUtil;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
@@ -33,7 +33,7 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
 
         Direction facing = entity.getFacing();
         state.facing = facing;
-        state.frontLighting = LevelRenderer.getLightCoords(entity.getLevel(), entity.getBlockPos().relative(facing));
+        state.frontLighting = LightCoordsUtil.getLightCoords(entity.getLevel(), entity.getBlockPos().relative(facing));
         state.showCenter = entity.canReceiveInput();
         state.showUp = state.showCenter && entity.canMoveUp();
         state.showDown = state.showCenter && entity.canMoveDown();
@@ -61,7 +61,7 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
     }
 
     private void drawOverlayPart(PoseStack poseStack, SubmitNodeCollector output, int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
-        output.submitCustomGeometry(poseStack, Sheets.cutoutBlockSheet(), (pose, buffer) -> {
+        output.submitCustomGeometry(poseStack, Sheets.cutoutBlockItemSheet(), (pose, buffer) -> {
             Matrix4f matrix = pose.pose();
             TextureAtlasSprite overlaySprite = MovingElevatorsClient.getOverlaySprite();
             float minU = overlaySprite.getU(tX / 128f), maxU = overlaySprite.getU((tX + tWidth) / 128f);

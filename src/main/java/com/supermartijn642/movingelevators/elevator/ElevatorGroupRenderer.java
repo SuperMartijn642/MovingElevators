@@ -2,15 +2,18 @@ package com.supermartijn642.movingelevators.elevator;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
+import com.supermartijn642.core.block.BlockShape;
 import com.supermartijn642.core.render.RenderUtils;
 import com.supermartijn642.core.render.RenderWorldEvent;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
-import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -56,18 +59,21 @@ public class ElevatorGroupRenderer {
     }
 
     public static void onRender(RenderWorldEvent e){
-        if(!ClientUtils.getMinecraft().debugEntries.isCurrentlyEnabled(DebugScreenEntries.ENTITY_HITBOXES))
-            return;
-        ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
-
-        e.getPoseStack().pushPose();
-        Vec3 camera = RenderUtils.getCameraPosition();
-        e.getPoseStack().translate(-camera.x, -camera.y, -camera.z);
-        for(ElevatorGroup group : groups.getGroups()){
-            if(isWithinRenderDistance(group))
-                renderGroupCageOutlines(e.getPoseStack(), group);
+        if(ClientUtils.getMinecraft().debugEntries.isCurrentlyEnabled(DebugScreenEntries.ENTITY_HITBOXES)){
+            ElevatorGroupCapability groups = ElevatorGroupCapability.get(ClientUtils.getWorld());
+            Vec3 camera = RenderUtils.getCameraPosition();
+            for(ElevatorGroup group : groups.getGroups()){
+                if(isWithinRenderDistance(group))
+                    renderGroupCageOutlines(e, group, camera);
+            }
         }
-        e.getPoseStack().popPose();
+
+        extractRenderState();
+        float partialTicks = e.getPartialTicks();
+        CameraRenderState cameraRenderState = e.getLevelRenderState().cameraRenderState;
+        e.submitFeatures((poseStack, output) -> {
+            submit(poseStack, partialTicks, cameraRenderState, output);
+        });
     }
 
     public static void extractRenderState(){
@@ -163,13 +169,17 @@ public class ElevatorGroupRenderer {
             }
         }
         index = 0;
+        BlockEntityRenderDispatcher blockEntityRenderer = ClientUtils.getMinecraft().getBlockEntityRenderDispatcher();
         for(int x = 0; x < group.getCageSizeX(); x++){
             for(int y = 0; y < group.getCageSizeY(); y++){
                 for(int z = 0; z < group.getCageSizeZ(); z++){
                     if(cage.blockEntities[x][y][z] == null)
                         continue;
                     BlockEntity entity = cage.blockEntities[x][y][z];
-                    BlockEntityRenderState entityRenderState = ClientUtils.getMinecraft().getBlockEntityRenderDispatcher().tryExtractRenderState(entity, partialTicks, null);
+                    BlockEntityRenderer<BlockEntity,BlockEntityRenderState> renderer = blockEntityRenderer.getRenderer(entity);
+                    if(renderer == null)
+                        continue;
+                    BlockEntityRenderState entityRenderState = blockEntityRenderer.tryExtractRenderState(entity, partialTicks, null, renderer.shouldRenderOffScreen());
                     if(entityRenderState == null)
                         continue;
                     if(state.entityPositions[index] == null)
@@ -183,7 +193,7 @@ public class ElevatorGroupRenderer {
         state.entityCount = index;
     }
 
-    public static void submit(PoseStack poseStack, float partialTicks, CameraRenderState cameraRenderState, SubmitNodeStorage submitNodeStorage){
+    public static void submit(PoseStack poseStack, float partialTicks, CameraRenderState cameraRenderState, SubmitNodeCollector output){
         if(groupsToRender == 0)
             return;
 
@@ -191,18 +201,18 @@ public class ElevatorGroupRenderer {
         Vec3 cameraPosition = cameraRenderState.pos;
         poseStack.translate(-cameraPosition.x, -cameraPosition.y, -cameraPosition.z);
         for(int i = 0; i < groupsToRender; i++)
-            submitGroup(poseStack, groupRenderStates.get(i), cameraRenderState, submitNodeStorage);
+            submitGroup(poseStack, groupRenderStates.get(i), cameraRenderState, output);
         poseStack.popPose();
     }
 
-    private static void submitGroup(PoseStack poseStack, GroupRenderState group, CameraRenderState cameraRenderState, SubmitNodeStorage submitNodeStorage){
+    private static void submitGroup(PoseStack poseStack, GroupRenderState group, CameraRenderState cameraRenderState, SubmitNodeCollector output){
         // Block models
         for(int i = 0; i < group.blockCount; i++){
             Vector3f position = group.blockPositions[i];
             poseStack.pushPose();
             poseStack.translate(position.x, position.y, position.z);
             BlockModelRenderState blockRenderState = group.blockRenderStates[i];
-            blockRenderState.submit(poseStack, submitNodeStorage, group.blockLighting[i], OverlayTexture.NO_OVERLAY, 0);
+            blockRenderState.submit(poseStack, output, group.blockLighting[i], OverlayTexture.NO_OVERLAY, 0);
             poseStack.popPose();
         }
 
@@ -212,25 +222,37 @@ public class ElevatorGroupRenderer {
             poseStack.pushPose();
             poseStack.translate(position.x, position.y, position.z);
             BlockEntityRenderState entityRenderState = group.entityRenderStates[i];
-            ClientUtils.getMinecraft().getBlockEntityRenderDispatcher().submit(entityRenderState, poseStack, submitNodeStorage, cameraRenderState);
+            ClientUtils.getMinecraft().getBlockEntityRenderDispatcher().submit(entityRenderState, poseStack, output, cameraRenderState);
             poseStack.popPose();
         }
     }
 
-    public static void renderGroupCageOutlines(PoseStack poseStack, ElevatorGroup group){
+    public static void renderGroupCageOutlines(RenderWorldEvent e, ElevatorGroup group, Vec3 camera){
         for(int floor = 0; floor < group.getFloorCount(); floor++){
             BlockPos anchorPos = group.getCageAnchorBlockPos(group.getFloorYLevel(floor));
             AABB cageArea = new AABB(anchorPos.getX(), anchorPos.getY(), anchorPos.getZ(), anchorPos.getX() + group.getCageSizeX(), anchorPos.getY() + group.getCageSizeY(), anchorPos.getZ() + group.getCageSizeZ());
-            cageArea.inflate(0.01);
-            RenderUtils.renderBox(poseStack, cageArea, 1, 1, 1, true);
+            BlockShape shape = BlockShape.create(cageArea.inflate(0.01));
+            e.submitFeatures((poseStack, output) -> {
+                poseStack.pushPose();
+                poseStack.translate(-camera.x, -camera.y, -camera.z);
+                RenderUtils.submitShape(output, poseStack, shape, 1, 1, 1, 1, true);
+                poseStack.popPose();
+            });
         }
         if(group.isMoving()){
             ElevatorCage cage = group.getCage();
             double lastY = group.getLastY(), currentY = group.getCurrentY();
             double renderY = lastY + (currentY - lastY) * ClientUtils.getPartialTicks();
             Vec3 startPos = group.getCageAnchorPos(renderY);
-            RenderUtils.renderBox(poseStack, new AABB(startPos, startPos.add(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ())), 1, 0, 0, true);
-            RenderUtils.renderShape(poseStack, cage.shape.move(startPos.x, startPos.y, startPos.z), 49 / 255f, 224 / 255f, 219 / 255f, true);
+            BlockShape floorArea = BlockShape.create(new AABB(startPos, startPos.add(group.getCageSizeX(), group.getCageSizeY(), group.getCageSizeZ())));
+            BlockShape cabinArea = BlockShape.create(cage.shape.move(startPos.x, startPos.y, startPos.z));
+            e.submitFeatures((poseStack, output) -> {
+                poseStack.pushPose();
+                poseStack.translate(-camera.x, -camera.y, -camera.z);
+                RenderUtils.submitShape(output, poseStack, floorArea, 1, 0, 0, 1, true);
+                RenderUtils.submitShape(output, poseStack, cabinArea, 49 / 255f, 224 / 255f, 219 / 255f, 1, true);
+                poseStack.popPose();
+            });
         }
     }
 

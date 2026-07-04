@@ -4,9 +4,7 @@
   "package": "${mod_package}.${mixin_package}",
   "compatibilityLevel": "${mixin_compatibility_level}",
   "mixins": [],
-  "client": [
-    "LevelRendererMixin"
-  ],
+  "client": [],
   "server": [],
   "injectors": {
     "defaultRequire": 1
