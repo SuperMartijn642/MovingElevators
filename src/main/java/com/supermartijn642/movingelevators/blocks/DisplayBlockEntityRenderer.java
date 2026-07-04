@@ -6,7 +6,6 @@ import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
@@ -17,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -53,8 +53,8 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         Level level = entity.getLevel();
         BlockPos frontPos = entity.getBlockPos().relative(facing);
         if(height == 1)
-            state.frontLighting = LevelRenderer.getLightCoords(level, frontPos);
-        else if(level.getBlockState(frontPos).emissiveRendering(level, frontPos) || level.getBlockState(frontPos.above()).emissiveRendering(level, frontPos.above()))
+            state.frontLighting = LightCoordsUtil.getLightCoords(level, frontPos);
+        else if(level.getBlockState(frontPos).emissiveRendering() || level.getBlockState(frontPos.above()).emissiveRendering())
             state.frontLighting = 15728880;
         else{
             int skyLight = Math.max(level.getBrightness(LightLayer.SKY, frontPos), level.getBrightness(LightLayer.SKY, frontPos.above()));
@@ -186,7 +186,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
     }
 
     private void drawOverlayPart(PoseStack poseStack, SubmitNodeCollector output, boolean transparent, int combinedLight, int combinedOverlay, Direction facing, float x, float y, float width, float height, int tX, int tY, int tWidth, int tHeight){
-        RenderType renderType = transparent ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockSheet();
+        RenderType renderType = transparent ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockItemSheet();
         output.submitCustomGeometry(poseStack, renderType, (pose, buffer) -> {
             Matrix4f matrix = pose.pose();
             TextureAtlasSprite overlaySprite = MovingElevatorsClient.getOverlaySprite();

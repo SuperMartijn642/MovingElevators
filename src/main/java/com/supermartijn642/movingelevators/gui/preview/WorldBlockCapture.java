@@ -91,7 +91,7 @@ public class WorldBlockCapture {
             if(blockRenderState == null)
                 blockRenderState = state.blockRenderStates[index] = new BlockModelRenderState();
             BlockStateModel model = ClientUtils.getMinecraft().getModelManager().getBlockStateModelSet().get(block);
-            QuadEmitter emitter = blockRenderState.setupMesh(IDENTITY_MATRIX, model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT));
+            QuadEmitter emitter = blockRenderState.setupMesh(IDENTITY_MATRIX, model.hasMaterialFlag(this.level, pos, block, RANDOM_SOURCE, BakedQuad.FLAG_TRANSLUCENT));
             RANDOM_SOURCE.setSeed(block.getSeed(pos));
             model.emitQuads(emitter, this.level, pos, block, RANDOM_SOURCE, _ -> false);
             IntList tintLayers = blockRenderState.tintLayers();
