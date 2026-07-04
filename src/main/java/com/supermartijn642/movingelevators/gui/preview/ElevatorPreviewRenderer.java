@@ -2,6 +2,7 @@ package com.supermartijn642.movingelevators.gui.preview;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.supermartijn642.core.ClientUtils;
+import com.supermartijn642.core.block.BlockShape;
 import com.supermartijn642.core.render.RenderUtils;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -34,9 +35,9 @@ public class ElevatorPreviewRenderer {
         for(int i = 0; i < capture.size(); i++)
             renderBlock(capture, i, poseStack, output);
 
-        RenderUtils.renderBox(poseStack, cabinBox, 1, 1, 1, 0.8f, true);
+        RenderUtils.submitShape(output, poseStack, BlockShape.create(cabinBox), 1, 1, 1, 0.8f, true);
         if(previewBox != null)
-            RenderUtils.renderBox(poseStack, previewBox, 0, 0.7f, 0, 0.8f, true);
+            RenderUtils.submitShape(output, poseStack, BlockShape.create(previewBox), 0, 0.7f, 0, 0.8f, true);
     }
 
     private static void renderBlock(WorldBlockCapture.RenderState capture, int index, PoseStack poseStack, SubmitNodeCollector output){

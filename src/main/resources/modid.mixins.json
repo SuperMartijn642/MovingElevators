@@ -7,9 +7,7 @@
     "LevelMixin",
     "ServerLevelMixin"
   ],
-  "client": [
-    "LevelRendererMixin"
-  ],
+  "client": [],
   "server": [],
   "injectors": {
     "defaultRequire": 1
