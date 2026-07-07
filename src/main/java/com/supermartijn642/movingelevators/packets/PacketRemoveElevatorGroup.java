@@ -1,6 +1,5 @@
 package com.supermartijn642.movingelevators.packets;
 
-import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.network.BasePacket;
 import com.supermartijn642.core.network.PacketContext;
 import com.supermartijn642.movingelevators.elevator.ElevatorGroup;
@@ -42,7 +41,7 @@ public class PacketRemoveElevatorGroup implements BasePacket {
 
     @Override
     public void handle(PacketContext context){
-        Level level = ClientUtils.getWorld();
+        Level level = context.getWorld();
         if(level == null)
             return;
         ElevatorGroupCapability.get(level).removeGroup(this.x, this.z, this.facing);
