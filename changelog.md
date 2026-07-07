@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.12a
+- Fixed crash on dedicated server
+
 ## Update to Minecraft 26.1
 
 ### Moving Elevators 1.4.12
