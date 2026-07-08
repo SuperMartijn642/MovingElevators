@@ -3,7 +3,7 @@ package com.supermartijn642.movingelevators.elevator;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.registry.Registries;
 import com.supermartijn642.movingelevators.MovingElevators;
-import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -22,9 +22,9 @@ import java.util.List;
  */
 public class ClientElevatorCage extends ElevatorCage {
 
-    private static ElevatorCabinLevel level;
+    private static ClientElevatorCabinLevel level;
 
-    public static ClientLevel getFakeLevel(){
+    public static BlockAndTintGetter getFakeLevel(){
         return level;
     }
 
@@ -38,7 +38,7 @@ public class ClientElevatorCage extends ElevatorCage {
 
     public void loadRenderInfo(BlockPos renderPos, ElevatorGroup group){
         if(level == null)
-            level = new ElevatorCabinLevel(ClientUtils.getWorld());
+            level = new ClientElevatorCabinLevel(ClientUtils.getWorld());
         level.setCabinAndPos(ClientUtils.getWorld(), this, group, renderPos);
         if(renderPos.equals(this.renderPos))
             return;

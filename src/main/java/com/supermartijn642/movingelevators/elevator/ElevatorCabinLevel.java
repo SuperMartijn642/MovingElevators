@@ -20,6 +20,7 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeAccess;
 import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -51,7 +52,7 @@ import java.util.function.Consumer;
 /**
  * Created 21/04/2023 by SuperMartijn642
  */
-public class ElevatorCabinLevel extends ClientLevel {
+public class ElevatorCabinLevel extends Level {
 
     private ClientLevel level;
     private ClientElevatorCage cage;
@@ -59,7 +60,7 @@ public class ElevatorCabinLevel extends ClientLevel {
     private BlockPos minPos, maxPos;
 
     protected ElevatorCabinLevel(ClientLevel clientLevel){
-        super(clientLevel.connection, null, clientLevel.dimension(), clientLevel.dimensionTypeRegistration(), 1, 1, null, false, 0, 0);
+        super(null, clientLevel.dimension(), clientLevel.registryAccess(), clientLevel.dimensionTypeRegistration(), true, false, 0, 512);
         this.level = clientLevel;
     }
 
@@ -209,11 +210,6 @@ public class ElevatorCabinLevel extends ClientLevel {
     }
 
     @Override
-    protected EnvironmentAttributeSystem.Builder addEnvironmentAttributeLayers(EnvironmentAttributeSystem.Builder builder){
-        return builder;
-    }
-
-    @Override
     public void updateSkyBrightness(){
     }
 
@@ -326,5 +322,10 @@ public class ElevatorCabinLevel extends ClientLevel {
     @Override
     public WorldBorder getWorldBorder(){
         return this.level.getWorldBorder();
+    }
+
+    @Override
+    public Holder<Biome> getBiome(BlockPos pos){
+        return this.level.getBiome(pos);
     }
 }
