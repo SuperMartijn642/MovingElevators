@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.blocks;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
@@ -22,7 +23,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 
 /**
  * Created 13/02/2022 by SuperMartijn642
@@ -127,7 +127,7 @@ public class DisplayBlockEntityRenderer implements CustomBlockEntityRenderer<Dis
         PoseStack poseStack = context.poseStack();
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.mulPose(new Quaternionf().setAngleAxis((180 - facing.toYRot()) / 180 * Math.PI, 0, 1, 0));
+        poseStack.rotate(Axis.YP, (180 - facing.toYRot()) / 180 * (float)Math.PI);
         poseStack.translate(-0.5, -0.5, -0.51);
 
         // Submit background

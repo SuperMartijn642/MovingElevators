@@ -6,7 +6,7 @@
   "mixins": [
     "LevelMixin",
     "LivingEntityMixin",
-    "RedStoneWireBlockMixin",
+    "RedstoneWireBlockMixin",
     "ServerLevelMixin"
   ],
   "client": [],

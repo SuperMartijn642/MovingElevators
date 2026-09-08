@@ -19,7 +19,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "movingelevators:elevator_block"
+        "recipes": "movingelevators:elevator_block"
       }
     },
     "recipe_condition": {

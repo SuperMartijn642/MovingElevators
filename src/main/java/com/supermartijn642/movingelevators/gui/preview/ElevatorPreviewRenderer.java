@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.gui.preview;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import com.supermartijn642.core.ClientUtils;
 import com.supermartijn642.core.block.BlockShape;
 import com.supermartijn642.core.render.RenderUtils;
@@ -11,7 +12,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 
 /**
  * Created 25/12/2021 by SuperMartijn642
@@ -28,8 +28,8 @@ public class ElevatorPreviewRenderer {
 
         poseStack.translate(x, y, 0);
         poseStack.scale((float)scale, (float)-scale, (float)-scale);
-        poseStack.mulPose(new Quaternionf().setAngleAxis(pitch / 180 * Math.PI, 1, 0, 0));
-        poseStack.mulPose(new Quaternionf().setAngleAxis(yaw / 180 * Math.PI, 0, 1, 0));
+        poseStack.rotate(Axis.XP, pitch / 180 * (float)Math.PI);
+        poseStack.rotate(Axis.YP, yaw / 180 * (float)Math.PI);
         poseStack.translate(-center.x, -center.y, -center.z);
 
         for(int i = 0; i < capture.size(); i++)

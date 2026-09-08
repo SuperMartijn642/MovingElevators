@@ -37,7 +37,7 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     private final BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier;
 
     public CamoBlock(BlockProperties properties, BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier){
-        super(false, properties.toUnderlying().pushReaction(PushReaction.BLOCK).dynamicShape());
+        super(false, properties.toUnderlying().pushReaction(PushReaction.IMMOVEABLE).dynamicShape());
         this.entitySupplier = entitySupplier;
         this.registerDefaultState(this.defaultBlockState().setValue(OPACITY, 15));
     }
