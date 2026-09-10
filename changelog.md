@@ -1,3 +1,6 @@
+### Moving Elevators 1.4.12b
+- Added icon and banner images for new NeoForge 26.2.0.50-beta mod list
+
 ### Moving Elevators 1.4.12a
 - Fixed crash on dedicated server
 
