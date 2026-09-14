@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -36,7 +37,7 @@ public class CamoBlock extends BaseBlock implements EntityHoldingBlock {
     private final BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier;
 
     public CamoBlock(BlockProperties properties, BiFunction<BlockPos,BlockState,? extends CamoBlockEntity> entitySupplier){
-        super(false, properties.dynamicShape());
+        super(false, properties.pushReaction(PushReaction.IMMOVEABLE).dynamicShape());
         this.entitySupplier = entitySupplier;
         this.registerDefaultState(this.defaultBlockState().setValue(OPACITY, 15));
     }

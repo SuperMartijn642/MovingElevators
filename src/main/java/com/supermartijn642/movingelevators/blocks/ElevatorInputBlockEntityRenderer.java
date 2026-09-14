@@ -1,6 +1,7 @@
 package com.supermartijn642.movingelevators.blocks;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import com.supermartijn642.core.render.CustomBlockEntityRenderer;
 import com.supermartijn642.movingelevators.MovingElevatorsClient;
 import net.minecraft.client.renderer.Sheets;
@@ -11,7 +12,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.util.LightCoordsUtil;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 
 /**
  * Created 5/5/2020 by SuperMartijn642
@@ -48,7 +48,7 @@ public class ElevatorInputBlockEntityRenderer<T extends ElevatorInputBlockEntity
         PoseStack poseStack = context.poseStack();
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.mulPose(new Quaternionf().setAngleAxis((180 - state.facing.toYRot()) / 180 * Math.PI, 0, 1, 0));
+        poseStack.rotate(Axis.YP, (180 - state.facing.toYRot()) / 180 * (float)Math.PI);
         poseStack.translate(-0.5, -0.5, -0.51);
 
         ModelFeatureRenderer.CrumblingOverlay breakingOverlay = context.breakingOverlay();

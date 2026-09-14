@@ -101,7 +101,7 @@ public class ElevatorCollisionHandler {
     }
 
     private static boolean canCollideWith(Entity entity){
-        return !entity.isSpectator() && !entity.noPhysics && !entity.isPassenger() && entity.getPistonPushReaction() == PushReaction.NORMAL;
+        return !entity.isSpectator() && !entity.noPhysics && !entity.isPassenger() && entity.getPistonPushReaction() == PushReaction.PUSH_PULL;
     }
 
     private static boolean canPullEntity(Entity entity){
